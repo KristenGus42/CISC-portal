@@ -1,0 +1,24 @@
+.time-slot-time {
+    padding: 1em;
+    background-color: gray;
+    border-radius: 15px 0px 0px 15px;
+}
+
+.time-slot-time, .time-slot-info {
+    border: 1px solid gray;
+}
+
+.card-body h6, .card-body h5 {
+    margin: 0;
+}
+
+
+.time-slot p {
+    margin: 0;
+}
+
+#scheduling-section, #wait-list-section {
+    background-color: gray;
+    padding: 0.5em;
+    margin: 3em;
+}
