@@ -42,7 +42,7 @@ npm --version
 ## Cloning the Repo
 
 ```bash
-git clone https://github.com/you/your-project.git
+git clone https://github.com/KristenGus42/CISC-portal.git
 cd your-project
 ```
 
