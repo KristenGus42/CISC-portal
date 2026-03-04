@@ -1,7 +1,6 @@
 # Project Setup Guide
 
 A full stack project with an HTML/CSS/JS frontend and a Python ML backend served via Flask.
-edit
 
 ---
 
