@@ -1,24 +1,36 @@
-.time-slot-time {
-    padding: 1em;
-    background-color: gray;
-    border-radius: 15px 0px 0px 15px;
+body {
+    background: #f0f2f5;
+    min-height: 100vh;
 }
 
-.time-slot-time, .time-slot-info {
-    border: 1px solid gray;
+h1 { color: #1a1a2e; }
+
+p.subtitle { color: #6b7280; }
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+textarea {
+    border: 1.5px solid #e5e7eb;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.card-body h6, .card-body h5 {
-    margin: 0;
+input:focus, textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    background: #D0CBCC;
 }
 
+textarea {
+    min-height: 100px; 
+    background: #D0CBCC;
 
-.time-slot p {
-    margin: 0;
 }
 
-#scheduling-section, #wait-list-section {
-    background-color: gray;
-    padding: 0.5em;
-    margin: 3em;
+.btn-submit {
+    background: #6366f1;
+    border: none;
+    font-weight: 600;
 }
+
+.btn-submit:hover { background: #4f46e5; }
