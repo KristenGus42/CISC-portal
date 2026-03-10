@@ -5,6 +5,16 @@ body {
 
 h1 { color: #1a1a2e; }
 
+/* Dividers */
+.divider { border: none; height: 1px; background: #e5e7eb; margin: 2rem 0; }
+.divider-gradient { border: none; height: 2px; background: linear-gradient(90deg, transparent, #6366f1, transparent); }
+.divider-dashed { border: none; border-top: 2px dashed #d1d5db; }
+.divider-with-text { display: flex; align-items: center; gap: 1rem; color: #9ca3af; }
+.divider-with-text::before,
+.divider-with-text::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
+
+
+/* Edit-form page */
 p.subtitle { color: #6b7280; }
 
 input[type="text"],

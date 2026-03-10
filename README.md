@@ -128,8 +128,8 @@ You need **two terminals** running simultaneously:
 
 | Terminal | Command | URL |
 |---|---|---|
-| Terminal 1 (backend) | `cd backend && uv run app.py` | http://localhost:5000 |
-| Terminal 2 (frontend) | `cd frontend && npm run dev` | http://localhost:3000 |
+| Terminal 1 (backend) | `cd server && uv run app.py` | http://localhost:5000 |
+| Terminal 2 (frontend) | `cd client && npm run dev` | http://localhost:3000 |
 
 ---
 
