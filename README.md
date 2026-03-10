@@ -4,11 +4,9 @@ A full stack project with an HTML/CSS/JS frontend and a Python ML backend served
 
 ---
 
-## Prerequisites
+### 1. Install UV (Python package manager) 
 
-Before anything, you need to install the following tools globally on your machine.
-
-### 1. Install UV (Python package manager)
+If you have not yet installed UV, please do so. If you have, you can skip this step. 
 
 **Mac/Linux:**
 ```bash
@@ -27,7 +25,9 @@ uv --version
 
 ---
 
-### 2. Install Node.js (for the frontend)
+### 2. Install Node.js 
+
+If you have not yet installed Node.js, please do so. If you have, you can skip this step. 
 
 Download and install from: https://nodejs.org (use the **LTS** version)
 
@@ -39,19 +39,10 @@ npm --version
 
 ---
 
-## Cloning the Repo
-
-```bash
-git clone https://github.com/KristenGus42/CISC-portal.git
-cd your-project
-```
-
----
-
 ## Backend Setup (Flask + ML)
 
 ```bash
-cd backend
+cd server
 
 # Create virtual environment and install all dependencies
 uv sync
@@ -69,7 +60,7 @@ Flask will start on **http://localhost:5000**
 Open a **second terminal** and run:
 
 ```bash
-cd frontend
+cd client
 
 # Install dependencies
 npm install
@@ -77,9 +68,6 @@ npm install
 # Start the dev server
 npm run dev
 ```
-
-Frontend will be available on **http://localhost:3000**
-
 ---
 
 ## Staying in Sync
@@ -88,19 +76,17 @@ Whenever someone adds new dependencies, you need to sync your local environment 
 
 ### Backend — someone added a new Python package:
 ```bash
-cd backend
+cd server
 git pull           # get the latest pyproject.toml and uv.lock
 uv sync            # installs any new dependencies
 ```
 
 ### Frontend — someone added a new NPM package:
 ```bash
-cd frontend
+cd client
 git pull           # get the latest package.json and package-lock.json
 npm install        # installs any new dependencies
 ```
-
-> **Rule of thumb:** Any time you `git pull`, run `uv sync` in `/backend` and `npm install` in `/frontend` to make sure you're fully up to date.
 
 ---
 
@@ -108,17 +94,18 @@ npm install        # installs any new dependencies
 
 ### Backend (Python):
 ```bash
-cd backend
+cd server
 uv add <package-name>       # e.g. uv add numpy
 ```
 This automatically updates `pyproject.toml` and `uv.lock`. Commit both files.
 
 ### Frontend (NPM):
+
 ```bash
-cd frontend
-npm install <package-name>  # e.g. npm install axios
+cd client
+npm install # Install npm
+npm run dev # Run server
 ```
-This automatically updates `package.json` and `package-lock.json`. Commit both files.
 
 ---
 
@@ -128,25 +115,7 @@ You need **two terminals** running simultaneously:
 
 | Terminal | Command | URL |
 |---|---|---|
-| Terminal 1 (backend) | `cd server && uv run app.py` | http://localhost:5000 |
-| Terminal 2 (frontend) | `cd client && npm run dev` | http://localhost:3000 |
+| Terminal 1 (backend) | `cd server && uv run app.py` |
+| Terminal 2 (frontend) | `cd client && npm run dev` |
 
 ---
-
-## What NOT to Commit
-
-These are already listed in `.gitignore` — never commit them:
-
-```
-backend/.venv/        # UV recreates this via uv sync
-frontend/node_modules/ # NPM recreates this via npm install
-.env                  # secret keys and environment variables
-```
-
-Always commit:
-```
-backend/pyproject.toml
-backend/uv.lock
-frontend/package.json
-frontend/package-lock.json
-```
