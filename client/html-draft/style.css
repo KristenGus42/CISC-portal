@@ -3,7 +3,7 @@ body {
     min-height: 100vh;
 }
 
-h1 { color: #1a1a2e; }
+h1 { color: purple; }
 
 /* Dividers */
 .divider { border: none; height: 1px; background: #e5e7eb; margin: 2rem 0; }
