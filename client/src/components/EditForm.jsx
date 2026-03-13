@@ -8,7 +8,7 @@ import { cases } from "../mock_data/cases"; // TEMPORARY BEFORE DB CONNECTION
 export default function ContactForm() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const currentCase = cases.find((c) => c.id === id);
+  const currentCase = cases.find((c) => c.id === id); // TEMPORARY BEFORE DB CONNECTION
 
   const [clientFormData, setClientFormData] = useState({
     age: currentCase?.clientInfo.age || "",
@@ -64,82 +64,22 @@ export default function ContactForm() {
         clientInfo: { ...clientFormData },
         caseInfo: { ...caseFormData },
         matchInfo: {...matchFormData}
-
       };
       cases.push(newCase);
     }
     navigate("/case-library");
   };
 
+ const header = id ? 
+  <ExistingClientHeader currentCase={currentCase} handleMatchChange={handleMatchChange} matchFormData={matchFormData} handleSubmit={handleSubmit}/> : 
+  <NewClientHeader />;
+
   return (
     <div>
       <NavBar active={"cases"}/>
 
-      {/*Info Section + Actions*/}
-      <div className="container py-5">
-        <div className="d-flex justify-content-between align-items-center">
-          <div>
-            <p className="mb-0 edit-form-title">{currentCase?.clientInfo.fname || "Client Name"} {currentCase?.clientInfo.name || ""}</p>
-            <p className="mb-0 edit-form-subtitle">{currentCase?.caseInfo.category || "Category"} | {currentCase?.clientInfo.primaryLanguage || "Language"}</p>
-          </div>
-          <div className="d-flex flex-column align-items-end">
-            {/* Save/Edit */}
-            <div>
-              <button type="button" className="btn btn-primary" onClick={handleSubmit}>Save</button>
-            </div>
-            {/* Match Info */}
-            <div className="d-flex gap-3">
-              <div>
-                <label htmlFor="attorney" className="form-label fw-semibold small">Attorney</label>
-                <select
-                  className="form-select"
-                  id="attorney"
-                  name="attorney"
-                  value={matchFormData.attorney}
-                  onChange={handleMatchChange}
-                >
-                  <option value="">Select an attorney</option>
-                  <option value="Attorney 1">Attorney 1</option>
-                  <option value="Attorney 2">Attorney 2</option>
-                  <option value="Attorney 3">Attorney 3</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="legalStudent" className="form-label fw-semibold small">Legal Student</label>
-                <select
-                  className="form-select"
-                  id="legalStudent"
-                  name="legalStudent"
-                  value={matchFormData.legalStudent}
-                  onChange={handleMatchChange}
-                >
-                  <option value="">Select a legal student</option>
-                  <option value="Legal Student 1">Legal Student 1</option>
-                  <option value="Legal Student 2">Legal Student 2</option>
-                  <option value="Legal Student 3">Legal Student 3</option>
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="interpreter" className="form-label fw-semibold small">Interpreter</label>
-                <select
-                  className="form-select"
-                  id="interpreter"
-                  name="interpreter"
-                  value={matchFormData.interpreter}
-                  onChange={handleMatchChange}
-                >
-                  <option value="">Select an interpreter</option>
-                  <option value="Interpreter 1">Interpreter 1</option>
-                  <option value="Interpreter 2">Interpreter 2</option>
-                  <option value="Interpreter 3">Interpreter 3</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/*Header (New or Existing)*/}
+      {header}
 
       {/*Forms*/}
       <div className="container py-5">
@@ -307,4 +247,84 @@ export default function ContactForm() {
       </div>
     </div>
   );
+}
+
+function ExistingClientHeader(props) {
+    const {currentCase, handleMatchChange, matchFormData, handleSubmit} = props;
+    return (
+        <>
+          {/*Info Section + Actions*/}
+          <div className="container py-5">
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <p className="mb-0 edit-form-title">{currentCase?.clientInfo.fname || "Client Name not Assigned"} {currentCase?.clientInfo.name || ""}</p>
+                <p className="mb-0 edit-form-subtitle">{currentCase?.caseInfo.category || "Category not Assigned"} | {currentCase?.clientInfo.primaryLanguage || "Language not Assigned"}</p>
+              </div>
+              <div className="d-flex flex-column align-items-end">
+                {/* Save/Edit */}
+                <div>
+                  <button type="button" className="btn btn-primary" onClick={handleSubmit}>Save</button>
+                </div>
+                {/* Match Info */}
+                <div className="d-flex gap-3">
+                  <div>
+                    <label htmlFor="attorney" className="form-label fw-semibold small">Attorney</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="attorney"
+                      name="attorney"
+                      value={matchFormData.attorney}
+                      onChange={handleMatchChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="legalStudent" className="form-label fw-semibold small">Legal Student</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="legalStudent"
+                      name="legalStudent"
+                      value={matchFormData.legalStudent}
+                      onChange={handleMatchChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="interpreter" className="form-label fw-semibold small">Interpreter</label>
+                    <select
+                      className="form-select"
+                      id="interpreter"
+                      name="interpreter"
+                      value={matchFormData.interpreter}
+                      onChange={handleMatchChange}
+                    >
+                      <option value="">Select an interpreter if Needed</option>
+                      <option value="Interpreter 1">Legal Student</option>
+                      <option value="Interpreter 2">Attorney</option>
+                      <option value="Interpreter 3">Other</option>
+                      <option value="Interpreter 1">None</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+    );
+}
+
+function NewClientHeader(props) {
+    return (
+        <>
+          <div className="container py-5">
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <h1> New Case </h1>
+              </div>
+            </div>
+          </div>
+        </>
+    );
 }

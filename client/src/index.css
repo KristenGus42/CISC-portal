@@ -10,12 +10,14 @@
   --success: #3AC420;
   --pending: #FE9705;
   --neutral-gray: #D0CBCC;
+  --background: #FEFDFD;
 }
 
 /* Body/Page Structure*/
 body {
   font-family: 'Open Sans', sans-serif;
   color: var(--primary-text);
+  background-color: var(--background);
 }
 
 
@@ -73,4 +75,17 @@ body {
 .edit-form-subtitle {
   font-size: 0.85rem;
   color: gray;
+}
+
+/*Schedule*/
+#schedule-container {
+  background-color: #F3EEF0;
+  margin: 1rem 0 1rem 0;
+}
+
+.position-slot {
+  background-color: var(--background);
+  padding: 1rem;
+  min-width: 25%;
+  margin: 1rem;
 }
