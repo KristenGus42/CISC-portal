@@ -10,21 +10,19 @@ export function NavBar(props){
     return (
     <Navbar className="bg-body-tertiary">
         <Container>
-            <Navbar.Brand href="schedule">
-            <img
-                alt="CISC Logo"
-                src="img/cisc-logo.png"
-                height="30"
-                className="d-inline-block align-top"
-            />{' '}
-            {/*CISC*/}
+            <Navbar.Brand as={Link} to="/schedule">
+                <img
+                    alt="CISC Logo"
+                    src="/img/cisc-logo.png"
+                    height="30"
+                    className="d-inline-block align-top"
+                />
             </Navbar.Brand>
             <Nav className="me-auto">
-            <Nav.Link href="schedule" className={active === "schedule" ? "active-nav-link" : undefined}>Schedule</Nav.Link>
-            <Nav.Link href="case-library" className={active === "cases" ? "active-nav-link" : undefined}>Cases</Nav.Link>
+                <Nav.Link as={Link} to="/schedule" className={active === "schedule" ? "active-nav-link" : undefined}>Schedule</Nav.Link>
+                <Nav.Link as={Link} to="/case-library" className={active === "cases" ? "active-nav-link" : undefined}>Cases</Nav.Link>
             </Nav>
         </Container>
-        </Navbar>
+    </Navbar>
     );
 }
-

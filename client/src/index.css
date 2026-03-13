@@ -4,6 +4,7 @@
 /*Style Guide*/
 :root {
   --call-to-action: #6D2F3E;
+  --call-to-action-3: #BFA3AA;
   --primary-text: #0F0709;
   --error: #D11313;
   --success: #3AC420;
@@ -15,6 +16,13 @@
 body {
   font-family: 'Open Sans', sans-serif;
   color: var(--primary-text);
+}
+
+
+/* Button Behavior */
+.btn-primary {
+  background-color: var(--call-to-action);
+  border-color: var(--call-to-action);
 }
 
 /*Nav Bar */

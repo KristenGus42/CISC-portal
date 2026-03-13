@@ -2,41 +2,63 @@ import { NavBar } from "./NavBar";
 import { useState } from "react";
 import { Link } from "react-router";
 
+import { cases } from "../mock_data/cases"; // TEMPORARY BEFORE DB CONNECTION 
 
 export default function CaseLibrary() {
-  return (
-    <>
-        <NavBar active={"cases"}/>
-        <div>
-            <h1>Cases</h1>
-            <div>
-                {/*Search bar*/}
+    const caseCards = cases.map((client) => (
+        <CaseCard
+            key={client.id}
+            id={client.id}
+            fname={client.clientInfo.fname}
+            lname={client.clientInfo.lname}
+            category={client.caseInfo.category}
+            language={client.caseInfo.primaryLanguage}
+            date={client.caseInfo.date}
+        />
+    ));
+
+    return (
+        <>
+            <NavBar active={"cases"}/>
+
+            {/*Header Section*/}
+            <div className="container py-5">
+                <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p className="mb-0 fw-bold fs-4">Cases</p>
+                        <p className="mb-0 text-muted small">All active cases</p>
+                    </div>
+                    <div>
+                        <Link to="/edit-form">
+                            <button type="button" className="btn btn-primary">New Case</button>
+                        </Link>
+                    </div>
+                </div>
             </div>
-            <div class="m-5">
-                {/* Case Card */}
-                <CaseCard name="Alex Li" category="Divorce" language="Cantonese" date="February 1, 2026"/>
-                <CaseCard name="Abby Smith" category="Property" language="English" date="February 1, 2026"/>
-                <CaseCard name="Ben Johnson" category="Traffic Violation" language="Cantonese" date="February 1, 2026"/>
+
+            {/*Case Cards*/}
+            <div className="container">
+                <div className="m-5">
+                    {caseCards}
+                </div>
             </div>
-        </div>
-    </>
-  );
+        </>
+    );
 }
 
 function CaseCard(props) {
-    const {name, category, language, date} = props;
-    const caseId = "12345";
-    return(
+    const {id, fname, lname, category, language, date} = props;
+    return (
         <>
-            <Link to={`/edit-form/${caseId}`} className="text-decoration-none text-reset">            
+            <Link to={`/edit-form/${id}`} className="text-decoration-none text-reset">
                 <div className="case-card-wrapper">
                     <div className="card case-card">
                         <div className="card-body d-flex justify-content-between">
                             <div className="case-card-left">
                                 <div className="case-card-title">
-                                    <p className="mb-0">{name}</p>
+                                    <p className="mb-0">{fname} {lname}</p>
                                 </div>
-                                <div className="case-card-subtitle ">
+                                <div className="case-card-subtitle">
                                     <p>{category} | {language}</p>
                                 </div>
                             </div>

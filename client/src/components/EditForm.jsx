@@ -1,21 +1,28 @@
 import { NavBar } from "./NavBar";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useParams } from "react-router";
+
+import { cases } from "../mock_data/cases"; // TEMPORARY BEFORE DB CONNECTION 
 
 export default function ContactForm() {
+  const { id } = useParams();
+  const currentCase = cases.find((c) => c.id === id);
+
   const [clientFormData, setClientFormData] = useState({
-    age: "",
-    sex: "",
-    householdSize: "",
-    incomeLevel: "",
-    address: "",
+      age: currentCase?.clientInfo.age || "",
+      sex: currentCase?.clientInfo.sex || "",
+      householdSize: currentCase?.clientInfo.householdSize || "",
+      incomeLevel: currentCase?.clientInfo.incomeLevel || "",
+      address: currentCase?.clientInfo.address || "",
+      lname: currentCase?.clientInfo.lname || "",
+      fname: currentCase?.clientInfo.fname || ""
   });
 
   const [caseFormData, setCaseFormData] = useState({
-    city: "",
-    zip: "",
-    primaryLanguage: "",
-    secondaryLanguage: "",
+      city: currentCase?.caseInfo.city || "",
+      zip: currentCase?.caseInfo.zip || "",
+      primaryLanguage: currentCase?.caseInfo.primaryLanguage || "",
+      secondaryLanguage: currentCase?.caseInfo.secondaryLanguage || "",
   });
 
   // Controlled form handlers
@@ -29,14 +36,45 @@ export default function ContactForm() {
     setCaseFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
-    console.log("Client Data:", clientFormData);
-    console.log("Case Data:", caseFormData);
+  const handleSubmit = () => {
+      if (id) {
+          // Edit existing case
+          cases[id] = {
+              ...cases[id],
+              clientInfo: { ...clientFormData },
+              caseInfo: { ...caseFormData }
+          };
+      } else {
+          // New case
+          const newCase = {
+              id: String(cases.length + 1),
+              clientInfo: { ...clientFormData },
+              caseInfo: { ...caseFormData }
+          };
+          cases.push(newCase);
+      }
   };
 
   return (
     <div>
       <NavBar active={"cases"}/>
+
+      {/*Info Section + Actions*/}
+      <div className="container py-5">
+        <div className="d-flex justify-content-between align-items-center">
+          {/*Information*/}
+          <div>
+            <p className="mb-0">Alex Li</p>
+            <p className="mb-0">Divorce | Cantonese</p>
+          </div>
+          {/*Actions*/}
+          <div>
+            <button type="button" className="btn btn-primary" onClick={handleSubmit}>Save</button>
+          </div>
+        </div>
+      </div>
+
+      {/*Forms*/}
       <div className="container py-5">  
         <h1 className="fs-4 fw-bold mb-1">Patient Form</h1>
         <p className="small mb-4"></p>
@@ -47,6 +85,31 @@ export default function ContactForm() {
             <span className="text-muted small">Client Information</span>
             <hr className="flex-grow-1 m-0" />
           </div>
+
+          <div className="col-2 pe-2">
+            <label htmlFor="age" className="form-label fw-semibold small">First Name</label>
+            <input
+              type="text"
+              className="form-control"
+              id="fname"
+              name="fname"
+              value={clientFormData.fname}
+              onChange={handleClientChange}
+            />
+          </div>
+
+          <div className="col-2 pe-2">
+            <label htmlFor="age" className="form-label fw-semibold small">Last Name</label>
+            <input
+              type="text"
+              className="form-control"
+              id="lname"
+              name="lname"
+              value={clientFormData.lname}
+              onChange={handleClientChange}
+            />
+          </div>
+
 
           <div className="col-2 pe-2">
             <label htmlFor="age" className="form-label fw-semibold small">Age</label>
@@ -162,14 +225,6 @@ export default function ContactForm() {
               value={caseFormData.secondaryLanguage}
               onChange={handleCaseChange}
             />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-12">
-            <button type="button" className="btn btn-primary w-100 py-2" onClick={handleSubmit}>
-              Submit
-            </button>
           </div>
         </div>
       </div>
