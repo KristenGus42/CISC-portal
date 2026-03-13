@@ -1,6 +1,7 @@
 import { NavBar } from "./NavBar";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
+
 
 import { cases } from "../mock_data/cases"; // TEMPORARY BEFORE DB CONNECTION 
 
@@ -12,7 +13,7 @@ export default function CaseLibrary() {
             fname={client.clientInfo.fname}
             lname={client.clientInfo.lname}
             category={client.caseInfo.category}
-            language={client.caseInfo.primaryLanguage}
+            language={client.clientInfo.primaryLanguage}
             date={client.caseInfo.date}
         />
     ));
@@ -20,7 +21,7 @@ export default function CaseLibrary() {
     return (
         <>
             <NavBar active={"cases"}/>
-
+            
             {/*Header Section*/}
             <div className="container py-5">
                 <div className="d-flex justify-content-between align-items-center">

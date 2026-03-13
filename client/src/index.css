@@ -64,3 +64,13 @@ body {
 .case-card-right p {
   margin-top: -0.5rem;
 }
+
+/*Edit Form*/
+.edit-form-title {
+  font-size: 1.5rem;
+}
+
+.edit-form-subtitle {
+  font-size: 0.85rem;
+  color: gray;
+}
