@@ -15,6 +15,9 @@ export default function CaseLibrary() {
             category={client.caseInfo.category}
             language={client.clientInfo.primaryLanguage}
             date={client.caseInfo.date}
+            briefDescription={client.caseInfo.briefDescription}
+            email={client.clientInfo.email}
+            number={client.clientInfo.phone}
         />
     ));
 
@@ -38,7 +41,7 @@ export default function CaseLibrary() {
             </div>
 
             {/*Case Cards*/}
-            <div className="container">
+            <div className="container overflow-hidden">
                 <div className="m-5">
                     {caseCards}
                 </div>
@@ -47,29 +50,41 @@ export default function CaseLibrary() {
     );
 }
 
-function CaseCard(props) {
-    const {id, fname, lname, category, language, date} = props;
+function CaseCard({ id, fname, lname, category, language, date, briefDescription, email, number }) {
     return (
-        <>
-            <Link to={`/edit-form/${id}`} className="text-decoration-none text-reset">
-                <div className="case-card-wrapper">
-                    <div className="card case-card">
-                        <div className="card-body d-flex justify-content-between">
-                            <div className="case-card-left">
-                                <div className="case-card-title">
-                                    <p className="mb-0">{fname} {lname}</p>
-                                </div>
-                                <div className="case-card-subtitle">
-                                    <p>{category} | {language}</p>
-                                </div>
+        <Link to={`/edit-form/${id}`} className="text-decoration-none text-reset">           
+            <div className="case-card-wrapper">
+               <div className="card case-card">
+                    
+                    {/*Regular view*/}
+                    <div className="card-body d-flex justify-content-between">
+                        <div className="case-card-left">
+                            <div className="case-card-title">
+                                <p className="mb-0">{fname} {lname}</p>
                             </div>
-                            <div className="case-card-right">
-                                <p>{date}</p>
+                            <div className="case-card-subtitle">
+                                <p>{category} | {language}</p>
+                            </div>
+                        </div>
+                        <div className="case-card-right">
+                            <p>{date}</p>
+                        </div>
+                    </div>
+
+                    {/*Extended view*/}
+                    <div className="case-card-extended">
+                        <div className="pb-4"> 
+                            <p className="case-card-subtitle mb-0">{briefDescription ?? "—"}</p>
+                            <div class="case-card-tag">
+                                <p className="case-card-subtitle mb-0">{email ?? "—"}</p>
+                            </div>
+                            <div className="case-card-tag">
+                                <p className="case-card-subtitle mb-0">{number ?? "—"}</p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </Link>
-        </>
+            </div>
+        </Link>
     );
 }

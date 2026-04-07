@@ -11,6 +11,7 @@
   --pending: #FE9705;
   --neutral-gray: #D0CBCC;
   --background: #FEFDFD;
+  --subtle-gray: #F2F2F2;
 }
 
 /* Body/Page Structure*/
@@ -38,6 +39,11 @@ body {
   border-radius: 6px 0 0 6px;
   margin: 2rem 1rem 2rem 1rem;
   border-color: var(--error);
+  overflow: hidden;
+}
+
+.case-card, .case-card-extended {
+  background-color: var(--subtle-gray);
 }
 
 .case-card {
@@ -67,6 +73,30 @@ body {
   margin-top: -0.5rem;
 }
 
+/* Extended reveal NOTE: Can be changed to use state in the future if more control is needed over hover functionality */
+.case-card-extended {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+  border-top: 0 solid transparent; /* avoids a border flash on open */
+}
+.case-card-wrapper:hover .case-card-extended {
+  max-height: 160px; /* bump up if your content is taller */
+}
+
+.case-card-extended p {
+  margin-left: 1rem;
+}
+
+.case-card-tag p {
+  background-color: var(--background);
+  width: fit-content;
+  padding: 0.4rem;
+  margin-top:  0.4rem;
+  margin-bottom: 0.4rem;
+  border-radius: 3px;
+}
+
 /*Edit Form*/
 .edit-form-title {
   font-size: 1.5rem;
@@ -75,6 +105,11 @@ body {
 .edit-form-subtitle {
   font-size: 0.85rem;
   color: gray;
+}
+
+.form-section-bar {
+  border-left: 6px solid var(--call-to-action);
+  padding-left: 0.75rem;
 }
 
 /*Schedule*/
