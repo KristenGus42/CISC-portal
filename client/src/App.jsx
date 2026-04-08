@@ -15,7 +15,7 @@ function App() {
     <div>
       <Routes>
         <Route index element={<Index />} />
-        <Route path="edit-form/:id?" element={<EditForm />} />
+        <Route path="edit-form/:id?" element={<EditFormOld />} />
         <Route path="case-library" element={<CaseLibrary/>} />
         <Route path="schedule" element={<Schedule />} />
         <Route path="example" element={<DndExample />} />

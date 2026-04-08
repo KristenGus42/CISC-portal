@@ -108,8 +108,9 @@ body {
 }
 
 .form-section-bar {
-  border-left: 6px solid var(--call-to-action);
+  border-left: 10px solid var(--call-to-action);
   padding-left: 0.75rem;
+  border-radius: 3px;
 }
 
 /*Schedule*/

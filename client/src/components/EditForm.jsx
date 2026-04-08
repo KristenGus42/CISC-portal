@@ -8,6 +8,7 @@ export default function ContactForm() {
   const { id } = useParams();
   const currentCase = cases.find((c) => c.id === id);
 
+  // State of controlled form (seperated into different form sections)
   const [clientFormData, setClientFormData] = useState({
     fname: currentCase?.clientInfo.fname || "",
     lname: currentCase?.clientInfo.lname || "",
@@ -51,6 +52,7 @@ export default function ContactForm() {
     interpreter: currentCase?.matchInfo?.interpreter || "",
   });
 
+  // Controlled form handlers
   const handleClientChange = (e) => {
     const { name, value } = e.target;
     setClientFormData((prev) => ({ ...prev, [name]: value }));
@@ -72,6 +74,7 @@ export default function ContactForm() {
     setMatchFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle Submit
   const handleSubmit = () => {
     if (id) {
       const index = cases.findIndex((c) => c.id === id);
@@ -97,6 +100,7 @@ export default function ContactForm() {
     navigate("/case-library");
   };
 
+  // Header page content
   const header = id ?
     <ExistingClientHeader currentCase={currentCase} handleMatchChange={handleMatchChange} matchFormData={matchFormData} handleSubmit={handleSubmit} /> :
     <NewClientHeader handleSubmit={handleSubmit} />;
@@ -116,7 +120,6 @@ export default function ContactForm() {
           </div>
           <div className="col-10">
             <div className="row g-4">
-
               {/* Row 1 */}
               <div className="col-3">
                 <label htmlFor="fname" className="form-label fw-semibold small">First Name</label>
