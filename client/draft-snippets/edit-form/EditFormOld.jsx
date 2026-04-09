@@ -1,11 +1,11 @@
 // REUSE TO BUILD DOCUMENTS VIEW
 
-import { NavBar } from "../src/components/NavBar";
+import { NavBar } from "../../src/components/NavBar";
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router";
 
 
-import { cases } from "../src/mock_data/cases"; // TEMPORARY BEFORE DB CONNECTION
+import { cases } from "../../src/mock_data/cases"; // TEMPORARY BEFORE DB CONNECTION
 
 export default function ContactForm() {
   const navigate = useNavigate();

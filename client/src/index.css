@@ -113,6 +113,12 @@ body {
   border-radius: 3px;
 }
 
+.form-label.required::after,
+.form-floating label.required::after {
+  content: " *";
+  color: var(--call-to-action);
+}
+
 /*Schedule*/
 #schedule-container {
   background-color: #F3EEF0;
@@ -124,4 +130,8 @@ body {
   padding: 1rem;
   min-width: 25%;
   margin: 1rem;
+}
+
+#attorney-section p {
+  margin: 0;
 }

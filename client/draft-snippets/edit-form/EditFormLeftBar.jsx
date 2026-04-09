@@ -1,7 +1,7 @@
-import { NavBar } from "./NavBar";
+import { NavBar } from "../../src/components/NavBar";
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router";
-import { cases } from "../mock_data/cases";
+import { cases } from "../../src/mock_data/cases";
 
 export default function ContactForm() {
   const navigate = useNavigate();
@@ -109,6 +109,17 @@ export default function ContactForm() {
     <div>
       <NavBar active={"cases"} />
       {header}
+
+      {/** TESTING */}
+      <div class="form-floating">
+        <input type="text" class="form-control" id="firstName" placeholder="Placeholder Text"/>
+        <label for="firstName">First Name</label>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" placeholder="Placeholder Text"/>
+      </div>
 
       <div className="container py-5">
         <h1 className="fs-4 fw-bold mb-1">Overview</h1>

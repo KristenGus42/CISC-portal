@@ -33,7 +33,7 @@ export default function CaseLibrary() {
                         <p className="mb-0 text-muted small">All active cases</p>
                     </div>
                     <div>
-                        <Link to="/edit-form">
+                        <Link to="/new-form">
                             <button type="button" className="btn btn-primary">New Case</button>
                         </Link>
                     </div>
