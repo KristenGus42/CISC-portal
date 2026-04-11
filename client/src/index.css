@@ -12,6 +12,7 @@
   --neutral-gray: #D0CBCC;
   --background: #FEFDFD;
   --subtle-gray: #F2F2F2;
+  --dark-gray: #504C4D;
 }
 
 /* Body/Page Structure*/
@@ -26,6 +27,24 @@ body {
 .btn-primary {
   background-color: var(--call-to-action);
   border-color: var(--call-to-action);
+}
+
+.disabled-btn {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-submit {
+  background-color: var(--dark-gray);
+  border-color: var(--dark-gray);
+  color: var(--background);
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+}
+
+.btn-cancel {
+  color: var(--primary-text);
+  text-decoration: underline;
 }
 
 /*Nav Bar */
@@ -116,7 +135,12 @@ body {
 .form-label.required::after,
 .form-floating label.required::after {
   content: " *";
-  color: var(--call-to-action);
+  color: var(--error);
+}
+
+.err-color {
+  color: var(--error);
+  margin-top: 1rem;
 }
 
 /*Schedule*/

@@ -1,10 +1,8 @@
 import { Routes, Route } from 'react-router';
 
-// Import Page Components 
-import EditForm from '../draft-snippets/edit-form/EditFormFINALDRAFT'
-import NewForm from './components/NewForm'
-import ExistingCase from './components/ExistingCase'
 
+// Import page compinen
+import EditForm from './components/EditForm'
 import Index from './components/Index'
 import CaseLibrary from './components/CaseLibrary'
 import Schedule from './components/Schedule'
@@ -20,8 +18,8 @@ function App() {
         <Route index element={<Index />} />
 
         {/**Forms */}
-        <Route path="new-form" element={<NewForm/>} />
-        <Route path="edit-form/:id?" element={<ExistingCase attorney={attorney} />} />
+        <Route path="new-form" element={<EditForm newForm={true} attorney={attorney}/>} />
+        <Route path="edit-form/:id?" element={<EditForm newForm={false} attorney={attorney} />} />
 
         <Route path="case-library" element={<CaseLibrary/>} />
         <Route path="schedule" element={<Schedule />} />

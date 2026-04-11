@@ -1,7 +1,7 @@
-import { NavBar } from "./NavBar";
+import { NavBar } from "../../src/components/NavBar";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { cases } from "../mock_data/cases";
+import { cases } from "../../src/mock_data/cases";
 
 // ─── Reusable floating label components ───────────────────────────────────────
 
@@ -185,9 +185,7 @@ export default function ContactForm(props) {
     navigate("/case-library");
   };
 
-  const header = id
-    ? <ExistingClientHeader currentCase={currentCase} handleMatchChange={handleMatchChange} matchFormData={matchFormData} handleSubmit={handleSubmit} />
-    : <NewClientHeader handleSubmit={handleSubmit} />;
+  const header = <NewClientHeader handleSubmit={handleSubmit} />;
 
   return (
     <div>
@@ -345,14 +343,6 @@ export default function ContactForm(props) {
           </div>
         </div>
 
-        {/* ── ATTORNEY NOTES ── */}
-        {attorneyAccount && (
-          <AttorneySection
-            attorneyNotesFormData={attorneyNotesFormData}
-            handleAttorneyNotesChange={handleAttorneyNotesChange}
-          />
-        )}
-
 
       </div>
     </div>
@@ -360,187 +350,12 @@ export default function ContactForm(props) {
 }
 
 // ─── Headers ──────────────────────────────────────────────────────────────────
-
-function ExistingClientHeader({ currentCase, handleMatchChange, matchFormData, handleSubmit }) {
-  return (
-    <div className="container py-5">
-      <div className="d-flex justify-content-between align-items-center">
-        <div>
-          <p className="mb-0 edit-form-title">
-            {currentCase?.clientInfo.fname || "Client Name not Assigned"} {currentCase?.clientInfo.lname || ""}
-          </p>
-          <p className="mb-0 edit-form-subtitle">
-            {currentCase?.caseInfo.category || "Category not Assigned"} | {currentCase?.clientInfo.primaryLanguage || "Language not Assigned"}
-          </p>
-        </div>
-        <div className="d-flex flex-column align-items-end">
-          <div className="mb-2">
-            <button type="button" className="btn btn-primary" onClick={handleSubmit}>Save</button>
-          </div>
-          <div className="d-flex gap-3">
-            <div className="form-floating">
-              <input type="text" className="form-control" id="attorney" name="attorney" placeholder="Attorney" value={matchFormData.attorney} onChange={handleMatchChange} />
-              <label htmlFor="attorney">Attorney</label>
-            </div>
-            <div className="form-floating">
-              <input type="text" className="form-control" id="legalStudent" name="legalStudent" placeholder="Legal Student" value={matchFormData.legalStudent} onChange={handleMatchChange} />
-              <label htmlFor="legalStudent">Legal Student</label>
-            </div>
-            <div className="form-floating">
-              <select className="form-select" id="interpreter" name="interpreter" value={matchFormData.interpreter} onChange={handleMatchChange}>
-                <option value="">Select if needed</option>
-                <option value="Legal Student">Legal Student</option>
-                <option value="Attorney">Attorney</option>
-                <option value="Other">Other</option>
-                <option value="None">None</option>
-              </select>
-              <label htmlFor="interpreter">Interpreter</label>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function NewClientHeader({ handleSubmit }) {
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center">
         <h1>New Case</h1>
         <button type="button" className="btn btn-primary" onClick={handleSubmit}>Save</button>
-      </div>
-    </div>
-  );
-}
-
-function AttorneySection({ attorneyNotesFormData, handleAttorneyNotesChange }) {
-  return (
-    <div className="row mb-3 g-4" id="attorney-section">
-      <SectionDivider title="Consultation Notes" />
-
-      {/* Consent subsection */}
-      <div className="col-12">
-        <SectionDivider title="Consent (attorney check)" sub />
-        <label className="form-label fw-semibold small">Consent Statement</label>
-        <p>I understand that:</p>
-        <ul>
-          <li>Neighborhood Legal Clinics (NLC) program provides advice and consultation only.</li>
-          <li>NLC attorneys are volunteers and are not available for hire.</li>
-          <li>NLC attorney may not specialize in the area of law needed.</li>
-          <li>Information disclosed is protected by attorney-client privilege.</li>
-          <li>I cannot return for the same issue if it lacks legal merit.</li>
-          <li>The NLC is drug, alcohol, weapon, and threat free.</li>
-        </ul>
-
-        <div className="row g-4">
-          <div className="col-3">
-            <FloatSelect
-              id="clientConsent"
-              name="clientConsent"
-              label="Client Consent"
-              required
-              value={attorneyNotesFormData.clientConsent}
-              onChange={handleAttorneyNotesChange}
-            >
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </FloatSelect>
-          </div>
-
-          <div className="col-3">
-            <FloatSelect
-              id="referralPermission"
-              name="referralPermission"
-              label="Referral Permission"
-              required
-              value={attorneyNotesFormData.referralPermission}
-              onChange={handleAttorneyNotesChange}
-            >
-              <option value="">Select</option>
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </FloatSelect>
-          </div>
-        </div>
-      </div>
-
-      {/* Future work */}
-      <div className="col-12">
-        <SectionDivider title="Future work with client" sub />
-        <label className="form-label fw-semibold small required">
-          Do you plan to follow up outside the clinic pro bono?
-        </label>
-        <div className="d-flex gap-4">
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="followUpProBono"
-              value="Yes"
-              checked={attorneyNotesFormData.followUpProBono === "Yes"}
-              onChange={handleAttorneyNotesChange}
-            />
-            <label className="form-check-label small">Yes</label>
-          </div>
-          <div className="form-check">
-            <input
-              className="form-check-input"
-              type="radio"
-              name="followUpProBono"
-              value="No"
-              checked={attorneyNotesFormData.followUpProBono === "No"}
-              onChange={handleAttorneyNotesChange}
-            />
-            <label className="form-check-label small">No</label>
-          </div>
-        </div>
-      </div>
-
-      {/* Summary */}
-      <div className="col-12">
-        <SectionDivider title="Summary of visit" sub />
-        <FloatTextarea
-          id="visitSummary"
-          name="visitSummary"
-          label="Please summarize client's legal issue and advice given"
-          required
-          value={attorneyNotesFormData.visitSummary}
-          onChange={handleAttorneyNotesChange}
-          height="140px"
-        />
-      </div>
-
-      {/* Reason */}
-      <div className="col-12">
-        <SectionDivider title="Reason for client's visit" sub />
-        <div className="d-flex flex-column gap-2">
-          {[
-            "Consumer / Finance",
-            "Education",
-            "Employment",
-            "Family",
-            "Juvenile",
-            "Health",
-            "Housing",
-            "Income Maintenance",
-            "Individual Rights",
-            "Misc.",
-          ].map((reason) => (
-            <div className="form-check" key={reason}>
-              <input
-                className="form-check-input"
-                type="radio"
-                name="reasonForVisit"
-                value={reason}
-                checked={attorneyNotesFormData.reasonForVisit === reason}
-                onChange={handleAttorneyNotesChange}
-              />
-              <label className="form-check-label small">{reason}</label>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
