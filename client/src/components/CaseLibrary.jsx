@@ -10,6 +10,7 @@ export default function CaseLibrary() {
         <CaseCard
             key={client.id}
             id={client.id}
+            status={client.status}
             fname={client.clientInfo.fname}
             lname={client.clientInfo.lname}
             category={client.caseInfo.category}
@@ -50,10 +51,11 @@ export default function CaseLibrary() {
     );
 }
 
-function CaseCard({ id, fname, lname, category, language, date, briefDescription, email, number }) {
+function CaseCard({ id, status, fname, lname, category, language, date, briefDescription, email, number }) {
+
     return (
         <Link to={`/edit-form/${id}`} className="text-decoration-none text-reset">           
-            <div className="case-card-wrapper">
+            <div className={"case-card-wrapper " + status}>
                <div className="card case-card">
                     
                     {/*Regular view*/}

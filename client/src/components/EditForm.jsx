@@ -4,8 +4,6 @@ import { useParams, useNavigate } from "react-router";
 import { cases } from "../mock_data/cases";
 import { useEffect } from 'react';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 
 // ─── Reusable floating label components ───────────────────────────────────────
 
@@ -141,6 +139,15 @@ export default function ContactForm(props) {
     timeSlot:        currentCase?.schedulingInfo?.timeSlot        || "",
     meetingPlatform: currentCase?.schedulingInfo?.meetingPlatform || "",
     meetingLink:     currentCase?.schedulingInfo?.meetingLink     || "",
+    attorneyName:    currentCase?.schedulingInfo?.attorneyName    || "",
+    attorneyEmail:   currentCase?.schedulingInfo?.attorneyEmail   || "",
+    attorneyPhone:   currentCase?.schedulingInfo?.attorneyPhone   || "",
+    legalStudentName:  currentCase?.schedulingInfo?.legalStudentName  || "",
+    legalStudentEmail: currentCase?.schedulingInfo?.legalStudentEmail || "",
+    legalStudentPhone: currentCase?.schedulingInfo?.legalStudentPhone || "",
+    interpreterName:   currentCase?.schedulingInfo?.interpreterName   || "",
+    interpreterEmail:  currentCase?.schedulingInfo?.interpreterEmail  || "",
+    interpreterPhone:  currentCase?.schedulingInfo?.interpreterPhone  || "",
   });
 
   const [attorneyNotesFormData, setAttorneyNotesFormData] = useState({
@@ -360,6 +367,7 @@ export default function ContactForm(props) {
         <div className="row mb-3 g-4">
           <SectionDivider title="Scheduling" />
 
+          {/*Row 1*/}
           <div className="col-3">
             <FloatInput id="date" name="date" label="Date"  type="date" value={schedulingFormData.date} onChange={handleSchedulingChange} />
           </div>
@@ -382,7 +390,66 @@ export default function ContactForm(props) {
           <div className="col-3">
             <FloatInput id="meetingLink" name="meetingLink" label="Meeting Link"  value={schedulingFormData.meetingLink} onChange={handleSchedulingChange} />
           </div>
+
+          {/*Row 2 - Attorney*/}
+          <div className="col-12">
+            <SectionDivider title="Attorney" sub />
+          </div>
+          <div className="col-3">
+            <FloatSelect id="attorneyName" name="attorneyName" label="Name" value={schedulingFormData.attorneyName} onChange={handleSchedulingChange}>
+              <option value="">Select name</option>
+              <option value="Option 1">Option 1</option>
+              <option value="Option 2">Option 2</option>
+              <option value="Option 3">Option 3</option>
+            </FloatSelect>
+          </div>
+          <div className="col-3">
+            <FloatInput id="attorneyEmail" name="attorneyEmail" label="Email" type="email" value={schedulingFormData.attorneyEmail} onChange={handleSchedulingChange} />
+          </div>
+          <div className="col-3">
+            <FloatInput id="attorneyPhone" name="attorneyPhone" label="Phone Number" type="tel" value={schedulingFormData.attorneyPhone} onChange={handleSchedulingChange} />
+          </div>
+
+          {/*Row 3 - Legal Student*/}
+          <div className="col-12">
+            <SectionDivider title="Legal Student" sub />
+          </div>
+          <div className="col-3">
+            <FloatSelect id="legalStudentName" name="legalStudentName" label="Name" value={schedulingFormData.legalStudentName} onChange={handleSchedulingChange}>
+              <option value="">Select name</option>
+              <option value="Option 1">Option 1</option>
+              <option value="Option 2">Option 2</option>
+              <option value="Option 3">Option 3</option>
+            </FloatSelect>
+          </div>
+          <div className="col-3">
+            <FloatInput id="legalStudentEmail" name="legalStudentEmail" label="Email" type="email" value={schedulingFormData.legalStudentEmail} onChange={handleSchedulingChange} />
+          </div>
+          <div className="col-3">
+            <FloatInput id="legalStudentPhone" name="legalStudentPhone" label="Phone Number" type="tel" value={schedulingFormData.legalStudentPhone} onChange={handleSchedulingChange} />
+          </div>
+
+          {/*Row 4 - Interpreter*/}
+          <div className="col-12">
+            <SectionDivider title="Interpreter" sub />
+          </div>
+          <div className="col-3">
+            <FloatSelect id="interpreterName" name="interpreterName" label="Name" value={schedulingFormData.interpreterName} onChange={handleSchedulingChange}>
+              <option value="">Select name</option>
+              <option value="Option 1">Option 1</option>
+              <option value="Option 2">Option 2</option>
+              <option value="Option 3">Option 3</option>
+            </FloatSelect>
+          </div>
+          <div className="col-3">
+            <FloatInput id="interpreterEmail" name="interpreterEmail" label="Email" type="email" value={schedulingFormData.interpreterEmail} onChange={handleSchedulingChange} />
+          </div>
+          <div className="col-3">
+            <FloatInput id="interpreterPhone" name="interpreterPhone" label="Phone Number" type="tel" value={schedulingFormData.interpreterPhone} onChange={handleSchedulingChange} />
+          </div>
         </div>
+
+
 
         {attorneySection}
 
