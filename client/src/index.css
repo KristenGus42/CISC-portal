@@ -61,8 +61,117 @@ body {
 }
 
 /*Nav Bar */
+.app-navbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  min-height: 62px;
+  padding: 0 28px;
+}
+
+.app-navbar-brand {
+  justify-self: start;
+  color: var(--call-to-action);
+  text-decoration: none;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.app-navbar-brand:hover {
+  color: var(--call-to-action);
+}
+
+.app-navbar-links {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 56px;
+}
+
+.app-navbar-link {
+  color: var(--primary-text);
+  text-decoration: none;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1;
+  padding: 0 0 6px;
+  border-bottom: 2px solid transparent;
+}
+
+.app-navbar-link:hover {
+  color: var(--primary-text);
+}
+
+.app-navbar-user {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid #ece7e8;
+  border-radius: 6px;
+  background-color: #f4f1f1;
+  color: var(--primary-text);
+  font-size: 0.95rem;
+}
+
+.app-navbar-user-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--primary-text);
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.app-navbar-user-head {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border: 1.5px solid var(--primary-text);
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.app-navbar-user-body {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 8px;
+  height: 4px;
+  margin-left: -4px;
+  border: 1.5px solid var(--primary-text);
+  border-bottom: 0;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
 .active-nav-link {
-  text-decoration: underline solid var(--call-to-action) 2px;
+  border-bottom-color: var(--call-to-action);
+}
+
+@media (max-width: 768px) {
+  .app-navbar {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+
+  .app-navbar-brand,
+  .app-navbar-links,
+  .app-navbar-user {
+    justify-self: center;
+  }
+
+  .app-navbar-links {
+    gap: 32px;
+  }
 }
 
 /* Case Cards*/
