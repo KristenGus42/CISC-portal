@@ -47,6 +47,19 @@ body {
   text-decoration: underline;
 }
 
+/* Currently used by checkbox in Index.jsx --Jah*/
+.circular-checkbox {
+  border-radius: 50% !important;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-color: var(--call-to-action);
+}
+
+.circular-checkbox:checked {
+  background-color: var(--call-to-action);
+  border-color: var(--call-to-action);
+}
+
 /*Nav Bar */
 .active-nav-link {
   text-decoration: underline solid var(--call-to-action) 2px;
