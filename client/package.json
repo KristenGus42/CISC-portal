@@ -16,6 +16,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
     "@fortawesome/react-fontawesome": "^3.3.0",
     "bootstrap": "^5.3.8",
+    "firebase": "^12.12.0",
     "node": "^25.9.0",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",

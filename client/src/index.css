@@ -182,15 +182,11 @@ body {
   overflow: hidden;
 }
 
-.canceled {
-  border-color: var(--error);
-}
-
 .waitlisted {
   border-color: var(--pending);
 }
 
-.completed {
+.scheduled {
   border-color: var(--success);
 }
 
