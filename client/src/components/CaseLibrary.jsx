@@ -78,7 +78,7 @@ function CaseCard({ id, status, fname, lname, category, language, date, briefDes
                         <div className="pb-4"> 
                             <p className="case-card-subtitle mb-0">{briefDescription ?? "—"}</p>
                             <div class="case-card-tag">
-                                <p className="case-card-subtitle mb-0">{email ?? "—"}</p>
+                                <p className="case-card-subtitle mb-0">{email ?? "—__"}</p>
                             </div>
                             <div className="case-card-tag">
                                 <p className="case-card-subtitle mb-0">{number ?? "—"}</p>
