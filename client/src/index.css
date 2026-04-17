@@ -277,18 +277,275 @@ body {
 }
 
 /*Schedule*/
-#schedule-container {
-  background-color: #F3EEF0;
-  margin: 1rem 0 1rem 0;
+/* Page Layout */
+.schedule-page {
+  display: flex;
+  height: calc(100vh - 62px);
+  overflow: hidden;
 }
 
-.position-slot {
-  background-color: var(--background);
+/* Left Panel - Schedule */
+.schedule-panel {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
   padding: 1rem;
-  min-width: 25%;
-  margin: 1rem;
+  overflow: auto;
 }
 
-#attorney-section p {
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-arrow {
+  color: var(--dark-gray);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.clinic-label {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--primary-text);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  padding: 0.4rem 0.85rem;
+}
+
+.action-btn-primary {
+  background-color: var(--call-to-action);
+  color: var(--background);
+}
+
+.action-btn-secondary {
+  background-color: var(--primary-text);
+  color: var(--background);
+}
+
+/* Schedule Grid */
+.schedule-grid {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  flex: 1;
+}
+
+.attorney-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.attorney-header {
+  margin-bottom: 0.5rem;
+}
+
+.attorney-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary-text);
+  margin-bottom: 2px;
+}
+
+.attorney-details {
+  font-size: 0.78rem;
+  color: var(--dark-gray);
   margin: 0;
+}
+
+.time-slot-card {
+  border: 1.5px dashed var(--neutral-gray);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+.slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--call-to-action);
+  color: var(--background);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.slot-body {
+  height: 80px;
+}
+
+/* Right Panel - Waitlist */
+.waitlist-panel {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 300px;
+  min-width: 280px;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+.waitlist-title {
+  font-weight: 700;
+  color: var(--primary-text);
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Search */
+.search-container {
+  position: relative;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-input {
+  padding-left: 28px;
+  border-radius: 20px;
+  border: 1px solid var(--neutral-gray);
+  font-size: 0.8rem;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-dot-old {
+  background-color: var(--error);
+}
+
+.legend-dot-medium {
+  background-color: var(--pending);
+}
+
+.legend-dot-new {
+  background-color: var(--success);
+}
+
+/* Waitlist Cards */
+.waitlist-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.waitlist-card {
+  display: flex;
+  flex-shrink: 0;
+  border-left: 4px solid var(--error);
+  border-radius: 4px;
+  background-color: var(--background);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.waitlist-card-content {
+  padding: 0.5rem;
+  flex-grow: 1;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.card-name-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.client-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.case-badge {
+  background-color: var(--primary-text);
+  color: var(--background);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  font-weight: 600;
+}
+
+.card-date {
+  font-size: 0.7rem;
+  color: var(--dark-gray);
+}
+
+.card-details {
+  font-size: 0.78rem;
+  color: var(--dark-gray);
+  margin: 0 0 6px 0;
+}
+
+.contact-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--neutral-gray);
+  background-color: var(--background);
+  font-size: 0.75rem;
+  border-radius: 6px;
+  padding: 2px 10px;
+  color: var(--primary-text);
 }
