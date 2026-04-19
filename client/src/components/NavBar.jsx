@@ -22,6 +22,12 @@ export function NavBar(props){
             >
                 Cases
             </Link>
+            <Link
+                to="/people-library"
+                className={active === "people" ? "app-navbar-link active-nav-link" : "app-navbar-link"}
+            >
+                People
+            </Link>
         </nav>
 
         <button type="button" className="app-navbar-user">

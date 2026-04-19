@@ -41,7 +41,7 @@ export default function CaseLibrary() {
         <CaseCard
             key={client.id}
             id={client.id}
-            status={client.status || "active"} // Defaulting to active if status isn't set
+            status={client.status} // Defaulting to active if status isn't set
             fname={client.clientInfo?.fname}
             lname={client.clientInfo?.lname}
             category={client.caseInfo?.category}

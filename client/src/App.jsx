@@ -7,7 +7,7 @@ import Index from './components/Index'
 import CaseLibrary from './components/CaseLibrary'
 import Schedule from './components/Schedule'
 import DndExample from './components/DndExample'
-
+import PeopleLibrary from './components/PeopleLibrary';
 
 function App() {
 
@@ -21,7 +21,10 @@ function App() {
         <Route path="new-form" element={<EditForm newForm={true} attorney={attorney}/>} />
         <Route path="edit-form/:id?" element={<EditForm newForm={false} attorney={attorney} />} />
 
+
         <Route path="case-library" element={<CaseLibrary/>} />
+        <Route path="people-library" element={<PeopleLibrary/>} />
+
         <Route path="schedule" element={<Schedule />} />
         <Route path="example" element={<DndExample />} />
 

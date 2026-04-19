@@ -71,20 +71,7 @@ function SectionDivider({ title, sub }) {
   );
 }
 
-// ─── Attorney–category pairing ────────────────────────────────────────────────
-
-const CATEGORY_ATTORNEY_MAP = {
-  "Consumer / Finance": "Consumer / Finance Attorney",
-  "Education": "Education Attorney",
-  "Employment": "Employment Attorney",
-  "Family": "Family Attorney",
-  "Juvenile": "Juvenile Attorney",
-  "Health": "Health Attorney",
-  "Housing": "Housing Attorney",
-  "Income Maintenance": "Income Maintenance Attorney",
-  "Individual Rights": "Civil Rights Attorney",
-  "Misc.": "General Practice Attorney",
-};
+// ─── Helper function ──────────────────────────────────────────────────────────
 
 function countFilledReqFields(clientFormData) {
   const reqFieldNames = ["fname", "lname", "phone", "email"];
@@ -162,18 +149,10 @@ export default function ContactForm(props) {
   };
 
   const handleClientChange = makeChangeHandler(setClientFormData);
+  const handleCaseChange = makeChangeHandler(setCaseFormData);
   const handleSchedulingChange = makeChangeHandler(setSchedulingFormData);
   const handleAttorneyNotesChange = makeChangeHandler(setAttorneyNotesFormData);
   const handleMatchChange = makeChangeHandler(setMatchFormData);
-
-  const handleCaseChange = (e) => {
-    const { name, value } = e.target;
-    setCaseFormData((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === "category" ? { attorneyType: CATEGORY_ATTORNEY_MAP[value] || "" } : {}),
-    }));
-  };
 
   // 3. SUBMIT: Push or Update Firebase
   const handleSubmit = () => {
@@ -314,16 +293,16 @@ export default function ContactForm(props) {
           <div className="col-3">
             <FloatSelect id="attorneyType" name="attorneyType" label="Type of Attorney" value={caseFormData.attorneyType} onChange={handleCaseChange}>
               <option value="">Select attorney type</option>
-              <option value="Consumer / Finance Attorney">Consumer / Finance Attorney</option>
-              <option value="Education Attorney">Education Attorney</option>
-              <option value="Employment Attorney">Employment Attorney</option>
-              <option value="Family Attorney">Family Attorney</option>
-              <option value="Juvenile Attorney">Juvenile Attorney</option>
-              <option value="Health Attorney">Health Attorney</option>
-              <option value="Housing Attorney">Housing Attorney</option>
-              <option value="Income Maintenance Attorney">Income Maintenance Attorney</option>
-              <option value="Civil Rights Attorney">Civil Rights Attorney</option>
-              <option value="General Practice Attorney">General Practice Attorney</option>
+              <option value="Corporate Law">Corporate Law</option>
+              <option value="Criminal Defense">Criminal Defense</option>
+              <option value="Family Law">Family Law</option>
+              <option value="Immigration Law">Immigration Law</option>
+              <option value="Tax Law">Tax Law</option>
+              <option value="Real Estate Law">Real Estate Law</option>
+              <option value="Employment Law">Employment Law</option>
+              <option value="Personal Injury">Personal Injury</option>
+              <option value="Intellectual Property">Intellectual Property</option>
+              <option value="General Practice">General Practice</option>
             </FloatSelect>
           </div>
           <div className="col-6">
