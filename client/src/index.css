@@ -686,12 +686,12 @@ body {
 }
 
 .schedule-slot-dot {
-  width: 8px;
-  height: 8px;
+  width: clamp(0.5rem, 0.45rem + 0.2vw, 0.65rem);
+  height: clamp(0.5rem, 0.45rem + 0.2vw, 0.65rem);
   border-radius: 50%;
   background-color: var(--pending);
   flex-shrink: 0;
-  margin-top: 3px;
+  margin-top: clamp(0.22rem, 0.16rem + 0.18vw, 0.35rem);
 }
 
 .schedule-slot-client-name {
@@ -756,8 +756,13 @@ body {
 }
 
 .schedule-slot-assign-chevron {
-  padding: 0 10px;
-  color: var(--primary-text);
+  display: block;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  margin-right: 10px;
+  color: #000;
+  fill: currentColor;
   cursor: pointer;
   align-self: center;
 }
