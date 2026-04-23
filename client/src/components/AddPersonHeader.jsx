@@ -1,5 +1,4 @@
 // TODO: Generalize for legal students and attorneys - add a spot in the form to indicate which one!
-
 import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
@@ -78,7 +77,6 @@ export default function AttorneyForm(props) {
   const navigate = useNavigate();
   const { id } = useParams(); // Firebase ID if editing
   const db = getDatabase();
-
   // State object for attorney information
   const [attorneyFormData, setAttorneyFormData] = useState({
     date: "",
@@ -89,22 +87,24 @@ export default function AttorneyForm(props) {
     languageSkills: "",
     mainPracticeAreas: "",
     notes: "",
+    dateAdded: new Date().toLocaleString()
   });
-
   const [isFormValid, setIsFormValid] = useState(false);
+  const [personType, setPersonType] = useState("Attorney"); // Choose person type 
 
   // 1. EFFECT: Fetch data from Firebase if an ID exists (Editing mode)
   useEffect(() => {
     if (id) {
-      const attorneyRef = ref(db, `attorneys/${id}`);
-      onValue(attorneyRef, (snapshot) => {
+      const collectionName = personType === "Attorney" ? "attorneys" : "legalStudents";
+      const personRef = ref(db, `${collectionName}/${id}`);
+      onValue(personRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
           setAttorneyFormData(data);
         }
       });
     }
-  }, [id, db]);
+  }, [id, db, personType]);
 
   // 2. EFFECT: Validation logic
   useEffect(() => {
@@ -126,29 +126,35 @@ export default function AttorneyForm(props) {
       phoneNumber: "",
       languageSkills: "",
       mainPracticeAreas: "",
-      notes: ""
+      notes: "",
+      dateAdded: new Date().toLocaleString()
     })
   }
-
   // 3. SUBMIT: Push or Update Firebase
   const handleSubmit = () => {
+    const collectionName = personType === "Attorney" ? "attorneys" : "legalStudents";
+    
     if (id) {
       // Update existing record
       const updates = {};
-      updates[`/attorneys/${id}`] = attorneyFormData;
+      updates[`/${collectionName}/${id}`] = attorneyFormData;
       firebaseUpdate(ref(db), updates)
         .then(() => resetForm())
-        .catch((err) => console.error("Error updating attorney: ", err));
+        .catch((err) => console.error(`Error updating ${personType.toLowerCase()}: `, err));
     } else {
       // Create new record
-      const attorneysListRef = ref(db, 'attorneys');
-      firebasePush(attorneysListRef, attorneyFormData)
+      const listRef = ref(db, collectionName);
+      firebasePush(listRef, attorneyFormData)
         .then(() => resetForm())
-        .catch((err) => console.error("Error saving new attorney: ", err));
+        .catch((err) => console.error(`Error saving new ${personType.toLowerCase()}: `, err));
     }
   };
-
-
+  
+  // Handle person type change
+  const handlePersonChange = (e) => {
+    setPersonType(e.target.value);
+  };
+  
   return (
     <div>
       
@@ -156,14 +162,27 @@ export default function AttorneyForm(props) {
       <div className="container py-5">
         <div className="d-flex justify-content-between align-items-start mb-4 pb-3">
           <div>
-            <h1 className="fs-4 fw-bold mb-1">Add Attorneys</h1>
+            <div className="d-flex">
+              <h1 className="fs-4 fw-bold mb-1 my-12">Add a new {personType} </h1>
+              <div className="ms-3 align-self-center">
+                <FloatSelect
+                  id="personType" 
+                  name="personType" 
+                  label="Person Category" 
+                  value={personType} 
+                  onChange={handlePersonChange}
+                >
+                  <option value="Attorney">Attorney</option>
+                  <option value="Legal Student">Legal Student</option>
+                </FloatSelect>
+              </div>
+            </div>
             <p className="err-color mb-2">{countFilledReqFields(attorneyFormData)}/3 required fields</p>
           </div>
           <div className="text-end">
             <button type="button" className="btn btn-submit" disabled={!isFormValid} onClick={handleSubmit}>Add</button>
           </div>
         </div>
-
         {/* ── ATTORNEY INFORMATION ── */}
         <div className="row mb-3 g-4">
           <div className="col-3">
@@ -185,9 +204,19 @@ export default function AttorneyForm(props) {
               onChange={handleAttorneyChange}
             >
               <option value="">Select position</option>
-              <option value="Attorney 1">Attorney 1</option>
-              <option value="Attorney 2">Attorney 2</option>
-              <option value="Attorney 3">Attorney 3</option>
+              {personType === "Attorney" ? (
+                <>
+                  <option value="Attorney 1">Attorney 1</option>
+                  <option value="Attorney 2">Attorney 2</option>
+                  <option value="Attorney 3">Attorney 3</option>
+                </>
+              ) : (
+                <>
+                  <option value="Legal Student 1">Legal Student 1</option>
+                  <option value="Legal Student 2">Legal Student 2</option>
+                  <option value="Legal Student 3">Legal Student 3</option>
+                </>
+              )}
             </FloatSelect>
           </div>
           <div className="col-6">
@@ -255,7 +284,6 @@ export default function AttorneyForm(props) {
     </div>
   );
 }
-
 // ─── Headers ──────────────────────────────────────────────────────────────────
 function ExistingAttorneyHeader({ attorneyFormData }) {
   return (
@@ -273,7 +301,6 @@ function ExistingAttorneyHeader({ attorneyFormData }) {
     </div>
   );
 }
-
 function NewAttorneyHeader() {
   return (
     <div className="container py-5">
