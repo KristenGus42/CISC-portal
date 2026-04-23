@@ -256,12 +256,10 @@ function TimeSlotCard({ slotKey, time, assignedCase, onRemove, isEditMode }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey });
 
   return (
-    // Flex row: [remove-zone (rendered conditionally)] [droppable card (flex:1)]
     <div className="schedule-slot-card-outer">
       {/* If in edit mode, rendering this gutter pushes the card slightly to the right */}
-      {isEditMode && (
+      {isEditMode && assignedCase && (
         <div className="schedule-slot-remove-zone">
-          {assignedCase && (
             <button
               className="schedule-slot-remove-btn"
               onClick={() => onRemove(slotKey)}
@@ -269,7 +267,6 @@ function TimeSlotCard({ slotKey, time, assignedCase, onRemove, isEditMode }) {
             >
               −
             </button>
-          )}
         </div>
       )}
 
