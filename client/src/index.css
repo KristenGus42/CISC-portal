@@ -313,30 +313,30 @@ body {
   margin-bottom: 1rem;
 }
 
-.date-nav {
+.schedule-date-nav {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.nav-arrow {
+.schedule-nav-arrow {
   color: var(--dark-gray);
   font-size: 1.1rem;
   line-height: 1;
 }
 
-.clinic-label {
+.schedule-clinic-label {
   font-weight: 700;
   font-size: 1.15rem;
   color: var(--primary-text);
 }
 
-.action-buttons {
+.schedule-action-buttons {
   display: flex;
   gap: 0.5rem;
 }
 
-.action-btn {
+.schedule-action-btn {
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -347,18 +347,18 @@ body {
   padding: 0.4rem 0.85rem;
 }
 
-.action-btn-save {
+.schedule-action-btn-save {
   background-color: #28a745;
   border-color: #28a745;
   color: var(--background);
 }
 
-.action-btn-primary {
+.schedule-action-btn-primary {
   background-color: var(--call-to-action);
   color: var(--background);
 }
 
-.action-btn-secondary {
+.schedule-action-btn-secondary {
   background-color: var(--primary-text);
   color: var(--background);
 }
@@ -375,7 +375,7 @@ body {
   background-color: #F3EEEF;
 }
 
-.attorney-column {
+.schedule-attorney-column {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -389,24 +389,24 @@ body {
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
 }
 
-.attorney-header {
+.schedule-attorney-header {
   margin-bottom: 0.5rem;
 }
 
-.attorney-name {
+.schedule-attorney-name {
   font-weight: 700;
   font-size: 1rem;
   color: var(--primary-text);
   margin-bottom: 2px;
 }
 
-.attorney-details {
+.schedule-attorney-details {
   font-size: 0.78rem;
   color: var(--dark-gray);
   margin: 0;
 }
 
-.time-slot-card {
+.schedule-time-slot-card {
   display: flex;
   flex: 1 1 0;
   flex-direction: column;
@@ -415,7 +415,7 @@ body {
   background-color: var(--subtle-gray);
 }
 
-.slot-header {
+.schedule-slot-header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -427,19 +427,19 @@ body {
   font-weight: 600;
 }
 
-.slot-header svg {
+.schedule-slot-header svg {
   position: absolute;
   right: 0.5rem;
 }
 
-.slot-body {
+.schedule-slot-body {
   position: relative;
   flex: 1;
   min-height: 140px;
 }
 
-.slot-body::before,
-.slot-body--filled::before {
+.schedule-slot-body::before,
+.schedule-slot-body--filled::before {
   content: "";
   position: absolute;
   inset: 0.25px;
@@ -450,7 +450,7 @@ body {
 }
 
 /* Right Panel - Waitlist */
-.waitlist-panel {
+.schedule-waitlist-panel {
   display: flex;
   flex-direction: column;
   padding: 1rem;
@@ -461,7 +461,7 @@ body {
   background-color: var(--background);
 }
 
-.waitlist-title {
+.schedule-waitlist-title {
   font-weight: 700;
   color: var(--primary-text);
   margin-bottom: 0.75rem;
@@ -469,13 +469,13 @@ body {
 }
 
 /* Waitlist Search Bar */
-.search-container {
+.schedule-search-container {
   position: relative;
   margin-bottom: 1rem;
   flex-shrink: 0;
 }
 
-.search-icon {
+.schedule-search-icon {
   position: absolute;
   left: 10px;
   top: 50%;
@@ -483,7 +483,7 @@ body {
   fill: var(--dark-gray);
 }
 
-.search-input {
+.schedule-search-input {
   padding-left: 28px;
   border-radius: 20px;
   border: 1px solid var(--neutral-gray);
@@ -491,7 +491,7 @@ body {
 }
 
 /* Legend */
-.legend {
+.schedule-legend {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -500,33 +500,33 @@ body {
   flex-shrink: 0;
 }
 
-.legend-item {
+.schedule-legend-item {
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
 
-.legend-dot {
+.schedule-legend-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   display: inline-block;
 }
 
-.legend-dot-old {
+.schedule-legend-dot-old {
   background-color: var(--error);
 }
 
-.legend-dot-medium {
+.schedule-legend-dot-medium {
   background-color: var(--pending);
 }
 
-.legend-dot-new {
+.schedule-legend-dot-new {
   background-color: var(--success);
 }
 
 /* Waitlist Cards */
-.waitlist-cards {
+.schedule-waitlist-cards {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -536,7 +536,7 @@ body {
   overflow-x: hidden;
 }
 
-.waitlist-card {
+.schedule-waitlist-card {
   display: flex;
   flex-shrink: 0;
   position: relative;
@@ -548,36 +548,36 @@ body {
   overflow: hidden;
 }
 
-.waitlist-card--dragging {
+.schedule-waitlist-card--dragging {
   opacity: 0.45;
   cursor: grabbing;
   z-index: 9999;
 }
 
-.waitlist-card-content {
+.schedule-waitlist-card-content {
   padding: 0.5rem;
   flex-grow: 1;
 }
 
-.card-header-row {
+.schedule-card-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.25rem;
 }
 
-.card-name-section {
+.schedule-card-name-section {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.client-name {
+.schedule-client-name {
   font-weight: 700;
   font-size: 0.85rem;
 }
 
-.case-badge {
+.schedule-case-badge {
   background-color: var(--primary-text);
   color: var(--background);
   border-radius: 4px;
@@ -586,18 +586,18 @@ body {
   font-weight: 600;
 }
 
-.card-date {
+.schedule-card-date {
   font-size: 0.7rem;
   color: var(--dark-gray);
 }
 
-.card-details {
+.schedule-card-details {
   font-size: 0.78rem;
   color: var(--dark-gray);
   margin: 0 0 6px 0;
 }
 
-.contact-btn {
+.schedule-contact-btn {
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -610,14 +610,14 @@ body {
 }
 
 /* Flex row wrapper to accommodate the sliding remove zone */
-.slot-card-outer {
+.schedule-slot-card-outer {
   display: flex;
   flex: 1;
   min-height: 0;
 }
 
 /* Fixed-width gutter that holds the remove button when in edit mode */
-.slot-remove-zone {
+.schedule-slot-remove-zone {
   width: 28px;
   flex-shrink: 0;
   display: flex;
@@ -628,17 +628,17 @@ body {
 /* Drag-and-Drop */
 
 /* Drop zone highlight when a card is hovering over an empty slot */
-.time-slot-card--over {
+.schedule-time-slot-card--over {
   background-color: #f9f0f2;
 }
 
-.time-slot-card--over .slot-body::before,
-.time-slot-card--over .slot-body--filled::before {
+.schedule-time-slot-card--over .schedule-slot-body::before,
+.schedule-time-slot-card--over .schedule-slot-body--filled::before {
   border-color: var(--call-to-action);
 }
 
 /* Filled slot body — replaces the empty .slot-body placeholder */
-.slot-body--filled {
+.schedule-slot-body--filled {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -648,7 +648,7 @@ body {
 }
 
 /* Red − remove button on the left edge - used in edit mode */
-.slot-remove-btn {
+.schedule-slot-remove-btn {
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -665,12 +665,12 @@ body {
   margin-top: 2px;
 }
 
-.slot-remove-btn:hover {
+.schedule-slot-remove-btn:hover {
   background-color: #a80e0e;
 }
 
 /* Content area spreading items evenly vertically */
-.slot-content {
+.schedule-slot-content {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -679,13 +679,13 @@ body {
 }
 
 /* Colored dot + client name/details row */
-.slot-client-row {
+.schedule-slot-client-row {
   display: flex;
   align-items: flex-start;
   gap: 0.35rem;
 }
 
-.slot-dot {
+.schedule-slot-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -694,21 +694,21 @@ body {
   margin-top: 3px;
 }
 
-.slot-client-name {
+.schedule-slot-client-name {
   font-weight: 500;
   font-size: 1.05rem;
   color: var(--primary-text);
   line-height: 1.25;
 }
 
-.slot-client-details {
+.schedule-slot-client-details {
   font-size: 0.85rem;
   color: var(--dark-gray);
   margin-top: 2px;
 }
 
 /* Action buttons row */
-.slot-actions {
+.schedule-slot-actions {
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -716,7 +716,7 @@ body {
 }
 
 /* Shared small action button */
-.slot-btn {
+.schedule-slot-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -732,7 +732,7 @@ body {
 }
 
 /* Assign split-button wrapper */
-.slot-assign-wrapper {
+.schedule-slot-assign-wrapper {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--neutral-gray);
@@ -742,17 +742,17 @@ body {
   justify-content: space-between;
 }
 
-.slot-assign-wrapper .slot-btn-assign {
+.schedule-slot-assign-wrapper .schedule-slot-btn-assign {
   border: none;
   border-radius: 0;
   padding-right: 5px;
 }
 
-.slot-assign-divider {
+.schedule-slot-assign-divider {
   display: none;
 }
 
-.slot-assign-chevron {
+.schedule-slot-assign-chevron {
   padding: 0 10px;
   color: var(--primary-text);
   cursor: pointer;
@@ -760,60 +760,60 @@ body {
 }
 
 /* Meeting button — blue */
-.slot-btn-meeting {
+.schedule-slot-btn-meeting {
   background-color: #1a73e8;
   border-color: #1a73e8;
   color: #fff;
 }
 
-.slot-btn-meeting:hover {
+.schedule-slot-btn-meeting:hover {
   background-color: #1558b0;
 }
 
 /* Assign split-button spans full content width */
-.slot-assign-full {
+.schedule-slot-assign-full {
   width: 100%;
 }
 
-.slot-assign-full .slot-btn-assign {
+.schedule-slot-assign-full .schedule-slot-btn-assign {
   flex: 1;
   justify-content: flex-start;
 }
 
 /* Meeting link + Contact side by side */
-.slot-bottom-row {
+.schedule-slot-bottom-row {
   display: flex;
   gap: 0.25rem;
 }
 
 /* ── Responsive Scaling for Card Contents */
 @media (max-width: 1200px) {
-  .slot-body--filled {
+  .schedule-slot-body--filled {
     padding: 0.4rem;
   }
   
-  .slot-client-name {
+  .schedule-slot-client-name {
     font-size: 0.85rem;
   }
   
-  .slot-client-details {
+  .schedule-slot-client-details {
     font-size: 0.7rem;
   }
   
-  .slot-btn {
+  .schedule-slot-btn {
     font-size: 0.7rem;
     padding: 2px 5px;
   }
   
-  .slot-assign-chevron {
+  .schedule-slot-assign-chevron {
     padding: 0 5px;
   }
   
-  .slot-actions {
+  .schedule-slot-actions {
     gap: 0.2rem;
   }
   
-  .slot-bottom-row {
+  .schedule-slot-bottom-row {
     flex-wrap: wrap;
   }
 }
