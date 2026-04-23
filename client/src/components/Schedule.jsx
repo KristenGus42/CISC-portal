@@ -1,5 +1,5 @@
 import { NavBar } from "./NavBar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { DndContext, useDroppable, useDraggable } from "@dnd-kit/core";
 
@@ -135,11 +135,10 @@ export default function Schedule() {
                 </button>
                 {isEditMode ? (
                   <button 
-                    className="btn btn-sm action-btn" 
-                    style={{ backgroundColor: '#28a745', color: 'white', borderColor: '#28a745' }}
+                    className="btn btn-sm action-btn action-btn-save"
                     onClick={() => setIsEditMode(false)}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '4px' }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
                       <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4.207a2 2 0 0 0-.586-1.414l-2.793-2.793A2 2 0 0 0 11.207 1H2zm6 11.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm.5-9v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V3h5.5z" />
                     </svg>
                     Save
@@ -174,7 +173,6 @@ export default function Schedule() {
                 xmlns="http://www.w3.org/2000/svg"
                 width="14"
                 height="14"
-                fill="var(--dark-gray)"
                 viewBox="0 0 16 16"
                 className="search-icon"
               >
@@ -315,7 +313,7 @@ function TimeSlotCard({ slotKey, time, assignedCase, onRemove, isEditMode }) {
               <div className="slot-assign-wrapper slot-assign-full">
                 <button className="slot-btn slot-btn-assign">
                   {/* Translate / language icon */}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: "4px" }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z"/>
                     <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14v-.868h-3v-.002c-.018 0-.035.002-.053.003H9.529l-.001-.001H7v.867h1.604c-.316.764-.78 1.63-1.362 2.404z"/>
                   </svg>
@@ -330,13 +328,13 @@ function TimeSlotCard({ slotKey, time, assignedCase, onRemove, isEditMode }) {
               {/* Meeting link + Contact side by side */}
               <div className="slot-bottom-row">
                 <button className="slot-btn slot-btn-meeting">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: "4px" }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z" />
                   </svg>
                   Meeting link
                 </button>
                 <button className="slot-btn slot-btn-contact">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: "4px" }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
                     <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
                   </svg>
@@ -361,24 +359,27 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: firebaseKey,
   });
+  const cardRef = useRef(null);
 
-  const style = {
-    transform: transform
+  useLayoutEffect(() => {
+    if (!cardRef.current) return;
+
+    cardRef.current.style.transform = transform
       ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
-    opacity: isDragging ? 0.45 : 1,
-    cursor: isDragging ? "grabbing" : "grab",
-    zIndex: isDragging ? 9999 : "auto",
-    position: "relative",
-  };
+      : "";
+  }, [transform]);
+
+  function handleCardRef(node) {
+    cardRef.current = node;
+    setNodeRef(node);
+  }
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
+      ref={handleCardRef}
       {...listeners}
       {...attributes}
-      className="waitlist-card"
+      className={`waitlist-card${isDragging ? " waitlist-card--dragging" : ""}`}
     >
       <div className="waitlist-card-content">
         {/* Name + Badge + Date row */}

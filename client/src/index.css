@@ -288,6 +288,7 @@ body {
 }
 
 /*Schedule*/
+
 /* Page Layout */
 .schedule-page {
   display: flex;
@@ -344,6 +345,12 @@ body {
   font-size: 0.85rem;
   border: none;
   padding: 0.4rem 0.85rem;
+}
+
+.action-btn-save {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: var(--background);
 }
 
 .action-btn-primary {
@@ -461,7 +468,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Search */
+/* Waitlist Search Bar */
 .search-container {
   position: relative;
   margin-bottom: 1rem;
@@ -473,6 +480,7 @@ body {
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
+  fill: var(--dark-gray);
 }
 
 .search-input {
@@ -531,11 +539,19 @@ body {
 .waitlist-card {
   display: flex;
   flex-shrink: 0;
+  position: relative;
+  cursor: grab;
   border-left: 4px solid var(--error);
   border-radius: 4px;
   background-color: var(--background);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+}
+
+.waitlist-card--dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+  z-index: 9999;
 }
 
 .waitlist-card-content {
@@ -606,8 +622,7 @@ body {
   flex-shrink: 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 2rem; /* Align button slightly below header */
+  align-items: center;
 }
 
 /* Drag-and-Drop */
@@ -704,6 +719,7 @@ body {
 .slot-btn {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   font-size: 0.85rem;
   padding: 4px 10px;
   border-radius: 5px;
