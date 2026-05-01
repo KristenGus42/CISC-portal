@@ -260,6 +260,10 @@ body {
   border-radius: 3px;
 }
 
+.attorney-tag {
+  background-color: greenyellow;
+}
+
 /*Edit Form*/
 .edit-form-title {
   font-size: 1.5rem;

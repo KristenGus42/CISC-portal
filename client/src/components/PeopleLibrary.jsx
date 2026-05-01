@@ -125,9 +125,13 @@ function PersonCard({ id, name, position, mainPracticeAreas, languageSkills, dat
                    <div className="card person-card h-100">
                         {/*Regular view*/}
                         <div className="card-body">
-                            <div className="person-card-title">
-                                <p className="mb-2 fw-semibold">{name} | {personType} </p>
+                            <div className="person-card-title d-flex">
+                                <p className="mb-2 fw-semibold">{name} </p>
+                                <div className="case-card-tag attorney-tag">
+                                    <p className="case-card-subtitle mb-0">{personType}</p>
+                                </div>
                             </div>
+
                             <div className="person-card-subtitle">
                                 <p className="mb-0 small text-muted">{"Main practice areas: " + (mainPracticeAreas || "No Practice Areas")}</p>
                             </div>
