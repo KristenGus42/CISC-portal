@@ -61,11 +61,11 @@ function FloatTextarea({ id, name, label, required, value, onChange, height = "1
 }
 
 // ─── Helper function ──────────────────────────────────────────────────────────
-function countFilledReqFields(attorneyFormData) {
+function countFilledReqFields(personnelFormData) {
   const reqFieldNames = ["name", "email", "phoneNumber"];
   let reqFieldCount = 0;
   for (const field of reqFieldNames) {
-    if (attorneyFormData[field]) {
+    if (personnelFormData[field]) {
       reqFieldCount++;
     }
   }
@@ -73,12 +73,12 @@ function countFilledReqFields(attorneyFormData) {
 }
 
 // ─── Main form ────────────────────────────────────────────────────────────────
-export default function AttorneyForm(props) {
+export default function PersonnelForm(props) {
   const navigate = useNavigate();
   const { id } = useParams(); // Firebase ID if editing
   const db = getDatabase();
-  // State object for attorney information
-  const [attorneyFormData, setAttorneyFormData] = useState({
+  // State object for personnel information
+  const [personnelFormData, setPersonnelFormData] = useState({
     date: "",
     position: "",
     name: "",
@@ -90,7 +90,9 @@ export default function AttorneyForm(props) {
     dateAdded: new Date().toLocaleString()
   });
   const [isFormValid, setIsFormValid] = useState(false);
-  const [personType, setPersonType] = useState("Attorney"); // Choose person type 
+  const personType = props.personType;
+  const setPersonType = props.setPersonType;
+  //const [personType, setPersonType] = useState("Attorney"); // Choose person type 
 
   // 1. EFFECT: Fetch data from Firebase if an ID exists (Editing mode)
   useEffect(() => {
@@ -100,7 +102,7 @@ export default function AttorneyForm(props) {
       onValue(personRef, (snapshot) => {
         const data = snapshot.val();
         if (data) {
-          setAttorneyFormData(data);
+          setPersonnelFormData(data);
         }
       });
     }
@@ -108,18 +110,18 @@ export default function AttorneyForm(props) {
 
   // 2. EFFECT: Validation logic
   useEffect(() => {
-    setIsFormValid(countFilledReqFields(attorneyFormData) >= 3);
-  }, [attorneyFormData]);
+    setIsFormValid(countFilledReqFields(personnelFormData) >= 3);
+  }, [personnelFormData]);
 
   // Handler
-  const handleAttorneyChange = (e) => {
+  const handlePersonnelChange = (e) => {
     const { name, value } = e.target;
-    setAttorneyFormData((prev) => ({ ...prev, [name]: value }));
+    setPersonnelFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const resetForm = () => {
-    setAttorneyFormData({
-      date: attorneyFormData.date,
+    setPersonnelFormData({
+      date: personnelFormData.date,
       position: "",
       name: "",
       email: "",
@@ -137,14 +139,14 @@ export default function AttorneyForm(props) {
     if (id) {
       // Update existing record
       const updates = {};
-      updates[`/${collectionName}/${id}`] = attorneyFormData;
+      updates[`/${collectionName}/${id}`] = personnelFormData;
       firebaseUpdate(ref(db), updates)
         .then(() => resetForm())
         .catch((err) => console.error(`Error updating ${personType.toLowerCase()}: `, err));
     } else {
       // Create new record
       const listRef = ref(db, collectionName);
-      firebasePush(listRef, attorneyFormData)
+      firebasePush(listRef, personnelFormData)
         .then(() => resetForm())
         .catch((err) => console.error(`Error saving new ${personType.toLowerCase()}: `, err));
     }
@@ -158,7 +160,7 @@ export default function AttorneyForm(props) {
   return (
     <div>
       
-      {/*<NavBar active={"attorneys"} />header*/}
+      {/*<NavBar active={"personnel"} />header*/}
       <div className="container py-5">
         <div className="d-flex justify-content-between align-items-start mb-4 pb-3">
           <div>
@@ -168,7 +170,7 @@ export default function AttorneyForm(props) {
                 <FloatSelect
                   id="personType" 
                   name="personType" 
-                  label="Person Category" 
+                  label="Personnel Category" 
                   value={personType} 
                   onChange={handlePersonChange}
                 >
@@ -177,56 +179,22 @@ export default function AttorneyForm(props) {
                 </FloatSelect>
               </div>
             </div>
-            <p className="err-color mb-2">{countFilledReqFields(attorneyFormData)}/3 required fields</p>
+            <p className="err-color mb-2">{countFilledReqFields(personnelFormData)}/3 required fields</p>
           </div>
           <div className="text-end">
             <button type="button" className="btn btn-submit" disabled={!isFormValid} onClick={handleSubmit}>Add</button>
           </div>
         </div>
-        {/* ── ATTORNEY INFORMATION ── */}
+        {/* ── PERSONNEL INFORMATION ── */}
         <div className="row mb-3 g-4">
-          <div className="col-3">
-            <FloatInput 
-              id="date" 
-              name="date" 
-              label="Date" 
-              type="date"
-              value={attorneyFormData.date} 
-              onChange={handleAttorneyChange} 
-            />
-          </div>
-          <div className="col-3">
-            <FloatSelect 
-              id="position" 
-              name="position" 
-              label="Position" 
-              value={attorneyFormData.position} 
-              onChange={handleAttorneyChange}
-            >
-              <option value="">Select position</option>
-              {personType === "Attorney" ? (
-                <>
-                  <option value="Attorney 1">Attorney 1</option>
-                  <option value="Attorney 2">Attorney 2</option>
-                  <option value="Attorney 3">Attorney 3</option>
-                </>
-              ) : (
-                <>
-                  <option value="Legal Student 1">Legal Student 1</option>
-                  <option value="Legal Student 2">Legal Student 2</option>
-                  <option value="Legal Student 3">Legal Student 3</option>
-                </>
-              )}
-            </FloatSelect>
-          </div>
           <div className="col-6">
             <FloatInput 
               id="name" 
               name="name" 
               label="Name" 
               required
-              value={attorneyFormData.name} 
-              onChange={handleAttorneyChange} 
+              value={personnelFormData.name} 
+              onChange={handlePersonnelChange} 
             />
           </div>
           <div className="col-4">
@@ -236,8 +204,8 @@ export default function AttorneyForm(props) {
               label="Email" 
               required
               type="email"
-              value={attorneyFormData.email} 
-              onChange={handleAttorneyChange} 
+              value={personnelFormData.email} 
+              onChange={handlePersonnelChange} 
             />
           </div>
           <div className="col-4">
@@ -247,8 +215,8 @@ export default function AttorneyForm(props) {
               label="Phone Number" 
               required
               type="tel"
-              value={attorneyFormData.phoneNumber} 
-              onChange={handleAttorneyChange} 
+              value={personnelFormData.phoneNumber} 
+              onChange={handlePersonnelChange} 
             />
           </div>
           <div className="col-4">
@@ -256,8 +224,8 @@ export default function AttorneyForm(props) {
               id="languageSkills" 
               name="languageSkills" 
               label="Language Skills" 
-              value={attorneyFormData.languageSkills} 
-              onChange={handleAttorneyChange} 
+              value={personnelFormData.languageSkills} 
+              onChange={handlePersonnelChange} 
             />
           </div>
           <div className="col-12">
@@ -265,8 +233,8 @@ export default function AttorneyForm(props) {
               id="mainPracticeAreas" 
               name="mainPracticeAreas" 
               label="Main Practice Areas" 
-              value={attorneyFormData.mainPracticeAreas} 
-              onChange={handleAttorneyChange} 
+              value={personnelFormData.mainPracticeAreas} 
+              onChange={handlePersonnelChange} 
             />
           </div>
           <div className="col-12">
@@ -274,8 +242,8 @@ export default function AttorneyForm(props) {
               id="notes" 
               name="notes" 
               label="Notes" 
-              value={attorneyFormData.notes} 
-              onChange={handleAttorneyChange} 
+              value={personnelFormData.notes} 
+              onChange={handlePersonnelChange} 
               height="140px"
             />
           </div>
@@ -285,27 +253,27 @@ export default function AttorneyForm(props) {
   );
 }
 // ─── Headers ──────────────────────────────────────────────────────────────────
-function ExistingAttorneyHeader({ attorneyFormData }) {
+function ExistingPersonnelHeader({ personnelFormData }) {
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center">
         <div>
           <p className="mb-0 edit-form-title">
-            {attorneyFormData.name || "Attorney Name not Assigned"}
+            {personnelFormData.name || "Personnel Name not Assigned"}
           </p>
           <p className="mb-0 edit-form-subtitle">
-            {attorneyFormData.position || "Position not Assigned"} | {attorneyFormData.mainPracticeAreas || "Practice Areas not Assigned"}
+            {personnelFormData.mainPracticeAreas || "Practice Areas not Assigned"}
           </p>
         </div>
       </div>
     </div>
   );
 }
-function NewAttorneyHeader() {
+function NewPersonnelHeader() {
   return (
     <div className="container py-5">
       <div className="d-flex justify-content-between align-items-center">
-        <h1>New Attorney</h1>
+        <h1>New Personnel</h1>
       </div>
     </div>
   );

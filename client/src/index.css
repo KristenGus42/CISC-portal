@@ -818,6 +818,12 @@ body {
   justify-content: center;
 }
 
+/*Personnel Library*/
+.personnel-cards-scroll {
+    max-height: 600px;
+    overflow-y: scroll;
+}
+
 /* ── Responsive Scaling for Card Contents */
 @media (max-width: 1200px) {
   .schedule-slot-body--filled {

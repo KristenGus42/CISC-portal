@@ -3,11 +3,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 // Import Firebase database functions
 import { getDatabase, ref, onValue } from 'firebase/database';
-import AttorneyForm from "./AddPersonHeader";
+import PersonnelForm from "./AddPersonnelHeader";
 
-export default function PeopleLibrary() {
+export default function PersonnelLibrary() {
     const [allAttorneysArr, setAllAttorneysArr] = useState([]);
     const [allLegalStudentsArr, setAllLegalStudentsArr] = useState([]);
+    const [personType, setPersonType] = useState("Attorney"); // Choose person type 
+
     const db = getDatabase();
     
     // Listen for changes in the 'attorneys' table
@@ -62,54 +64,57 @@ export default function PeopleLibrary() {
     }, [db]);
     
     // Combine both arrays
-    const allPeople = [...allAttorneysArr, ...allLegalStudentsArr];
+    const allPersonnel = [...allAttorneysArr, ...allLegalStudentsArr];
     
-    const attorneyCards = allPeople.map((attorney) => (
+    const visibleCards = (personType === "Attorney" ? allAttorneysArr : allLegalStudentsArr).map((person) => (
         <PersonCard
-            key={attorney.id}
-            id={attorney.id}
-            name={attorney.name}
-            position={attorney.position}
-            mainPracticeAreas={attorney.mainPracticeAreas}
-            languageSkills={attorney.languageSkills}
-            date={attorney.date}
-            email={attorney.email}
-            phoneNumber={attorney.phoneNumber}
-            notes={attorney.notes}
-            personType={attorney.personType}
+            key={person.id}
+            id={person.id}
+            name={person.name}
+            mainPracticeAreas={person.mainPracticeAreas}
+            languageSkills={person.languageSkills}
+            email={person.email}
+            phoneNumber={person.phoneNumber}
+            notes={person.notes}
+            personType={person.personType}
         />
     ));
     
     return (
         <>
-            <NavBar active={"people"}/>
+            <NavBar active={"personnel"}/>
             
             {/*Header Section*/}
             <div className="container py-5">
                 <div className="d-flex justify-content-between align-items-center">
                     <div>
-                        <p className="mb-0 fw-bold fs-4">People</p>
-                        <p className="mb-0 text-muted small">All people</p>
+                        <p className="mb-0 fw-bold fs-4">Personnel</p>
+                        <p className="mb-0 text-muted small">All Personnel</p>
                     </div>
                 </div>
             </div>
             
-            {/*Attorney Form*/}
-            <AttorneyForm />
-            
-            {/*Attorney Cards*/}
-            <div className="container py-5">
-                <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p className="mb-0 fw-bold fs-4">Active Attorneys and Legal Students</p>
-                    </div>
-                </div>
+            {/*Form and Cards Side by Side*/}
+            <div className="container">
                 <div className="row">
-                    {allPeople.length > 0 ? attorneyCards : (
-                        <div className="col-12">
-                            <p className="text-center text-muted">No attorneys found.</p>
+                    {/*Personnel Form - Left Side*/}
+                    <div className="col-9">
+                        <PersonnelForm personType={personType} setPersonType={setPersonType}/>
+                    </div>
+                    
+                    {/*Personnel Cards - Right Side*/}
+                    <div className="col-3">
+                        <div className="py-5">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <p className="mb-0 fw-bold fs-4">Active {personType}</p>
+                                </div>
+                            </div>
+                            <div className="personnel-cards-scroll">
+                                {visibleCards}
+                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </>
@@ -117,12 +122,12 @@ export default function PeopleLibrary() {
 }
 
 // TODO: Change styling of cards
-function PersonCard({ id, name, position, mainPracticeAreas, languageSkills, date, email, phoneNumber, notes, personType }) {
+function PersonCard({ id, name, mainPracticeAreas, languageSkills, email, phoneNumber, notes, personType }) {
     return (
-        <div className="col-12 col-md-6 col-lg-4 mb-4">
+        <div className="mb-4">
             <Link to={`/edit-attorney/${id}`} className="text-decoration-none text-reset">            
-                <div className="person-card-wrapper h-100">
-                   <div className="card person-card h-100">
+                <div className="person-card-wrapper">
+                   <div className="card person-card">
                         {/*Regular view*/}
                         <div className="card-body">
                             <div className="person-card-title d-flex">
@@ -131,7 +136,6 @@ function PersonCard({ id, name, position, mainPracticeAreas, languageSkills, dat
                                     <p className="case-card-subtitle mb-0">{personType}</p>
                                 </div>
                             </div>
-
                             <div className="person-card-subtitle">
                                 <p className="mb-0 small text-muted">{"Main practice areas: " + (mainPracticeAreas || "No Practice Areas")}</p>
                             </div>

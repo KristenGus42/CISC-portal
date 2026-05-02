@@ -23,10 +23,10 @@ export function NavBar(props){
                 Cases
             </Link>
             <Link
-                to="/people-library"
-                className={active === "people" ? "app-navbar-link active-nav-link" : "app-navbar-link"}
+                to="/personnel-library"
+                className={active === "personnel" ? "app-navbar-link active-nav-link" : "app-navbar-link"}
             >
-                People
+                Personnel
             </Link>
         </nav>
 

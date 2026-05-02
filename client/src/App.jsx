@@ -7,7 +7,7 @@ import Index from './components/Index'
 import CaseLibrary from './components/CaseLibrary'
 import Schedule from './components/Schedule'
 import DndExample from './components/DndExample'
-import PeopleLibrary from './components/PeopleLibrary';
+import PersonnelLibary from './components/PersonnelLibrary'
 
 function App() {
 
@@ -23,7 +23,7 @@ function App() {
 
 
         <Route path="case-library" element={<CaseLibrary/>} />
-        <Route path="people-library" element={<PeopleLibrary/>} />
+        <Route path="personnel-library" element={<PersonnelLibary/>} />
 
         <Route path="schedule" element={<Schedule />} />
         <Route path="example" element={<DndExample />} />
