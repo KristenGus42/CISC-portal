@@ -421,6 +421,7 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
+  gap: 0.75rem;
   padding: 0.25rem 0.5rem;
   background-color: var(--call-to-action);
   color: var(--background);
@@ -429,8 +430,50 @@ body {
 }
 
 .schedule-slot-header svg {
+  flex-shrink: 0;
+}
+
+.schedule-slot-time-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.schedule-slot-time-menu {
   position: absolute;
-  right: 0.5rem;
+  top: calc(100% + 4px);
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  min-width: 88px;
+  transform: translateX(-50%);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--neutral-gray);
+  border-radius: 5px;
+  background-color: var(--background);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.schedule-slot-time-option {
+  border: none;
+  background: none;
+  padding: 0.35rem 0.65rem;
+  color: var(--primary-text);
+  font-size: 0.78rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.schedule-slot-time-option:hover,
+.schedule-slot-time-option--active {
+  background-color: var(--subtle-gray);
 }
 
 .schedule-slot-body {
@@ -495,7 +538,7 @@ body {
 .schedule-legend {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 1rem;
   font-size: 0.8rem;
   flex-shrink: 0;
@@ -508,8 +551,8 @@ body {
 }
 
 .schedule-legend-dot {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -542,9 +585,9 @@ body {
   flex-shrink: 0;
   position: relative;
   cursor: grab;
-  border-left: 4px solid var(--error);
+  border-left: 12px solid var(--error);
   border-radius: 4px;
-  background-color: var(--background);
+  background-color: var(--subtle-gray);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
@@ -595,7 +638,7 @@ body {
 .schedule-card-details {
   font-size: 0.78rem;
   color: var(--dark-gray);
-  margin: 0 0 6px 0;
+  margin-bottom: 5px;
 }
 
 .schedule-contact-btn {
@@ -908,8 +951,8 @@ body {
 .cp-panel {
   display: flex;
   flex-direction: column;
-  width: 380px;
-  min-width: 360px;
+  width: 440px;
+  min-width: 420px;
   /* Overlay: sits on top of the waitlist panel, anchored to the right edge */
   position: absolute;
   top: 0;
@@ -931,21 +974,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.35rem;
-  margin-bottom: 0.75rem;
+  gap: 0.25rem;
+  margin-left: -4px;
+  margin-bottom: 2rem;
 }
 
 .cp-icon-btn {
   background: none;
   border: none;
-  padding: 4px;
+  padding: 8px;
   cursor: pointer;
-  color: var(--dark-gray);
-  border-radius: 4px;
+  color: var(--primary-text);
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.15s;
+}
+
+.cp-icon-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 .cp-icon-btn:hover {
@@ -954,19 +1003,27 @@ body {
 
 /* Identity block */
 .cp-identity {
+  margin-left: 0.75rem;
   margin-bottom: 0.5rem;
+}
+
+.cp-contact-row,
+.cp-assignments,
+.cp-tabs,
+.cp-tab-body {
+  margin-left: 0.75rem;
 }
 
 .cp-name-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   margin-bottom: 0.15rem;
 }
 
 .cp-status-dot {
-  width: 11px;
-  height: 11px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   flex-shrink: 0;
   display: inline-block;
@@ -981,34 +1038,58 @@ body {
 }
 
 .cp-subtitle {
-  font-size: 0.82rem;
-  color: var(--dark-gray);
-  margin: 0 0 0 1.5rem;
+  font-size: 1.05rem;
+  color: var(--primary-text);
+  margin: 0.65rem 0 0;
 }
 
 /* Contact chips */
 .cp-contact-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.75rem 0 1rem;
+  display: grid;
+  grid-template-columns: auto minmax(1.25rem, 1fr) auto minmax(1.25rem, 1fr);
+  align-items: center;
+  margin: 0.75rem 0 1rem 0.75rem;
+}
+
+.cp-contact-chip:first-child {
+  grid-column: 1;
+}
+
+.cp-contact-chip:nth-child(2) {
+  grid-column: 3;
 }
 
 .cp-contact-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.78rem;
-  color: var(--dark-gray);
+  padding: 4px 10px;
+  border: 1px solid #ece7e8;
+  border-radius: 6px;
+  background-color: #f4f1f1;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: var(--primary-text);
 }
 
 /* Assignment pills */
 .cp-assignments {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(1.25rem, 1fr) auto minmax(1.25rem, 1fr) auto minmax(1.25rem, 1fr);
   align-items: flex-end;
-  gap: 0.6rem;
   margin-bottom: 1.1rem;
-  flex-wrap: wrap;
+}
+
+.cp-assignment-slot:first-child {
+  grid-column: 1;
+}
+
+.cp-assignment-slot:nth-child(2) {
+  grid-column: 3;
+}
+
+.cp-assignment-slot:nth-child(3) {
+  grid-column: 5;
 }
 
 .cp-assignment-slot {
@@ -1054,16 +1135,24 @@ body {
 
 /* Tabs */
 .cp-tabs {
-  display: flex;
-  border-bottom: 1.5px solid var(--neutral-gray);
+  display: grid;
+  grid-template-columns: auto minmax(1.25rem, 1fr) auto minmax(1.25rem, 1fr);
+  align-items: end;
   margin-bottom: 1rem;
+}
+
+.cp-tab-btn:first-child {
+  grid-column: 1;
+}
+
+.cp-tab-btn:nth-child(2) {
+  grid-column: 3;
 }
 
 .cp-tab-btn {
   background: none;
   border: none;
   border-bottom: 2.5px solid transparent;
-  margin-bottom: -1.5px;
   padding: 0.3rem 0.6rem 0.45rem;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1074,7 +1163,7 @@ body {
 
 .cp-tab-btn--active {
   color: var(--primary-text);
-  border-bottom-color: var(--primary-text);
+  border-bottom-color: var(--call-to-action);
 }
 
 .cp-tab-btn:hover:not(.cp-tab-btn--active) {
@@ -1085,29 +1174,39 @@ body {
 .cp-tab-body {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
+  gap: 2rem;
 }
 
 /* Small read-only fields row */
 .cp-fields-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 2rem;
   flex-wrap: wrap;
 }
 
 .cp-read-field {
+  position: relative;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--neutral-gray);
   border-radius: 5px;
-  padding: 0.3rem 0.55rem 0.25rem;
+  padding: 0.65rem 0.55rem 0.55rem;
   min-width: 60px;
 }
 
 .cp-read-field-label {
+  position: absolute;
+  top: -0.42rem;
+  left: 0.5rem;
+  padding: 0 0.25rem;
+  background-color: var(--background);
   font-size: 0.62rem;
   color: var(--dark-gray);
   line-height: 1.2;
+}
+
+.cp-required-mark {
+  color: var(--error);
 }
 
 .cp-read-field-value {
@@ -1119,17 +1218,22 @@ body {
 
 /* Textarea-style read fields */
 .cp-textarea-field {
+  position: relative;
   border: 1px solid var(--neutral-gray);
   border-radius: 5px;
   padding: 0.55rem 0.7rem 0.6rem;
-  min-height: 80px;
+  min-height: 120px;
 }
 
 .cp-textarea-label {
-  display: block;
+  position: absolute;
+  top: -0.45rem;
+  left: 0.5rem;
+  padding: 0 0.25rem;
+  background-color: var(--background);
   font-size: 0.68rem;
   color: var(--dark-gray);
-  margin-bottom: 0.35rem;
+  line-height: 1.2;
 }
 
 .cp-textarea-text {
@@ -1137,4 +1241,127 @@ body {
   color: var(--primary-text);
   margin: 0;
   line-height: 1.5;
+}
+
+@media (max-width: 1200px) {
+  .cp-panel {
+    width: min(360px, calc(100vw - 1rem));
+    min-width: 0;
+    padding: 0.8rem 0.9rem 1.5rem;
+  }
+
+  .cp-icon-row {
+    gap: 0.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cp-icon-btn {
+    padding: 6px;
+  }
+
+  .cp-icon-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .cp-identity,
+  .cp-contact-row,
+  .cp-assignments,
+  .cp-tabs,
+  .cp-tab-body {
+    margin-left: 0.5rem;
+  }
+
+  .cp-name-row {
+    gap: 0.55rem;
+  }
+
+  .cp-status-dot {
+    width: 11px;
+    height: 11px;
+  }
+
+  .cp-name {
+    font-size: 1.2rem;
+  }
+
+  .cp-subtitle {
+    font-size: 0.9rem;
+    margin-top: 0.45rem;
+  }
+
+  .cp-contact-row {
+    grid-template-columns: auto minmax(0.85rem, 1fr) auto minmax(0.85rem, 1fr);
+    margin-top: 0.65rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .cp-contact-chip {
+    gap: 0.25rem;
+    padding: 3px 8px;
+    font-size: 0.78rem;
+  }
+
+  .cp-assignments {
+    grid-template-columns: auto minmax(0.85rem, 1fr) auto minmax(0.85rem, 1fr) auto minmax(0.85rem, 1fr);
+    margin-bottom: 0.9rem;
+  }
+
+  .cp-assignment-role {
+    font-size: 0.58rem;
+  }
+
+  .cp-assignment-pill {
+    gap: 0.2rem;
+    padding: 3px 7px;
+    font-size: 0.66rem;
+  }
+
+  .cp-tabs {
+    grid-template-columns: auto minmax(0.85rem, 1fr) auto minmax(0.85rem, 1fr);
+    margin-bottom: 0.8rem;
+  }
+
+  .cp-tab-btn {
+    padding: 0.25rem 0.45rem 0.35rem;
+    font-size: 0.78rem;
+  }
+
+  .cp-tab-body {
+    gap: 1.35rem;
+  }
+
+  .cp-fields-row {
+    gap: 1.25rem;
+  }
+
+  .cp-read-field {
+    padding: 0.55rem 0.45rem 0.45rem;
+    min-width: 52px;
+  }
+
+  .cp-read-field-label {
+    top: -0.38rem;
+    left: 0.4rem;
+    font-size: 0.56rem;
+  }
+
+  .cp-read-field-value {
+    font-size: 0.76rem;
+  }
+
+  .cp-textarea-field {
+    padding: 0.5rem 0.6rem 0.55rem;
+    min-height: 95px;
+  }
+
+  .cp-textarea-label {
+    top: -0.4rem;
+    left: 0.4rem;
+    font-size: 0.6rem;
+  }
+
+  .cp-textarea-text {
+    font-size: 0.74rem;
+  }
 }

@@ -98,6 +98,7 @@ export default function Schedule() {
       specialty={attorney.specialty}
       language={attorney.language}
       timeSlots={mockTimeSlots}
+      timeOptions={mockTimeSlots}
       assignments={assignments}
       onRemove={handleRemove}
       isEditMode={isEditMode}
@@ -239,7 +240,7 @@ export default function Schedule() {
 
 // ─── Attorney Column ────────────────────────────────────────────────────────
 
-function AttorneyColumn({ colIdx, name, specialty, language, timeSlots, assignments, onRemove, isEditMode }) {
+function AttorneyColumn({ colIdx, name, specialty, language, timeSlots, timeOptions, assignments, onRemove, isEditMode }) {
   const slotCards = timeSlots.map((time, slotIdx) => {
     const slotKey = `${colIdx}-${slotIdx}`;
     return (
@@ -247,6 +248,7 @@ function AttorneyColumn({ colIdx, name, specialty, language, timeSlots, assignme
         key={slotKey}
         slotKey={slotKey}
         time={time}
+        timeOptions={timeOptions}
         assignedCase={assignments[slotKey] || null}
         onRemove={onRemove}
         isEditMode={isEditMode}
@@ -272,8 +274,15 @@ function AttorneyColumn({ colIdx, name, specialty, language, timeSlots, assignme
 
 // ─── Time Slot Card (Droppable) ──────────────────────────────────────────────
 
-function TimeSlotCard({ slotKey, time, assignedCase, onRemove, isEditMode }) {
+function TimeSlotCard({ slotKey, time, timeOptions, assignedCase, onRemove, isEditMode }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey });
+  const [selectedTime, setSelectedTime] = useState(time);
+  const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
+
+  function handleSelectTime(nextTime) {
+    setSelectedTime(nextTime);
+    setIsTimeMenuOpen(false);
+  }
 
   return (
     <div className="schedule-slot-card-outer">
@@ -299,10 +308,32 @@ function TimeSlotCard({ slotKey, time, assignedCase, onRemove, isEditMode }) {
       >
         {/* Always-visible time header */}
         <div className="schedule-slot-header">
-          <span>{time}</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-        </svg>
+          <span>{selectedTime}</span>
+          <button
+            type="button"
+            className="schedule-slot-time-toggle"
+            aria-label="Change time"
+            aria-expanded={isTimeMenuOpen}
+            onClick={() => setIsTimeMenuOpen((isOpen) => !isOpen)}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+            </svg>
+          </button>
+          {isTimeMenuOpen && (
+            <div className="schedule-slot-time-menu">
+              {timeOptions.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className={`schedule-slot-time-option${option === selectedTime ? " schedule-slot-time-option--active" : ""}`}
+                  onClick={() => handleSelectTime(option)}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
       </div>
 
       {/* Filled view */}

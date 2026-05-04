@@ -18,6 +18,14 @@ function statusColor(status) {
   return "var(--pending)"; // waitlisted / default
 }
 
+function formatPhone(phone) {
+  const digits = String(phone || "").replace(/\D/g, "");
+
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 // ─── Icons (inline SVG) ────────────────────────────────────────────────────────
 
 function IconEmail() {
@@ -63,9 +71,15 @@ function IconChevronDown() {
 // ─── Small floating-label read-only field ──────────────────────────────────────
 
 function ReadField({ label, value, style = {} }) {
+  const isRequired = label.includes("*");
+  const labelText = label.replace("*", "").trim();
+
   return (
     <div className="cp-read-field" style={style}>
-      <span className="cp-read-field-label">{label}</span>
+      <span className="cp-read-field-label">
+        {labelText}
+        {isRequired && <span className="cp-required-mark"> *</span>}
+      </span>
       <span className="cp-read-field-value">{value || "—"}</span>
     </div>
   );
@@ -79,7 +93,6 @@ function OverviewTab({ clientInfo = {}, caseInfo = {} }) {
       {/* Small fields row */}
       <div className="cp-fields-row">
         <ReadField label="Sex *" value={clientInfo.sex} />
-        <ReadField label="Household Size *" value={clientInfo.householdSize} />
         <ReadField label="Age *" value={clientInfo.age} />
       </div>
 
@@ -169,7 +182,7 @@ export default function CasePreview({ caseData, onClose, onExpand }) {
         {clientInfo.phone && (
           <span className="cp-contact-chip">
             <IconPhone />
-            {clientInfo.phone}
+            {formatPhone(clientInfo.phone)}
           </span>
         )}
       </div>
