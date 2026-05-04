@@ -1,7 +1,8 @@
 import { NavBar } from "./NavBar";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { getDatabase, ref, onValue } from "firebase/database";
-import { DndContext, useDroppable, useDraggable } from "@dnd-kit/core";
+import { DndContext, useDroppable, useDraggable, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
+import CasePreview from "./CasePreview";
 
 // Mock attorney columns
 const mockAttorneys = [
@@ -18,8 +19,15 @@ export default function Schedule() {
   // assignments: { [slotKey]: caseObj }  — local state only, resets on refresh
   const [assignments, setAssignments] = useState({});
   const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedCase, setSelectedCase] = useState(null); // CasePreview state
   const clinicLabel = "2/7 Legal Clinic";
   const db = getDatabase();
+
+  // Require 8px of pointer movement before a drag starts.
+  // This lets plain clicks fire onClick without being swallowed by dnd-kit.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   // Listen for real-time changes in the 'cases' table, filter to waitlisted
   useEffect(() => {
@@ -105,6 +113,7 @@ export default function Schedule() {
       category={c.caseInfo?.category}
       language={c.clientInfo?.primaryLanguage}
       date={c.schedulingInfo?.date}
+      onPreview={() => setSelectedCase(c)}
     />
   ));
 
@@ -112,7 +121,7 @@ export default function Schedule() {
     <>
       <NavBar active={"schedule"} />
 
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div className="schedule-page">
           {/* Left Panel: Schedule */}
           <div className="schedule-panel">
@@ -163,7 +172,7 @@ export default function Schedule() {
             </div>
           </div>
 
-          {/* Right Panel: Waitlist */}
+          {/* Right Panel: Waitlist — always visible */}
           <div className="schedule-waitlist-panel">
             <h5 className="schedule-waitlist-title">Waitlist</h5>
 
@@ -211,6 +220,14 @@ export default function Schedule() {
               }
             </div>
           </div>
+
+          {/* Case Preview — absolute overlay, does not affect layout */}
+          {selectedCase && (
+            <CasePreview
+              caseData={selectedCase}
+              onClose={() => setSelectedCase(null)}
+            />
+          )}
         </div>
       </DndContext>
     </>
@@ -351,7 +368,7 @@ function TimeSlotCard({ slotKey, time, assignedCase, onRemove, isEditMode }) {
 
 // ─── Waitlist Card (Draggable) ───────────────────────────────────────────────
 
-function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date }) {
+function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date, onPreview }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: firebaseKey,
   });
@@ -376,6 +393,7 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date 
       {...listeners}
       {...attributes}
       className={`schedule-waitlist-card${isDragging ? " schedule-waitlist-card--dragging" : ""}`}
+      onClick={onPreview}
     >
       <div className="schedule-waitlist-card-content">
         {/* Name + Badge + Date row */}
@@ -395,13 +413,21 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date 
         </p>
 
         {/* Contact Button */}
-        <button className="btn btn-sm schedule-contact-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-            <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
-          </svg>
-          Contact
-        </button>
+        <div className="d-flex justify-content-end mt-1">
+          <button 
+            className="btn btn-sm schedule-contact-btn" 
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent opening preview when clicking contact
+              // Future contact logic here
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+            </svg>
+            Contact
+          </button>
+        </div>
       </div>
     </div>
   );

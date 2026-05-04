@@ -294,6 +294,7 @@ body {
   display: flex;
   height: calc(100vh - 62px);
   overflow: hidden;
+  position: relative;  /* anchor for the absolute CasePreview overlay */
 }
 
 /* Left Panel - Schedule */
@@ -900,4 +901,238 @@ body {
     gap: 0.35rem;
     flex-wrap: wrap;
   }
+}
+
+/* ── Case Preview Panel ─────────────────────────────────────────────────────── */
+
+.cp-panel {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  min-width: 300px;
+  /* Overlay: sits on top of the waitlist panel, anchored to the right edge */
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background-color: var(--background);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-left: 1px solid var(--neutral-gray);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.12);
+  padding: 1rem 1.1rem 2rem;
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* Top icon row (close + expand) */
+.cp-icon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.cp-icon-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--dark-gray);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+}
+
+.cp-icon-btn:hover {
+  background-color: var(--subtle-gray);
+}
+
+/* Identity block */
+.cp-identity {
+  margin-bottom: 0.5rem;
+}
+
+.cp-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+
+.cp-status-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.cp-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.cp-subtitle {
+  font-size: 0.82rem;
+  color: var(--dark-gray);
+  margin: 0 0 0 1.5rem;
+}
+
+/* Contact chips */
+.cp-contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.cp-contact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--dark-gray);
+}
+
+/* Assignment pills */
+.cp-assignments {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.cp-assignment-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cp-assignment-role {
+  font-size: 0.68rem;
+  color: var(--dark-gray);
+}
+
+.cp-assignment-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--neutral-gray);
+  background-color: var(--background);
+  color: var(--primary-text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s;
+}
+
+.cp-assignment-pill--filled {
+  background-color: var(--primary-text);
+  border-color: var(--primary-text);
+  color: var(--background);
+}
+
+.cp-assignment-pill--dropdown {
+  padding-right: 6px;
+}
+
+.cp-assignment-pill:hover {
+  opacity: 0.85;
+}
+
+/* Tabs */
+.cp-tabs {
+  display: flex;
+  border-bottom: 1.5px solid var(--neutral-gray);
+  margin-bottom: 1rem;
+}
+
+.cp-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  padding: 0.3rem 0.6rem 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.cp-tab-btn--active {
+  color: var(--primary-text);
+  border-bottom-color: var(--primary-text);
+}
+
+.cp-tab-btn:hover:not(.cp-tab-btn--active) {
+  color: var(--primary-text);
+}
+
+/* Tab body */
+.cp-tab-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Small read-only fields row */
+.cp-fields-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cp-read-field {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--neutral-gray);
+  border-radius: 5px;
+  padding: 0.3rem 0.55rem 0.25rem;
+  min-width: 60px;
+}
+
+.cp-read-field-label {
+  font-size: 0.62rem;
+  color: var(--dark-gray);
+  line-height: 1.2;
+}
+
+.cp-read-field-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  line-height: 1.3;
+}
+
+/* Textarea-style read fields */
+.cp-textarea-field {
+  border: 1px solid var(--neutral-gray);
+  border-radius: 5px;
+  padding: 0.55rem 0.7rem 0.6rem;
+  min-height: 80px;
+}
+
+.cp-textarea-label {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--dark-gray);
+  margin-bottom: 0.35rem;
+}
+
+.cp-textarea-text {
+  font-size: 0.82rem;
+  color: var(--primary-text);
+  margin: 0;
+  line-height: 1.5;
 }
