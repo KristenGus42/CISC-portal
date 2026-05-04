@@ -151,7 +151,7 @@ export default function PersonnelLibrary() {
 function PersonCard({ id, name, mainPracticeAreas, languageSkills, email, phoneNumber, notes, personType, dateAdded }) {
     return (
         <div className="mb-3">
-            <Link to={`/edit-attorney/${id}`} className="text-decoration-none text-reset">            
+            <Link to={`/personnel-library/${id}`} className="text-decoration-none text-reset">            
                 <div className="person-card p-3">
                     <div className="card-body">
                         <div className="d-flex align-items-center mb-2">

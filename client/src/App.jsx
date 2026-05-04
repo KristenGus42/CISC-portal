@@ -8,6 +8,7 @@ import CaseLibrary from './components/CaseLibrary'
 import Schedule from './components/Schedule'
 import DndExample from './components/DndExample'
 import PersonnelLibary from './components/PersonnelLibrary'
+import IndividualPersonnel from './components/IndividualPersonnel';
 
 function App() {
 
@@ -22,9 +23,9 @@ function App() {
         <Route path="edit-form/:id?" element={<EditForm newForm={false} attorney={attorney} />} />
 
         <Route path="case-library" element={<CaseLibrary/>} />
-        
-        <Route path="personnel-library" element={<PersonnelLibary/>} />
-        <Route path="personnel-library/:id?" element={<PersonnelLibary/>} />
+
+        <Route path="personnel-library" element={<PersonnelLibary individual={false} />} />
+        <Route path="personnel-library/:id?" element={<IndividualPersonnel individual={true}/>} />
 
         <Route path="schedule" element={<Schedule />} />
         <Route path="example" element={<DndExample />} />
