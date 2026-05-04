@@ -1,3 +1,5 @@
+/** TODO: Styling changes, chnage filtering options - expanded view to view all personnel together? Making drop down of different categories more obvious? */
+
 import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
@@ -9,6 +11,8 @@ export default function PersonnelLibrary() {
     const [allAttorneysArr, setAllAttorneysArr] = useState([]);
     const [allLegalStudentsArr, setAllLegalStudentsArr] = useState([]);
     const [personType, setPersonType] = useState("Attorney"); // Choose person type 
+    const [searchQuery, setSearchQuery] = useState(""); // Choose person type 
+
 
     const db = getDatabase();
     
@@ -64,9 +68,30 @@ export default function PersonnelLibrary() {
     }, [db]);
     
     // Combine both arrays
-    const allPersonnel = [...allAttorneysArr, ...allLegalStudentsArr];
+    //const allPersonnel = [...allAttorneysArr, ...allLegalStudentsArr];
     
-    const visibleCards = (personType === "Attorney" ? allAttorneysArr : allLegalStudentsArr).map((person) => (
+    const filteredPersonnel = (personType === "Attorney" ? allAttorneysArr : allLegalStudentsArr)
+        .filter((person) => {
+            const fullName = person.name ? person.name.toLowerCase() : "";
+            const languageSkills = person.languageSkills ? person.languageSkills.toLowerCase() : "";
+            const mainPracticeAreas = person.mainPracticeAreas ? person.mainPracticeAreas.toLowerCase() : "";
+            return (
+                searchQuery === "" ||
+                fullName.includes(searchQuery.toLowerCase()) ||
+                languageSkills.includes(searchQuery.toLowerCase()) ||
+                mainPracticeAreas.includes(searchQuery.toLowerCase())
+            );
+        })
+        .sort((a, b) => {
+            // Sort by dateAdded - newest first
+            const dateA = new Date(a.dateAdded || 0);
+            const dateB = new Date(b.dateAdded || 0);
+            return dateB - dateA; // Descending order (newest first)
+            // Use: return dateA - dateB; for ascending order (oldest first)
+        });
+
+    // Then map the filtered data to cards
+    const visibleCards = filteredPersonnel.map((person) => (
         <PersonCard
             key={person.id}
             id={person.id}
@@ -77,41 +102,42 @@ export default function PersonnelLibrary() {
             phoneNumber={person.phoneNumber}
             notes={person.notes}
             personType={person.personType}
+            dateAdded={person.dateAdded}
         />
     ));
     
     return (
         <>
             <NavBar active={"personnel"}/>
-            
-            {/*Header Section*/}
-            <div className="container py-5">
-                <div className="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p className="mb-0 fw-bold fs-4">Personnel</p>
-                        <p className="mb-0 text-muted small">All Personnel</p>
-                    </div>
-                </div>
-            </div>
-            
             {/*Form and Cards Side by Side*/}
-            <div className="container">
-                <div className="row">
-                    {/*Personnel Form - Left Side*/}
-                    <div className="col-9">
-                        <PersonnelForm personType={personType} setPersonType={setPersonType}/>
-                    </div>
-                    
-                    {/*Personnel Cards - Right Side*/}
-                    <div className="col-3">
-                        <div className="py-5">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <p className="mb-0 fw-bold fs-4">Active {personType}</p>
+            <div className="mt-5">
+                <div className="container">
+                    <div className="row">
+                        {/*Personnel Form - Left Side*/}
+                        <div className="col-7">
+                            <PersonnelForm personType={personType} setPersonType={setPersonType}/>
+                        </div>
+                        <div className="col-1"></div>
+                        {/*Personnel Cards - Right Side*/}
+                        <div className="col-4"> {/* Changed to col-4 so it adds to 12 */}
+                            <div className="py-5">
+                                <div className="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <p className="mb-0 fw-bold fs-4">Active {personType}s</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="personnel-cards-scroll">
-                                {visibleCards}
+                                <div className="mb-3">
+                                    <input
+                                        type="text"
+                                        className="form-control form-control-sm schedule-search-input"
+                                        placeholder="Name, Main Practice Area or Language"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+                                <div className="personnel-cards-scroll personnel-container">
+                                    {visibleCards}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -122,24 +148,35 @@ export default function PersonnelLibrary() {
 }
 
 // TODO: Change styling of cards
-function PersonCard({ id, name, mainPracticeAreas, languageSkills, email, phoneNumber, notes, personType }) {
+function PersonCard({ id, name, mainPracticeAreas, languageSkills, email, phoneNumber, notes, personType, dateAdded }) {
     return (
-        <div className="mb-4">
+        <div className="mb-3">
             <Link to={`/edit-attorney/${id}`} className="text-decoration-none text-reset">            
-                <div className="person-card-wrapper">
-                   <div className="card person-card">
-                        {/*Regular view*/}
-                        <div className="card-body">
-                            <div className="person-card-title d-flex">
-                                <p className="mb-2 fw-semibold">{name} </p>
-                                <div className="case-card-tag attorney-tag">
-                                    <p className="case-card-subtitle mb-0">{personType}</p>
-                                </div>
-                            </div>
-                            <div className="person-card-subtitle">
-                                <p className="mb-0 small text-muted">{"Main practice areas: " + (mainPracticeAreas || "No Practice Areas")}</p>
-                            </div>
+                <div className="person-card p-3">
+                    <div className="card-body">
+                        <div className="d-flex align-items-center mb-2">
+                            <h6 className="mb-0 me-2">{name}</h6>
+                            <span className={"badge " + (personType === "Attorney" ? "attorney-badge" : "legal-student-badge")}>
+                                {personType}
+                            </span>
                         </div>
+                    
+                        {mainPracticeAreas && (
+                            <p className="mb-1 small text-muted">
+                                <strong>Practice Areas:</strong> {mainPracticeAreas}
+                            </p>
+                        )}
+                        
+                        {languageSkills && (
+                            <p className="mb-4 small text-muted">
+                                <strong>Languages:</strong> {languageSkills}
+                            </p>
+                        )}
+
+                        <p className="mb-1 small text-muted date-added">
+                            <em>Date Added: {dateAdded}</em>
+                        </p>
+                    
                     </div>
                 </div>
             </Link>

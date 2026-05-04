@@ -5,62 +5,6 @@ import { useParams, useNavigate } from "react-router";
 // Import Firebase functions
 import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue } from 'firebase/database';
 
-// ─── Reusable floating label components ───────────────────────────────────────
-function FloatInput({ id, name, label, required, value, onChange, type = "text" }) {
-  return (
-    <div className="form-floating">
-      <input
-        type={type}
-        className="form-control"
-        id={id}
-        name={name}
-        placeholder={label}
-        value={value || ""}
-        onChange={onChange}
-        required={required}
-      />
-      <label htmlFor={id} className={required ? "required" : ""}>{label}</label>
-    </div>
-  );
-}
-
-function FloatSelect({ id, name, label, required, value, onChange, children }) {
-  return (
-    <div className="form-floating">
-      <select
-        className="form-select"
-        id={id}
-        name={name}
-        value={value || ""}
-        onChange={onChange}
-        required={required}
-      >
-        {children}
-      </select>
-      <label htmlFor={id} className={required ? "required" : ""}>{label}</label>
-    </div>
-  );
-}
-
-function FloatTextarea({ id, name, label, required, value, onChange, height = "120px" }) {
-  return (
-    <div className="form-floating">
-      <textarea
-        className="form-control"
-        id={id}
-        name={name}
-        placeholder={label}
-        value={value || ""}
-        onChange={onChange}
-        required={required}
-        style={{ height }}
-      />
-      <label htmlFor={id} className={required ? "required" : ""}>{label}</label>
-    </div>
-  );
-}
-
-// ─── Helper function ──────────────────────────────────────────────────────────
 function countFilledReqFields(personnelFormData) {
   const reqFieldNames = ["name", "email", "phoneNumber"];
   let reqFieldCount = 0;
@@ -92,8 +36,7 @@ export default function PersonnelForm(props) {
   const [isFormValid, setIsFormValid] = useState(false);
   const personType = props.personType;
   const setPersonType = props.setPersonType;
-  //const [personType, setPersonType] = useState("Attorney"); // Choose person type 
-
+  
   // 1. EFFECT: Fetch data from Firebase if an ID exists (Editing mode)
   useEffect(() => {
     if (id) {
@@ -107,18 +50,18 @@ export default function PersonnelForm(props) {
       });
     }
   }, [id, db, personType]);
-
+  
   // 2. EFFECT: Validation logic
   useEffect(() => {
     setIsFormValid(countFilledReqFields(personnelFormData) >= 3);
   }, [personnelFormData]);
-
+  
   // Handler
   const handlePersonnelChange = (e) => {
     const { name, value } = e.target;
     setPersonnelFormData((prev) => ({ ...prev, [name]: value }));
   };
-
+  
   const resetForm = () => {
     setPersonnelFormData({
       date: personnelFormData.date,
@@ -132,6 +75,7 @@ export default function PersonnelForm(props) {
       dateAdded: new Date().toLocaleString()
     })
   }
+  
   // 3. SUBMIT: Push or Update Firebase
   const handleSubmit = () => {
     const collectionName = personType === "Attorney" ? "attorneys" : "legalStudents";
@@ -159,92 +103,103 @@ export default function PersonnelForm(props) {
   
   return (
     <div>
-      
-      {/*<NavBar active={"personnel"} />header*/}
       <div className="container py-5">
         <div className="d-flex justify-content-between align-items-start mb-4 pb-3">
           <div>
-            <div className="d-flex">
-              <h1 className="fs-4 fw-bold mb-1 my-12">Add a new {personType} </h1>
-              <div className="ms-3 align-self-center">
-                <FloatSelect
-                  id="personType" 
-                  name="personType" 
-                  label="Personnel Category" 
-                  value={personType} 
-                  onChange={handlePersonChange}
-                >
-                  <option value="Attorney">Attorney</option>
-                  <option value="Legal Student">Legal Student</option>
-                </FloatSelect>
-              </div>
-            </div>
+            <h1 className="fs-4 fw-bold mb-1">Add a new {personType}</h1>
             <p className="err-color mb-2">{countFilledReqFields(personnelFormData)}/3 required fields</p>
           </div>
           <div className="text-end">
             <button type="button" className="btn btn-submit" disabled={!isFormValid} onClick={handleSubmit}>Add</button>
           </div>
         </div>
+        
+        {/* Person Type Selector */}
+        <div className="row mb-3 g-3">
+          <div className="col-12">
+            <label htmlFor="personType" className="form-label fw-bold">Personnel Category (Attorney or Legal Student) </label>
+            <select
+              className="form-select"
+              id="personType" 
+              name="personType" 
+              value={personType} 
+              onChange={handlePersonChange}
+            >
+              <option value="Attorney">Attorney</option>
+              <option value="Legal Student">Legal Student</option>
+            </select>
+          </div>
+        </div>
+        
         {/* ── PERSONNEL INFORMATION ── */}
-        <div className="row mb-3 g-4">
-          <div className="col-6">
-            <FloatInput 
+        <div className="row mb-3 g-3">
+          <div className="col-12">
+            <label htmlFor="name" className="form-label required">Name</label>
+            <input
+              type="text"
+              className="form-control"
               id="name" 
               name="name" 
-              label="Name" 
-              required
               value={personnelFormData.name} 
-              onChange={handlePersonnelChange} 
+              onChange={handlePersonnelChange}
+              required
             />
           </div>
-          <div className="col-4">
-            <FloatInput 
+          <div className="col-12 col-md-6">
+            <label htmlFor="email" className="form-label required">Email</label>
+            <input
+              type="email"
+              className="form-control"
               id="email" 
               name="email" 
-              label="Email" 
-              required
-              type="email"
               value={personnelFormData.email} 
-              onChange={handlePersonnelChange} 
+              onChange={handlePersonnelChange}
+              required
             />
           </div>
-          <div className="col-4">
-            <FloatInput 
+          <div className="col-12 col-md-6">
+            <label htmlFor="phoneNumber" className="form-label required">Phone Number</label>
+            <input
+              type="tel"
+              className="form-control"
               id="phoneNumber" 
               name="phoneNumber" 
-              label="Phone Number" 
-              required
-              type="tel"
               value={personnelFormData.phoneNumber} 
-              onChange={handlePersonnelChange} 
+              onChange={handlePersonnelChange}
+              required
             />
           </div>
-          <div className="col-4">
-            <FloatInput 
+          <div className="col-12">
+            <label htmlFor="languageSkills" className="form-label">Language Skills</label>
+            <input
+              type="text"
+              className="form-control"
               id="languageSkills" 
               name="languageSkills" 
-              label="Language Skills" 
               value={personnelFormData.languageSkills} 
-              onChange={handlePersonnelChange} 
+              onChange={handlePersonnelChange}
             />
           </div>
           <div className="col-12">
-            <FloatInput 
+            <label htmlFor="mainPracticeAreas" className="form-label">Main Practice Areas</label>
+            <input
+              type="text"
+              className="form-control"
               id="mainPracticeAreas" 
               name="mainPracticeAreas" 
-              label="Main Practice Areas" 
               value={personnelFormData.mainPracticeAreas} 
-              onChange={handlePersonnelChange} 
+              onChange={handlePersonnelChange}
             />
           </div>
           <div className="col-12">
-            <FloatTextarea 
+            <label htmlFor="notes" className="form-label">Notes</label>
+            <textarea
+              className="form-control"
               id="notes" 
               name="notes" 
-              label="Notes" 
               value={personnelFormData.notes} 
-              onChange={handlePersonnelChange} 
-              height="140px"
+              onChange={handlePersonnelChange}
+              style={{ height: "140px" }}
             />
           </div>
         </div>      
@@ -252,6 +207,7 @@ export default function PersonnelForm(props) {
     </div>
   );
 }
+
 // ─── Headers ──────────────────────────────────────────────────────────────────
 function ExistingPersonnelHeader({ personnelFormData }) {
   return (
@@ -269,6 +225,7 @@ function ExistingPersonnelHeader({ personnelFormData }) {
     </div>
   );
 }
+
 function NewPersonnelHeader() {
   return (
     <div className="container py-5">

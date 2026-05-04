@@ -78,7 +78,7 @@ export default function Schedule() {
         fullName.includes(searchQuery.toLowerCase()) ||
         caseId.includes(searchQuery.toLowerCase())
       );
-    });
+  });
 
   const attorneyColumns = mockAttorneys.map((attorney, colIdx) => (
     <AttorneyColumn

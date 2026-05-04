@@ -260,10 +260,6 @@ body {
   border-radius: 3px;
 }
 
-.attorney-tag {
-  background-color: greenyellow;
-}
-
 /*Edit Form*/
 .edit-form-title {
   font-size: 1.5rem;
@@ -820,8 +816,42 @@ body {
 
 /*Personnel Library*/
 .personnel-cards-scroll {
-    max-height: 600px;
-    overflow-y: scroll;
+  max-height: 40rem;
+  overflow-y: scroll;
+}
+
+.personnel-container {
+  background-color: #f3eff0;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+/* Personnel cards */
+.person-card {
+  background-color: var(--background);
+  border-radius: 8px;
+  border: 1px solid var(--neutral-gray);
+  transition: box-shadow 0.2s ease;
+}
+
+.person-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.attorney-badge {
+  background-color: #ff9800;
+  color: white;
+  font-size: 0.7rem;
+}
+
+.legal-student-badge {
+  background-color: #deb887;
+  color: var(--primary-text);
+  font-size: 0.7rem;
+}
+
+.date-added {
+  font-size: 0.7rem;
 }
 
 /* ── Responsive Scaling for Card Contents */

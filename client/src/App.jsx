@@ -21,9 +21,10 @@ function App() {
         <Route path="new-form" element={<EditForm newForm={true} attorney={attorney}/>} />
         <Route path="edit-form/:id?" element={<EditForm newForm={false} attorney={attorney} />} />
 
-
         <Route path="case-library" element={<CaseLibrary/>} />
+        
         <Route path="personnel-library" element={<PersonnelLibary/>} />
+        <Route path="personnel-library/:id?" element={<PersonnelLibary/>} />
 
         <Route path="schedule" element={<Schedule />} />
         <Route path="example" element={<DndExample />} />
