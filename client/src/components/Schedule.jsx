@@ -1,5 +1,6 @@
 import { NavBar } from "./NavBar";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { DndContext, useDroppable, useDraggable, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import CasePreview from "./CasePreview";
@@ -14,6 +15,7 @@ const mockAttorneys = [
 const mockTimeSlots = ["5:30pm", "6:30pm", "7:30pm"];
 
 export default function Schedule() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [waitlistCases, setWaitlistCases] = useState([]);
   // assignments: { [slotKey]: caseObj }  — local state only, resets on refresh
@@ -226,6 +228,7 @@ export default function Schedule() {
             <CasePreview
               caseData={selectedCase}
               onClose={() => setSelectedCase(null)}
+              onExpand={() => navigate(`/edit-form/${selectedCase.id}`)}
             />
           )}
         </div>

@@ -908,8 +908,8 @@ body {
 .cp-panel {
   display: flex;
   flex-direction: column;
-  width: 320px;
-  min-width: 300px;
+  width: 380px;
+  min-width: 360px;
   /* Overlay: sits on top of the waitlist panel, anchored to the right edge */
   position: absolute;
   top: 0;
@@ -919,6 +919,7 @@ body {
   background-color: var(--background);
   overflow-y: auto;
   overflow-x: hidden;
+  border-top: 1px solid var(--neutral-gray);
   border-left: 1px solid var(--neutral-gray);
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.12);
   padding: 1rem 1.1rem 2rem;
@@ -929,7 +930,8 @@ body {
 .cp-icon-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 0.35rem;
   margin-bottom: 0.75rem;
 }
 

@@ -134,11 +134,15 @@ export default function CasePreview({ caseData, onClose, onExpand }) {
         <button className="cp-icon-btn" onClick={onClose} title="Close" id="cp-close-btn">
           <IconClose />
         </button>
-        {onExpand && (
-          <button className="cp-icon-btn" onClick={onExpand} title="Expand" id="cp-expand-btn">
-            <IconExpand />
-          </button>
-        )}
+        <button
+          className="cp-icon-btn"
+          onClick={onExpand}
+          title="Expand"
+          id="cp-expand-btn"
+          type="button"
+        >
+          <IconExpand />
+        </button>
       </div>
 
       {/* ── Client name & subtitle ── */}
