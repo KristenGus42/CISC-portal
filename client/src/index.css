@@ -184,57 +184,206 @@ body {
   text-decoration: solid;
 }
 
-/* Case Cards*/
-.case-card-wrapper {
-  border-left: 12px solid;
-  border-radius: 6px 0 0 6px;
-  margin: 2rem 1rem 2rem 1rem;
-  overflow: hidden;
+/* Case Library Toolbar */
+.cl-responsive-container {
+  width: min(100% - 10rem, 1140px);
+  padding-left: 0;
+  padding-right: 0;
 }
 
-.waitlisted {
-  border-color: var(--pending);
+.cl-page-title {
+  font-size: 2rem;
 }
 
-.scheduled {
-  border-color: var(--success);
+.cl-page-subtitle {
+  margin-bottom: 3rem;
 }
 
-.case-card,
-.case-card-extended {
+.cl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  min-width: 0;
+}
+
+.cl-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.cl-search-container {
+  position: relative;
+  min-width: 0;
+}
+
+.cl-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dark-gray);
+  pointer-events: none;
+}
+
+.cl-search-input {
+  padding-left: 34px;
+  padding-right: 12px;
+  border-radius: 20px;
+  border: 1px solid var(--neutral-gray);
+  font-size: 0.85rem;
+  height: 36px;
+  min-width: 420px;
   background-color: var(--subtle-gray);
 }
 
-.case-card {
+.cl-search-input::placeholder {
+  color: #999;
+}
+
+.cl-search-input:focus {
+  outline: none;
+  border-color: var(--call-to-action-3);
+  box-shadow: 0 0 0 2px rgba(109, 47, 62, 0.1);
+}
+
+.cl-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 6px 16px;
+  border-radius: 5px;
+  border: 1px solid var(--primary-text);
+  background-color: var(--primary-text);
+  color: var(--background);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 36px;
+  transition: opacity 0.15s;
+}
+
+.cl-filter-btn:hover {
+  opacity: 0.85;
+}
+
+.cl-add-case-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 6px 16px;
+  border-radius: 5px;
+  border: 1px solid var(--call-to-action);
+  background-color: var(--call-to-action);
+  color: var(--background);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  height: 36px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.cl-add-case-btn:hover {
+  background-color: var(--primary-text);
+  border-color: var(--primary-text);
+  color: var(--background);
+}
+
+/* Case Library Legend */
+.cl-legend {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.82rem;
+  color: var(--primary-text);
+}
+
+.cl-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cl-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.cl-legend-dot--old {
+  background-color: var(--error);
+}
+
+.cl-legend-dot--medium {
+  background-color: var(--pending);
+}
+
+.cl-legend-dot--new {
+  background-color: var(--success);
+}
+
+/* Case Cards*/
+.cl-case-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.cl-case-card-wrapper {
+  border-left: 12px solid;
+  border-radius: 6px 0 0 6px;
+  margin: 0;
+  overflow: hidden;
+}
+
+.cl-status-waitlisted {
+  border-color: var(--pending);
+}
+
+.cl-status-scheduled {
+  border-color: var(--success);
+}
+
+.cl-case-card,
+.cl-case-card-extended {
+  background-color: var(--subtle-gray);
+}
+
+.cl-case-card {
   border-radius: 0 0 0 0;
   margin-left: 0;
 }
 
-.case-card-info {
+.cl-case-card-info {
   display: flex;
 }
 
-.case-card-title {
+.cl-case-card-title {
   font-weight: 600;
   padding-bottom: 0;
 }
 
-.case-card-subtitle {
+.cl-case-card-subtitle {
   margin-top: 0;
 }
 
-.case-card-right p,
-.case-card-subtitle {
+.cl-case-card-right p,
+.cl-case-card-subtitle {
   color: gray;
   font-size: 0.85rem;
 }
 
-.case-card-right p {
+.cl-case-card-right p {
   margin-top: -0.5rem;
 }
 
 /* Extended reveal NOTE: Can be changed to use state in the future if more control is needed over hover functionality */
-.case-card-extended {
+.cl-case-card-extended {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.25s ease;
@@ -242,16 +391,16 @@ body {
   /* avoids a border flash on open */
 }
 
-.case-card-wrapper:hover .case-card-extended {
+.cl-case-card-wrapper:hover .cl-case-card-extended {
   max-height: 160px;
   /* bump up if your content is taller */
 }
 
-.case-card-extended p {
+.cl-case-card-extended p {
   margin-left: 1rem;
 }
 
-.case-card-tag p {
+.cl-case-card-tag p {
   background-color: var(--background);
   width: fit-content;
   padding: 0.4rem;
