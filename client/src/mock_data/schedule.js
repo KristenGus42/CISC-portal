@@ -1,0 +1,50 @@
+export const schedule = [
+    {
+        id: "0",
+        date: "2025-04-15",
+        timeSlot: "5:30pm",
+        meetingPlatform: "Virtual",
+        meetingLink: "https://zoom.us/j/example",
+        attorneyName: "Option 1",
+        attorneyEmail: "attorney1@email.com",
+        attorneyPhone: "206-555-1001",
+        legalStudentName: "Option 2",
+        legalStudentEmail: "student2@email.com",
+        legalStudentPhone: "206-555-2002",
+        interpreterName: "Option 1",
+        interpreterEmail: "interpreter1@email.com",
+        interpreterPhone: "206-555-3001"
+    },
+    {
+        id: "1",
+        date: "2025-04-16",
+        timeSlot: "6:10pm",
+        meetingPlatform: "Virtual",
+        meetingLink: "https://zoom.us/j/example",
+        attorneyName: "Option 3",
+        attorneyEmail: "attorney3@email.com",
+        attorneyPhone: "206-555-1003",
+        legalStudentName: "Option 1",
+        legalStudentEmail: "student1@email.com",
+        legalStudentPhone: "206-555-2001",
+        interpreterName: "",
+        interpreterEmail: "",
+        interpreterPhone: ""
+    },
+    {
+        id: "2",
+        date: "2025-04-17",
+        timeSlot: "6:50pm",
+        meetingPlatform: "Virtual",
+        meetingLink: "https://zoom.us/j/example",
+        attorneyName: "Option 2",
+        attorneyEmail: "attorney2@email.com",
+        attorneyPhone: "206-555-1002",
+        legalStudentName: "Option 3",
+        legalStudentEmail: "student3@email.com",
+        legalStudentPhone: "206-555-2003",
+        interpreterName: "Option 2",
+        interpreterEmail: "interpreter2@email.com",
+        interpreterPhone: "206-555-3002"
+    }
+]
