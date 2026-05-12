@@ -134,7 +134,7 @@ export default function CaseLibrary() {
             </div>
 
             {/*Case Cards*/}
-            <div className="container overflow-hidden cl-responsive-container">
+            <div className="container overflow-hidden pb-5 cl-responsive-container">
                 <div className="cl-case-list">
                     {filteredCases.length > 0 ? caseCards : <p className="text-center text-muted">No cases found.</p>}
                 </div>
