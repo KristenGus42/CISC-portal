@@ -1,0 +1,1237 @@
+{
+  "Consumer / Finance": {
+    "Bankruptcy/Debtor Relief": {
+      "code": 1,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "https://www.washingtonlawhelp.org/en/what-do-i-do-if-my-loved-one-just-went-jail",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/6.13",
+        "https://www.washingtonlawhelp.org/en/supported-decision-making",
+        "https://www.washingtonlawhelp.org/en/divorce-basics",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/6.32",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/6.36",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/79.24.520",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/6.17.190"
+      ]
+    },
+    "Collections/Repo/Garnishment": {
+      "code": 2,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/what-do-i-do-if-my-loved-one-just-went-jail",
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "https://www.washingtonlawhelp.org/en/bankruptcy",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/28C",
+        "https://www.washingtonlawhelp.org/en/supported-decision-making",
+        "https://www.washingtonlawhelp.org/en/prison-social-security-health-care",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/6.27",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/6.28",
+        "https://www.uscis.gov/working-in-the-united-states/options-for-alien-entrepreneurs-to-work-in-the-united-states",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/44"
+      ]
+    },
+    "Contracts/Warranties": {
+      "code": 3,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/i-just-got-traffic-ticket-what-can-i-do-avoid-license-suspension",
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/71.05",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/2",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/63",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/4",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/19",
+        "https://www.seattle.gov/your-rights-as-a-customer/find-a-towed-car/redeeming-your-vehicle",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/4",
+        "https://www.washingtonlawhelp.org/en/avoid-or-stop-garnishment"
+      ]
+    },
+    "Collection Practices/Creditor Harass.": {
+      "code": 4,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/default-if-no-response",
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "https://www.washingtonlawhelp.org/en/supported-decision-making",
+        "https://www.washingtonlawhelp.org/en/prison-social-security-health-care",
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/7.64",
+        "https://www.washingtonlawhelp.org/en/respond-ejectment-lawsuit",
+        "https://www.seattle.gov/cityclerk/legislation-and-research/seattle-municipal-code-and-city-charter",
+        "https://app.leg.wa.gov/committeeschedules/",
+        "https://app.leg.wa.gov/csi"
+      ]
+    },
+    "Predatory Lending Practices": {
+      "code": 5,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/2",
+        "https://app.leg.wa.gov/committeeschedules/",
+        "https://app.leg.wa.gov/csi",
+        "https://www.seattle.gov/cityclerk/legislation-and-research/seattle-municipal-code-and-city-charter",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/18",
+        "https://www.washingtonlawhelp.org/en/you-sign-lease",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/78",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/17",
+        "http://www.courts.wa.gov",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/49"
+      ]
+    },
+    "Loans/Installment Purchases": {
+      "code": 6,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/2",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/4",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/44",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/62A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/44",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/28C",
+        "https://www.uscis.gov/working-in-the-united-states/options-for-alien-entrepreneurs-to-work-in-the-united-states",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/32"
+      ]
+    },
+    "Public Utilities": {
+      "code": 7,
+      "pages": [
+        "https://kingcounty.gov/en/court/superior-court",
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "https://www.seattle.gov/",
+        "https://www.seattle.gov/your-rights-as-a-customer/find-a-towed-car/max-towing-fees-police-authorized-impounds",
+        "https://www.seattle.gov/your-rights-as-a-customer/find-a-towed-car/redeeming-your-vehicle",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/44",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/44",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/4",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/32",
+        "https://www.washingtonlawhelp.org/en/el-faro-legal"
+      ]
+    },
+    "Unfair Sales Practices": {
+      "code": 8,
+      "pages": [
+        "https://www.uscis.gov/scams-fraud-and-misconduct/report-fraud",
+        "https://www.uscis.gov/es/herramientas",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/2",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/2",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/5.24",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/63.21",
+        "https://app.leg.wa.gov/committeeschedules/",
+        "https://app.leg.wa.gov/csi",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/49",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/5"
+      ]
+    },
+    "Other Consumer / Finance": {
+      "code": 9,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/32",
+        "https://app.leg.wa.gov/committeeschedules/",
+        "https://app.leg.wa.gov/csi",
+        "https://www.seattle.gov/your-rights-as-a-customer/find-a-towed-car/max-towing-fees-police-authorized-impounds",
+        "https://kingcounty.gov/en/court/superior-court",
+        "https://www.seattle.gov/",
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/44",
+        "https://www.uscis.gov/working-in-the-united-states/options-for-alien-entrepreneurs-to-work-in-the-united-states",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/44"
+      ]
+    }
+  },
+  "Education": {
+    "Education": {
+      "code": 11,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "https://www.washingtonlawhelp.org/en/can-i-change-sex-my-tribal-id-and-records",
+        "https://www.washingtonlawhelp.org/en/change-or-end-your-protection-order",
+        "https://www.washingtonlawhelp.org/en/what-do-if-your-identity-stolen",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-manufactured-mobile-home-landlord-tenant-act",
+        "https://www.washingtonlawhelp.org/en/can-i-change-sex-thats-my-immigration-or-citizenship-documents",
+        "https://www.washingtonlawhelp.org/en/domestic-violence-survivors-rights-cps",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-refugees-and-other-humanitarian-entrants",
+        "https://www.washingtonlawhelp.org/en/serve-papers-start-new-case",
+        "https://www.washingtonlawhelp.org/en/end-or-change-minor-guardianship-or-non-parent-custody"
+      ]
+    },
+    "Discipline": {
+      "code": 12,
+      "pages": [
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/2.50",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-3-artist-or-entertainer-coming-to-be-part-of-a-culturally-unique-program",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/2.68",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.18",
+        "https://www.seattle.gov/courts/programs-and-services/interpreter-services/for-attorneys",
+        "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/report-immigration-scams",
+        "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/find-legal-services",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans/public-benefits-indian-country",
+        "https://www.uscis.gov/adoption/suitability-and-home-study-information/background-checks-security-and-child-abuse-registry",
+        "https://www.washingtonlawhelp.org/en/ssi-and-felony-warrants"
+      ]
+    },
+    "Special Education/Learning Dis.": {
+      "code": 13,
+      "pages": [
+        "https://www.uscis.gov/military/military-help-line",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans",
+        "https://www.uscis.gov/i-485",
+        "https://www.washingtonlawhelp.org/en/mediation-should-i-use-it",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/making-decisions-someone-else",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.uscis.gov/n-400",
+        "https://www.uscis.gov/es/cambiodedireccion",
+        "https://www.uscis.gov/es/politicas-del-sitio-web/sitios-web-de-los-componentes-de-dhs"
+      ]
+    },
+    "Access": {
+      "code": 14,
+      "pages": [
+        "https://www.washingtonlawhelp.org/form-library",
+        "https://www.washingtonlawhelp.org/en/free-credit-reports",
+        "https://www.washingtonlawhelp.org/get-legal-help",
+        "https://www.washingtonlawhelp.org/es/accesibilidad",
+        "https://www.seattle.gov/courts/about/seattle-municipal-court-judges/honorable-damon-shadid",
+        "https://www.seattle.gov/courts/for-attorneys/local-court-rules/about-our-digital-properties",
+        "https://www.seattle.gov/courts/about/seattle-municipal-court-judges/honorable-catherine-mcdowall/chambers-procedures-courtroom-1101",
+        "https://www.seattle.gov/courts/about/seattle-municipal-court-judges/honorable-faye-chess",
+        "https://www.washingtonlawhelp.org/en/pest-infestations",
+        "https://www.washingtonlawhelp.org/es/acerca-de-washington-law-help"
+      ]
+    },
+    "Vocational Education": {
+      "code": 15,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/28D",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/29A",
+        "https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/conrad-30-waiver-program",
+        "https://www.uscis.gov/visit-the-united-states/extend-your-stay",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-nonimmigrant-workers",
+        "https://www.uscis.gov/join",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/28B",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/tn-usmca-professionals",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/52",
+        "https://www.washingtonlawhelp.org/en/fight-food-stamp-overpayment"
+      ]
+    },
+    "Student Financial Aid": {
+      "code": 16,
+      "pages": [
+        "https://www.uscis.gov/scams-fraud-and-misconduct/avoid-scams/find-legal-services",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/28C",
+        "https://www.uscis.gov/about-us/careers/special-hiring-programs",
+        "https://www.uscis.gov/forms/forms",
+        "http://www.courts.wa.gov",
+        "https://www.seattle.gov/courts/about/community-engagement/outreach-events/past-events",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/28C",
+        "https://www.uscis.gov/citizenship-resource-center/naturalization-related-data-and-statistics",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-3-specialty-occupation-workers-from-australia",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-fourth-preference-eb-4"
+      ]
+    },
+    "Other Education": {
+      "code": 19,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "https://www.washingtonlawhelp.org/en/can-i-change-sex-my-tribal-id-and-records",
+        "https://www.washingtonlawhelp.org/en/change-or-end-your-protection-order",
+        "https://www.washingtonlawhelp.org/en/what-do-if-your-identity-stolen",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-manufactured-mobile-home-landlord-tenant-act",
+        "https://www.washingtonlawhelp.org/en/can-i-change-sex-thats-my-immigration-or-citizenship-documents",
+        "https://www.washingtonlawhelp.org/en/domestic-violence-survivors-rights-cps",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-refugees-and-other-humanitarian-entrants",
+        "https://www.washingtonlawhelp.org/en/serve-papers-start-new-case",
+        "https://www.washingtonlawhelp.org/en/end-or-change-minor-guardianship-or-non-parent-custody"
+      ]
+    }
+  },
+  "Employment": {
+    "Employment Discrimination": {
+      "code": 21,
+      "pages": [
+        "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents",
+        "https://www.uscis.gov/i-9-central/employee-rights-and-resources/preventing-discrimination",
+        "https://www.uscis.gov/i-9-central/remote-examination-of-documents",
+        "https://www.washingtonlawhelp.org/en/dismiss-family-law-case",
+        "https://www.uscis.gov/working-in-the-united-states/international-entrepreneur-rule",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/5.24",
+        "https://www.uscis.gov/i-9-central/employee-rights-and-resources/filing-a-discrimination-claim",
+        "https://www.uscis.gov/i-9",
+        "https://www.uscis.gov/i-9-central/completing-form-i-9",
+        "https://www.washingtonlawhelp.org/en/i-received-writ-restitution"
+      ]
+    },
+    "Wage Claims and Other FLSA": {
+      "code": 22,
+      "pages": [
+        "https://www.seattle.gov/police/about-us/police-locations/police-hq",
+        "https://www.seattle.gov/police/community-policing/red-light-cameras",
+        "https://www.seattle.gov/police/about-us/about-policing/parking-enforcement",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-2b-temporary-non-agricultural-workers",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-3-nonimmigrant-trainee-or-special-education-exchange-visitor",
+        "http://www.courts.wa.gov",
+        "http://www.seattle.gov/police/community-policing/school-zone-enforcement",
+        "https://www.seattle.gov/police/community-policing/school-zone-enforcement",
+        "http://www.seattle.gov/tech/initiatives/privacy/about-the-privacy-program",
+        "https://www.seattle.gov/police/community-policing/ws-low-bridge-enforcement"
+      ]
+    },
+    "Earned Income Tax Credit": {
+      "code": 23,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/how-do-i-sign-documents-when-i-am-physically-unable",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/6.17.180",
+        "https://www.uscis.gov/forms/forms",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/79.24.520",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors",
+        "https://www.uscis.gov/i-9-central",
+        "https://www.washingtonlawhelp.org/en/reinstate-your-tenancy-after-eviction",
+        "https://www.uscis.gov/n-426",
+        "https://www.washingtonlawhelp.org/en/applying-work"
+      ]
+    },
+    "Taxes": {
+      "code": 24,
+      "pages": [
+        "https://www.uscis.gov/newsroom/news-releases/making-america-safe-again-us-citizenship-and-immigration-services-end-of-year-review-demonstrates",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/tn-usmca-professionals",
+        "https://www.uscis.gov/i-9-central",
+        "https://www.uscis.gov/n-426",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employer-information",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/83",
+        "https://www.washingtonlawhelp.org/en/protecting-elders-and-vulnerable-adults-abuse-and-neglect",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/85",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/84"
+      ]
+    },
+    "Employee Rights": {
+      "code": 25,
+      "pages": [
+        "https://www.uscis.gov/i-90",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-2-treaty-investors",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/o-1-visa-individuals-with-extraordinary-ability-or-achievement",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-2-visa-cnmi-only-investor",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/l-1b-intracompany-transferee-specialized-knowledge",
+        "https://www.uscis.gov/i-129f",
+        "https://www.uscis.gov/about-us/careers/special-hiring-programs",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employer-information",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-1-treaty-traders",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-second-preference-eb-2"
+      ]
+    },
+    "Agricultural Workers Issues": {
+      "code": 26,
+      "pages": [
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-2b-temporary-non-agricultural-workers",
+        "https://www.uscis.gov/working-in-the-united-states/international-entrepreneur-rule",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-3-nonimmigrant-trainee-or-special-education-exchange-visitor",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-visitors-for-business",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/report-labor-abuses",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/working-in-the-united-states/stem-employment-pathways/immigrant-pathways-for-stem-employment-in-the-united-states",
+        "https://www.uscis.gov/policy-manual/updates",
+        "https://www.washingtonlawhelp.org/en/topics/going-court",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-1b-specialty-occupations/h-1b-cap-season"
+      ]
+    },
+    "Other Employment": {
+      "code": 29,
+      "pages": [
+        "https://www.uscis.gov/archive/privacy-and-legal-disclaimers",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees",
+        "https://www.uscis.gov/i-9-central/form-i-9-resources/statutes-and-regulations",
+        "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents/examining-documents",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-1-treaty-traders",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/i-9-central/completing-form-i-9/special-rules-for-e-verify-users",
+        "https://www.uscis.gov/i-9-central/completing-form-i-9/completing-supplement-b-reverification-and-rehires-formerly-section-3",
+        "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents",
+        "https://www.uscis.gov/i-9-central/legal-requirements-and-enforcement/inspections"
+      ]
+    }
+  },
+  "Family": {
+    "Adoption": {
+      "code": 30,
+      "pages": [
+        "https://www.uscis.gov/adoption/immigration-through-adoption/hague-process",
+        "https://www.uscis.gov/adoption/suitability-and-home-study-information/background-checks-security-and-child-abuse-registry",
+        "https://www.uscis.gov/adoption/immigration-through-adoption/if-your-adoption-service-provider-is-no-longer-accredited-or-approved",
+        "https://www.uscis.gov/adoption/after-your-child-enters-the-united-states",
+        "https://www.uscis.gov/adoption/before-you-start",
+        "https://www.uscis.gov/archive/automatic-employment-authorization-document-ead-extension",
+        "https://www.uscis.gov/adoption/immigration-through-adoption/family-based-petition-process",
+        "https://www.uscis.gov/policy-manual/volume-6",
+        "https://www.uscis.gov/adoption/bringing-your-internationally-adopted-child-to-the-united-states/before-your-child-immigrates-to-the-united-states",
+        "https://www.uscis.gov/adoption/adult-adoptees-and-us-citizenship"
+      ]
+    },
+    "Child Custody/Visitation": {
+      "code": 31,
+      "pages": [
+        "https://www.uscis.gov/policy-manual/volume-12-part-h-chapter-5",
+        "https://www.uscis.gov/adoption/immigration-through-adoption/hague-process",
+        "https://www.washingtonlawhelp.org/en/child-support-and-incarcerated-parents",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/27",
+        "https://www.uscis.gov/policy-manual/volume-6",
+        "https://www.washingtonlawhelp.org/en/free-credit-reports",
+        "https://www.washingtonlawhelp.org/get-legal-help",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/26.12",
+        "https://www.washingtonlawhelp.org/en/how-format-and-fill-out-court-documents-and-forms",
+        "https://www.washingtonlawhelp.org/en/change-your-child-support-court-order"
+      ]
+    },
+    "Divorce/Separation": {
+      "code": 32,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/limits-affordable-health-care-immigrants",
+        "https://www.washingtonlawhelp.org/en/divorce-basics",
+        "https://www.washingtonlawhelp.org/en/divorce-guide",
+        "https://www.uscis.gov/i-765",
+        "https://www.uscis.gov/policy-manual/volume-12-part-h-chapter-5",
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-work",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/27",
+        "https://www.uscis.gov/family/bring-spouse-to-live-in-US",
+        "https://www.uscis.gov/n-426",
+        "https://www.washingtonlawhelp.org/en/topics/family/family-court-process"
+      ]
+    },
+    "Adult Guardianship": {
+      "code": 33,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/advance-directive-health-care-living-will",
+        "https://www.washingtonlawhelp.org/en/adult-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/es",
+        "https://www.washingtonlawhelp.org/en/missing-and-murdered-indigenous-women-and-people-washington-mmiwp",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/12",
+        "https://www.washingtonlawhelp.org/en/how-format-and-fill-out-court-documents-and-forms",
+        "https://www.washingtonlawhelp.org/en/pdf-instructions",
+        "https://www.washingtonlawhelp.org/en/civil-rights-indian-country",
+        "https://www.washingtonlawhelp.org/en/topics/vehicles"
+      ]
+    },
+    "Name Change": {
+      "code": 34,
+      "pages": [
+        "https://www.uscis.gov/i-9-central/completing-form-i-9/exceptions",
+        "https://www.uscis.gov/family/family-of-us-citizens/bringing-siblings-to-live-in-the-united-states-as-permanent-residents",
+        "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents/receipts",
+        "https://www.uscis.gov/i-751",
+        "https://www.washingtonlawhelp.org/en/can-i-change-sex-thats-my-immigration-or-citizenship-documents",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.uscis.gov/adoption/after-your-child-enters-the-united-states/us-citizenship-for-an-adopted-child",
+        "https://www.washingtonlawhelp.org/en/non-parent-visitation-rights",
+        "https://www.uscis.gov/i-9-central/completing-form-i-9/special-rules-for-e-verify-users",
+        "https://www.washingtonlawhelp.org/en/get-drivers-license-if-you-dont-have-social-security-number"
+      ]
+    },
+    "Paternal Rights Termination": {
+      "code": 35,
+      "pages": [
+        "https://www.uscis.gov/family/family-of-us-citizens/k-3k-4-nonimmigrant-visas",
+        "https://www.uscis.gov/policy-manual/volume-2-part-a-chapter-4",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/3.02",
+        "https://www.uscis.gov/i-800",
+        "https://www.seattle.gov/courts/about/community-engagement/outreach-events/past-events",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/79.24.520",
+        "https://www.uscis.gov/archive/temporary-protected-status-designated-country-liberia",
+        "https://www.uscis.gov/archive/update-on-bhattarai-v-nielsen",
+        "https://www.uscis.gov/about-us",
+        "https://www.uscis.gov/archive/privacy-and-legal-disclaimers"
+      ]
+    },
+    "Paternity": {
+      "code": 36,
+      "pages": [
+        "https://www.uscis.gov/family/family-of-us-citizens/k-3k-4-nonimmigrant-visas",
+        "https://www.uscis.gov/policy-manual/volume-2-part-a-chapter-4",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/3.02",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/79.24.520",
+        "https://www.seattle.gov/courts/about/community-engagement/outreach-events/past-events",
+        "https://www.washingtonlawhelp.org/en/nondisclosure-agreements-workplace",
+        "https://www.uscis.gov/citizenship-resource-center/naturalization-related-data-and-statistics",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.uscis.gov/military/family-based-survivor-benefits",
+        "https://www.uscis.gov/family/family-of-green-card-holders-permanent-residents/v-nonimmigrant-visas"
+      ]
+    },
+    "Domestic Abuse": {
+      "code": 37,
+      "pages": [
+        "https://www.uscis.gov/humanitarian/consideration-of-deferred-action-for-childhood-arrivals-daca/frequently-asked-questions",
+        "https://www.washingtonlawhelp.org/en/domestic-violence-survivors-rights-cps",
+        "https://www.uscis.gov/adoption/suitability-and-home-study-information/background-checks-security-and-child-abuse-registry",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/dv-no-contact-order-faqs-",
+        "https://www.uscis.gov/working-in-the-united-states/international-entrepreneur-rule",
+        "https://www.uscis.gov/humanitarian/humanitarian-or-significant-public-benefit-parole-for-aliens-outside-the-united-states/parole-processing",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/27",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-refugees-and-other-humanitarian-entrants",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/domestic-violence-victim-resources",
+        "https://www.washingtonlawhelp.org/en/how-can-i-collect-child-support"
+      ]
+    },
+    "Child Support": {
+      "code": 38,
+      "pages": [
+        "https://www.uscis.gov/policy-manual/volume-6",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/dv-no-contact-order-faqs-",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans/indian-civil-rights",
+        "https://www.uscis.gov/adoption/before-you-start",
+        "https://www.uscis.gov/adoption/after-your-child-enters-the-united-states",
+        "https://www.washingtonlawhelp.org/en/practical-tips-going-court",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.washingtonlawhelp.org/en/how-format-and-fill-out-court-documents-and-forms",
+        "https://www.uscis.gov/adoption/after-your-child-enters-the-united-states/us-citizenship-for-an-adopted-child",
+        "https://www.uscis.gov/family/getting-derivative-refugee-asylum-status-for-your-spouse"
+      ]
+    },
+    "Other Family Law": {
+      "code": 39,
+      "pages": [
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/domestic-violence-victim-resources",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/dv-no-contact-order-faqs-",
+        "https://www.seattle.gov/americans-with-disabilities-act",
+        "https://www.seattle.gov/courts/tickets-and-payments/i-cant-pay-my-ticket-right-now/about-our-digital-properties",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/retenci\u00f3n-de-la-etiqueta-de-registro-de-la-matr\u00edcula-del-veh\u00edculo",
+        "https://www.washingtonlawhelp.org/es/tech-tips",
+        "https://www.washingtonlawhelp.org/es/formularios",
+        "https://www.washingtonlawhelp.org/es/get-family-law-forms",
+        "http://www.courts.wa.gov",
+        "https://www.uscis.gov/file-online"
+      ]
+    }
+  },
+  "Juvenile": {
+    "Juvenile Delinquent": {
+      "code": 41,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/14",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/73",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/73",
+        "https://www.uscis.gov/humanitarian/deferred-enforced-departure",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/8.16",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/84.69",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/88",
+        "https://www.seattle.gov/courts/tickets-and-payments/my-car-got-booted/tech/data-privacy/privacy-statement",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/71A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/88"
+      ]
+    },
+    "Dependency (Abuse/Neglect)": {
+      "code": 42,
+      "pages": [
+        "https://www.uscis.gov/working-in-the-united-states",
+        "https://www.uscis.gov/green-card/green-card-eligibility/green-card-for-family-preference-immigrants",
+        "https://www.washingtonlawhelp.org/en/guide-depositions",
+        "https://www.uscis.gov/humanitarian/abused-spouses-children-and-parents",
+        "https://www.washingtonlawhelp.org/en/protection-orders-civil-legal-system",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/76",
+        "https://www.uscis.gov/i-485",
+        "https://www.washingtonlawhelp.org/en/community-first-choice-program",
+        "https://www.uscis.gov/adoption/suitability-and-home-study-information/background-checks-security-and-child-abuse-registry",
+        "https://www.washingtonlawhelp.org/en/guide-benefits-native-americans-and-alaska-natives"
+      ]
+    },
+    "Emancipation": {
+      "code": 43,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/guide-payday-loans",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/14",
+        "https://www.washingtonlawhelp.org/en/topics/youth/healthcare-youth",
+        "https://www.washingtonlawhelp.org/en/topics/youth/emancipation",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.24.250",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/en/utilities",
+        "https://www.washingtonlawhelp.org/en/topics/benefits",
+        "https://www.washingtonlawhelp.org/topics/emergencies-and-disasters/flood-resources",
+        "https://www.washingtonlawhelp.org/en/free-credit-reports"
+      ]
+    },
+    "Guardianship/3rd party custody": {
+      "code": 44,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/free-credit-reports",
+        "https://www.washingtonlawhelp.org/get-legal-help",
+        "https://www.washingtonlawhelp.org/en/change-your-child-support-court-order",
+        "https://www.uscis.gov/working-in-the-united-states",
+        "https://www.washingtonlawhelp.org/en/ending-your-relationship-when-youre-not-married",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/14",
+        "https://www.washingtonlawhelp.org/en/missing-and-murdered-indigenous-women-and-people-washington-mmiwp",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/en/how-format-and-fill-out-court-documents-and-forms",
+        "https://www.washingtonlawhelp.org/en/pdf-instructions"
+      ]
+    },
+    "Other Juvenile": {
+      "code": 49,
+      "pages": [
+        "https://www.uscis.gov/working-in-the-united-states",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/14",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/14",
+        "https://www.uscis.gov/policy-manual/volume-7",
+        "https://www.washingtonlawhelp.org/en/section-8-housing-choice-vouchers",
+        "https://www.uscis.gov/i-485",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/2.60",
+        "https://www.uscis.gov/green-card/green-card-eligibility/green-card-for-family-preference-immigrants",
+        "https://www.uscis.gov/tools/uscis-tools-and-resources",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/73"
+      ]
+    }
+  },
+  "Health": {
+    "Medicaid": {
+      "code": 51,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/medicaid-standards-chart",
+        "https://www.washingtonlawhelp.org/en/when-dshs-or-dcyf-thinks-you-made-intentional-program-violation-ipv",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/76",
+        "https://www.washingtonlawhelp.org/en/eviction-court-hearings",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/medicare",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/en/tech-tips",
+        "https://www.washingtonlawhelp.org/en/buying-mobile-home",
+        "https://www.washingtonlawhelp.org/en/extreme-risk-protection-orders",
+        "https://www.washingtonlawhelp.org/es/topics/salud/medicare"
+      ]
+    },
+    "Medicare": {
+      "code": 52,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/medicare-savings-programs-help-paying-medicare-costs",
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-refugees-and-other-humanitarian-entrants",
+        "https://www.washingtonlawhelp.org/en/disaster-unemployment-assistance",
+        "https://www.washingtonlawhelp.org/en/cancel-revoke-power-attorney",
+        "https://www.washingtonlawhelp.org/en/what-do-if-your-identity-stolen",
+        "https://www.washingtonlawhelp.org/en/privacy-protections-sex-designation-records",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling"
+      ]
+    },
+    "Govt. Child Health Ins. Programs": {
+      "code": 53,
+      "pages": [
+        "https://www.uscis.gov/forms/forms",
+        "https://www.uscis.gov/i-130",
+        "https://www.uscis.gov/i-131-addresses",
+        "https://www.uscis.gov/es/i-130",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/49",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "https://www.washingtonlawhelp.org/en/reinstate-your-tenancy-after-eviction",
+        "https://www.washingtonlawhelp.org/en/about-washington-law-help",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-refugees-and-other-humanitarian-entrants"
+      ]
+    },
+    "Home and Community Based Care": {
+      "code": 54,
+      "pages": [
+        "http://www.courts.wa.gov",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.28.330",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/44",
+        "https://www.seattle.gov/courts/about/community-engagement/outreach-events/past-events",
+        "https://app.leg.wa.gov/committeeschedules/",
+        "https://app.leg.wa.gov/csi",
+        "https://www.seattle.gov/courts/programs-and-services/public-records-requests",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/seattle-veterans-treatment-court",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/domestic-violence-victim-resources",
+        "https://www.seattle.gov/courts/tickets-and-payments/civilrights/laws-we-enforce/title-vi-civil-rights-act"
+      ]
+    },
+    "Private Health Insurance": {
+      "code": 55,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/49",
+        "https://www.washingtonlawhelp.org/en/hide-your-address-stalker-or-abuser",
+        "https://www.washingtonlawhelp.org/en/about-washington-law-help",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.28.330",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/42",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/49",
+        "http://www.courts.wa.gov"
+      ]
+    },
+    "Long Term Health Care Facilities": {
+      "code": 56,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/make-insurance-claims-after-disaster",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/70A",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/70A",
+        "https://www.uscis.gov/working-in-the-united-states/students-and-exchange-visitors/exchange-visitors",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/44",
+        "https://www.washingtonlawhelp.org/en/eviction-court-hearings",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/44",
+        "http://www.courts.wa.gov",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/5",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/19"
+      ]
+    },
+    "State and Local Health": {
+      "code": 57,
+      "pages": [
+        "https://www.seattle.gov/courts/programs-and-services/community-resource-center/crc-volunteers",
+        "https://www.seattle.gov/courts/for-attorneys/local-court-rules/public-records",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/seattle-youth-traffic-court",
+        "https://www.seattle.gov/courts/about/data-and-publications/probation-data-reports",
+        "https://www.seattle.gov/courts/for-attorneys/about-our-digital-properties",
+        "https://www.seattle.gov/courts/jury/about-our-digital-properties",
+        "https://www.seattle.gov/courts/about/community-engagement/partner-engagement",
+        "https://www.seattle.gov/courts/about/contact-information-and-hours",
+        "https://www.seattle.gov/courts/about/community-engagement/smc-engagement-partners-resource-list",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/retenci\u00f3n-de-la-etiqueta-de-registro-de-la-matr\u00edcula-del-veh\u00edculo"
+      ]
+    },
+    "Other Health": {
+      "code": 59,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/70A",
+        "http://www.courts.wa.gov",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/seattle-veterans-treatment-court",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/70A",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/71.06",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/49",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/49",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/71A"
+      ]
+    }
+  },
+  "Housing": {
+    "Federally Subsidized Housing": {
+      "code": 61,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/supervised-visits",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://www.washingtonlawhelp.org/en/topics/ids-and-licenses",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-refugees-and-other-humanitarian-entrants",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-manufactured-mobile-home-landlord-tenant-act",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "https://www.washingtonlawhelp.org/en/stop-eviction-showing-tenant-screening-reports",
+        "https://www.washingtonlawhelp.org/en/evictions-about-rent",
+        "https://www.washingtonlawhelp.org/en/seller-wants-my-home-back",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters"
+      ]
+    },
+    "Real Property/Home Ownership": {
+      "code": 62,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/62A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/65",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/65",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/5.24",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/7.04A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/59",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/26.09",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/8.16",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall"
+      ]
+    },
+    "Private Landlord/Tenant": {
+      "code": 63,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/6",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant",
+        "https://www.washingtonlawhelp.org/en/terms-use",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-manufactured-mobile-home-landlord-tenant-act",
+        "https://www.washingtonlawhelp.org/en/tenants-after-disaster",
+        "https://www.washingtonlawhelp.org/en/evictions-about-rent",
+        "https://www.washingtonlawhelp.org/en/place-im-living-has-been-condemned",
+        "https://www.washingtonlawhelp.org/en/special-education-issues-things-parents-and-caregivers-can-do",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-while-you-are-renting",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/6"
+      ]
+    },
+    "Public Housing": {
+      "code": 64,
+      "pages": [
+        "https://www.uscis.gov/es/registro-extranjeros",
+        "https://www.uscis.gov/es/fraude-estafas-y-fallas-en-el-desempeno/evite-las-estafas-de-inmigracion/encuentre-servicios-legales",
+        "https://www.uscis.gov/policy-manual/volume-12-part-h-chapter-5",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.uscis.gov/policy-manual/volume-12",
+        "https://www.washingtonlawhelp.org/es/topics/planificacion-en-vida",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-1-treaty-traders",
+        "https://www.washingtonlawhelp.org/en/pest-infestations",
+        "https://www.uscis.gov/es/acerca-de-nosotros/empleos-en-uscis"
+      ]
+    },
+    "Mobile Homes": {
+      "code": 65,
+      "pages": [
+        "https://www.seattle.gov/x82749.xml",
+        "https://www.seattle.gov/courts/about",
+        "https://www.seattle.gov/courts/animal-shelter/animal-control",
+        "https://www.seattle.gov/courts/animal-shelter/find-an-animal/adopt",
+        "https://www.seattle.gov/courts/boards-and-commissions",
+        "https://www.seattle.gov/courts/city-light/outages",
+        "https://www.seattle.gov/courts/cityarchives/seattle-facts",
+        "https://www.seattle.gov/courts/civilrights/laws-we-enforce/title-vi-civil-rights-act",
+        "https://www.seattle.gov/courts/coming-to-court",
+        "https://www.seattle.gov/courts/coming-to-court/americans-with-disabilities-act"
+      ]
+    },
+    "Housing Discrimination": {
+      "code": 66,
+      "pages": [
+        "https://www.seattle.gov/cityclerk/legislation-and-research/seattle-municipal-code-and-city-charter",
+        "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents",
+        "https://www.uscis.gov/i-9-central/employee-rights-and-resources/preventing-discrimination",
+        "https://www.uscis.gov/i-9-central/remote-examination-of-documents",
+        "https://www.washingtonlawhelp.org/en/dismiss-family-law-case",
+        "https://www.uscis.gov/working-in-the-united-states/international-entrepreneur-rule",
+        "https://www.uscis.gov/i-9-central/employee-rights-and-resources/filing-a-discrimination-claim",
+        "https://www.uscis.gov/i-9",
+        "https://www.washingtonlawhelp.org/en/i-received-writ-restitution",
+        "https://www.uscis.gov/i-9-central/completing-form-i-9"
+      ]
+    },
+    "Mortgage Foreclosures": {
+      "code": 67,
+      "pages": [
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/63.21",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/62",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/40",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/62A",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/7.105",
+        "https://www.washingtonlawhelp.org/en/form-library",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/61",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/70",
+        "https://www.washingtonlawhelp.org/en/register-out-state-custody-order-washington",
+        "https://www.washingtonlawhelp.org/en/serve-certified-mail-or-publication"
+      ]
+    },
+    "Mortgage Predatory Lending": {
+      "code": 68,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/2",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/34",
+        "https://www.washingtonlawhelp.org/en/serve-certified-mail-or-publication",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/18",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/78",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/17",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/33",
+        "https://www.washingtonlawhelp.org/en/replace-important-documents-lost-disaster",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/63.21",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.18"
+      ]
+    },
+    "Other Housing": {
+      "code": 69,
+      "pages": [
+        "https://www.uscis.gov/policy-manual/volume-2-part-a-chapter-4",
+        "https://www.uscis.gov/citizenship-resource-center/naturalization-related-data-and-statistics",
+        "https://www.uscis.gov/policy-manual/volume-1",
+        "https://www.uscis.gov/humanitarian/deferred-enforced-departure",
+        "https://www.uscis.gov/policy-manual/volume-8",
+        "https://www.uscis.gov/green-card/green-card-processes-and-procedures/visa-availability-and-priority-dates",
+        "https://www.uscis.gov/es/fraude-estafas-y-fallas-en-el-desempeno/evite-las-estafas-de-inmigracion/encuentre-servicios-legales",
+        "https://www.uscis.gov/humanitarian/information-for-afghan-nationals/a-quick-guide-to-support-the-afghan-workforce",
+        "https://www.uscis.gov/policy-manual/volume-12-part-h-chapter-5",
+        "https://www.uscis.gov/policy-manual/volume-3"
+      ]
+    }
+  },
+  "Income Maintenance": {
+    "TANF/Welfare": {
+      "code": 71,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/guide-when-other-parent-has-taken-your-child",
+        "https://www.washingtonlawhelp.org/en/encampment-sweeps-and-reasonable-accommodations-fillable-brochure",
+        "https://www.washingtonlawhelp.org/en/how-child-support-set",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/en/when-you-have-permission-live-place-dont-pay-money-rent",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/service-and-companion-animals",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/75",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/76",
+        "https://www.washingtonlawhelp.org/en/get-family-law-forms"
+      ]
+    },
+    "Social Security": {
+      "code": 72,
+      "pages": [
+        "https://www.uscis.gov/forms/forms",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-exemptions-native-americans-and-alaska-natives",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/26.12",
+        "http://www.seattle.gov/your-rights-as-a-customer/file-a-complaint/towing-complaints-police-authorized-tows",
+        "http://www.courts.wa.gov",
+        "https://www.washingtonlawhelp.org/en/guardian-ad-litem-gal-guide",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "https://www.washingtonlawhelp.org/en/reinstate-your-tenancy-after-eviction"
+      ]
+    },
+    "Food Stamps": {
+      "code": 73,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/fight-hen-denial-or-termination-medical-reasons",
+        "https://www.uscis.gov/forms/forms",
+        "http://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/dv-no-contact-order-faqs-",
+        "https://www.seattle.gov/courts/programs-and-services/community-resource-center/about-crc",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-exemptions-native-americans-and-alaska-natives",
+        "https://www.seattle.gov/courts/programs-and-services/community-resource-center/crc-volunteers",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://www.seattle.gov/courts/programs-and-services/community-resource-center/crc-calendar",
+        "https://www.washingtonlawhelp.org/en/reinstate-your-tenancy-after-eviction",
+        "https://www.washingtonlawhelp.org/en/what-do-if-your-identity-stolen"
+      ]
+    },
+    "SSID": {
+      "code": 74,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/disaster-unemployment-assistance",
+        "https://www.washingtonlawhelp.org/en/privacy-protections-sex-designation-records",
+        "https://www.uscis.gov/forms/forms",
+        "https://www.washingtonlawhelp.org/en/topics/benefits/state-benefits",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/retenci\u00f3n-de-la-etiqueta-de-registro-de-la-matr\u00edcula-del-veh\u00edculo",
+        "https://www.seattle.gov/courts/tickets-and-payments/i-cant-pay-my-ticket-right-now/about-our-digital-properties",
+        "https://www.washingtonlawhelp.org/en/stop-eviction-showing-tenant-screening-reports",
+        "https://www.washingtonlawhelp.org/es/topics/como-tratar-con-los-tribunales",
+        "https://www.washingtonlawhelp.org/en/can-i-change-sex-my-tribal-id-and-records",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters"
+      ]
+    },
+    "SSI": {
+      "code": 75,
+      "pages": [
+        "https://www.seattle.gov/courts/tickets-and-payments/i-cant-pay-my-ticket-right-now/about-our-digital-properties",
+        "https://www.washingtonlawhelp.org/en/medicare-and-hospital-discharges",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/retenci\u00f3n-de-la-etiqueta-de-registro-de-la-matr\u00edcula-del-veh\u00edculo",
+        "https://www.uscis.gov/forms/forms",
+        "https://www.washingtonlawhelp.org/en/disaster-unemployment-assistance",
+        "https://www.washingtonlawhelp.org/en/stop-eviction-showing-tenant-screening-reports",
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/supported-decision-making",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters",
+        "https://www.washingtonlawhelp.org/en/special-education-issues-things-parents-and-caregivers-can-do"
+      ]
+    },
+    "Unemployment Compensation": {
+      "code": 76,
+      "pages": [
+        "https://www.uscis.gov/forms/forms",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-exemptions-native-americans-and-alaska-natives",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/85.05.230",
+        "https://www.washingtonlawhelp.org/en/reinstate-your-tenancy-after-eviction",
+        "https://www.washingtonlawhelp.org/en/cultural-and-legal-issues-native-families-dealing-divorce-and-parenting-plans",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://www.washingtonlawhelp.org/en/medicaid-standards-chart"
+      ]
+    },
+    "Veterans Benefits": {
+      "code": 77,
+      "pages": [
+        "https://www.uscis.gov/forms/forms",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-exemptions-native-americans-and-alaska-natives",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/cultural-and-legal-issues-native-families-dealing-divorce-and-parenting-plans",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/26.12",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://www.washingtonlawhelp.org/en/reinstate-your-tenancy-after-eviction",
+        "https://www.washingtonlawhelp.org/en/medicaid-standards-chart"
+      ]
+    },
+    "State and Local Income Maintenance": {
+      "code": 78,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://www.uscis.gov/forms/forms",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-exemptions-native-americans-and-alaska-natives",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/49",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/26.12",
+        "https://www.washingtonlawhelp.org/en/cultural-and-legal-issues-native-families-dealing-divorce-and-parenting-plans",
+        "http://www.seattle.gov/your-rights-as-a-customer/file-a-complaint/towing-complaints-police-authorized-tows"
+      ]
+    },
+    "Other Income Maintenance": {
+      "code": 79,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/83",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-exemptions-native-americans-and-alaska-natives",
+        "https://www.uscis.gov/forms/forms",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/26.12",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/85.05.230",
+        "http://www.seattle.gov/your-rights-as-a-customer/file-a-complaint/towing-complaints-police-authorized-tows",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/49",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/35A",
+        "https://www.washingtonlawhelp.org/en/cultural-and-legal-issues-native-families-dealing-divorce-and-parenting-plans"
+      ]
+    }
+  },
+  "Individual Rights": {
+    "Immigration/Naturalization": {
+      "code": 81,
+      "pages": [
+        "https://www.uscis.gov/about-us/uscis-office-closings",
+        "https://www.uscis.gov/military/family-based-survivor-benefits",
+        "https://www.uscis.gov/citizenship/resources-for-educational-programs",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1a-athlete",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employer-information",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1b-a-member-of-an-internationally-recognized-entertainment-group",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-3-specialty-occupation-workers-from-australia",
+        "https://www.uscis.gov/employment-authorization",
+        "https://www.uscis.gov/n-400"
+      ]
+    },
+    "Mental Health": {
+      "code": 82,
+      "pages": [
+        "https://www.uscis.gov/adoption/suitability-and-home-study-information/background-checks-security-and-child-abuse-registry",
+        "https://www.uscis.gov/humanitarian/peyi-ki-kalifye-pou-pwogram-tps-lan-zafe-pwoteksyon-pwovizwa-ayiti",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/seattle-veterans-treatment-court",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/71A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/73",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/seattle-youth-traffic-court",
+        "https://www.seattle.gov/courts/programs-and-services/community-resource-center/crc-volunteers",
+        "https://www.seattle.gov/courts/about/community-engagement/outreach-events/past-events",
+        "http://www.seattle.gov/courts/programs-and-services/specialized-courts/domestic-violence-intervention-project/dv-no-contact-order-faqs-",
+        "https://www.seattle.gov/courts/programs-and-services/community-resource-center/about-crc"
+      ]
+    },
+    "Prisoners' Rights": {
+      "code": 83,
+      "pages": [
+        "https://www.uscis.gov/newsroom/news-releases/belizean-woman-found-guilty-of-naturalization-fraud",
+        "https://www.uscis.gov/newsroom/news-releases/making-america-safe-again-us-citizenship-and-immigration-services-end-of-year-review-demonstrates",
+        "https://www.uscis.gov/newsroom/all-news/fact-sheets",
+        "https://www.uscis.gov/n-426",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/73",
+        "https://www.uscis.gov/newsroom/news-releases/justice-department-files-case-to-revoke-us-citizenship-of-mastermind-behind-multimillion-dollar-tax",
+        "https://www.uscis.gov/newsroom/social-media-directory",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/76",
+        "https://www.uscis.gov/i-9-central/form-i-9-acceptable-documents/combination-documents",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1b-a-member-of-an-internationally-recognized-entertainment-group"
+      ]
+    },
+    "Disability Rights": {
+      "code": 84,
+      "pages": [
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1b-a-member-of-an-internationally-recognized-entertainment-group",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1a-athlete",
+        "https://www.uscis.gov/military/family-based-survivor-benefits",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employer-information",
+        "https://www.uscis.gov/archive/privacy-and-legal-disclaimers",
+        "https://www.uscis.gov/DACA",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-3-specialty-occupation-workers-from-australia",
+        "https://www.uscis.gov/archive/h-1c-registered-nurse-working-in-a-health-professional-shortage-area-as-determined-by-the-department",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/about-us/uscis-office-closings"
+      ]
+    },
+    "Civil Rights": {
+      "code": 85,
+      "pages": [
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1b-a-member-of-an-internationally-recognized-entertainment-group",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1a-athlete",
+        "https://www.uscis.gov/military/family-based-survivor-benefits",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employer-information",
+        "https://www.uscis.gov/archive/privacy-and-legal-disclaimers",
+        "https://www.uscis.gov/DACA",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-3-specialty-occupation-workers-from-australia",
+        "https://www.uscis.gov/archive/h-1c-registered-nurse-working-in-a-health-professional-shortage-area-as-determined-by-the-department",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/about-us/uscis-office-closings"
+      ]
+    },
+    "Human Trafficking": {
+      "code": 86,
+      "pages": [
+        "https://www.uscis.gov/i-102",
+        "https://www.uscis.gov/humanitarian/victims-of-human-trafficking-and-other-crimes/resources-for-victims-of-human-trafficking-and-other-crimes",
+        "https://www.uscis.gov/humanitarian/humanitarian-or-significant-public-benefit-parole-for-aliens-outside-the-united-states/parole-processing",
+        "https://www.uscis.gov/humanitarian/refugees-and-asylum/refugees/refugee-processing-and-security-screening",
+        "https://www.uscis.gov/humanitarian/abused-spouses-children-and-parents",
+        "https://www.uscis.gov/humanitarian/refugees-and-asylum/asylum/obtaining-asylum-in-the-united-states",
+        "https://www.uscis.gov/humanitarian/victims-of-human-trafficking-t-nonimmigrant-status",
+        "https://www.uscis.gov/humanitarian/humanitarian/parole",
+        "https://www.uscis.gov/DACA",
+        "https://www.uscis.gov/humanitarian/refugees-asylum"
+      ]
+    },
+    "Other Individual Rights": {
+      "code": 89,
+      "pages": [
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1b-a-member-of-an-internationally-recognized-entertainment-group",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/p-1a-athlete",
+        "https://www.uscis.gov/military/family-based-survivor-benefits",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employer-information",
+        "https://www.uscis.gov/archive/privacy-and-legal-disclaimers",
+        "https://www.uscis.gov/DACA",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-3-specialty-occupation-workers-from-australia",
+        "https://www.uscis.gov/archive/h-1c-registered-nurse-working-in-a-health-professional-shortage-area-as-determined-by-the-department",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/about-us/uscis-office-closings"
+      ]
+    }
+  },
+  "Miscellaneous": {
+    "Assistance to Non-Profit or Group": {
+      "code": 91,
+      "pages": [
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/tn-usmca-professionals",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/23A",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/1",
+        "http://www.seattle.gov/transportation/projects-and-programs/safety-first/safe-routes-to-school/flashing-beacons-and-map",
+        "https://app.leg.wa.gov/rcw/",
+        "https://app.leg.wa.gov/rcw/default.aspx",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/1",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/e-2-visa-cnmi-only-investor",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/32",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/25"
+      ]
+    },
+    "Indian Law": {
+      "code": 92,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/27",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/1",
+        "https://app.leg.wa.gov/rcw/",
+        "https://app.leg.wa.gov/rcw/default.aspx",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/1",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/50A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/50A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/69",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/48",
+        "https://www.washingtonlawhelp.org/en/how-format-and-fill-out-court-documents-and-forms"
+      ]
+    },
+    "Traffic/Drivers License": {
+      "code": 93,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/47",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/47",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/2",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://www.seattle.gov/courts/tickets-and-payments/my-car-got-booted/tech/data-privacy/privacy-statement",
+        "https://www.seattle.gov/courts/tickets-and-payments/my-car-got-booted",
+        "https://www.seattle.gov/courts/tickets-and-payments/vehicle-tabs",
+        "https://www.washingtonlawhelp.org/en/get-exception-dshs-rules",
+        "https://www.seattle.gov/courts/tickets-and-payments/pay-my-ticket",
+        "https://www.seattle.gov/courts/programs-and-services/vacating-a-conviction"
+      ]
+    },
+    "Torts": {
+      "code": 94,
+      "pages": [
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.60",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.18",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/23A",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/4.28.330",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/85.08.190",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/32",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/53",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/86",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/90",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/2"
+      ]
+    },
+    "Estate Planning/Wills/Probate": {
+      "code": 95,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/12",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/1",
+        "https://app.leg.wa.gov/rcw/",
+        "https://app.leg.wa.gov/rcw/default.aspx",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/1",
+        "https://www.washingtonlawhelp.org/en/mediation-should-i-use-it",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/27",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/30A",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/12",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/90"
+      ]
+    },
+    "Advanced Directives/Power of Attorneys": {
+      "code": 96,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/amend-change-your-petition",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/when-someone-dies",
+        "https://www.washingtonlawhelp.org/en/advance-directive-mental-health",
+        "https://www.uscis.gov/humanitarian/deferred-enforced-departure",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/12",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/8.16",
+        "https://www.washingtonlawhelp.org/en/advance-directive-living-dementia",
+        "https://www.seattle.gov/courts/about/seattle-municipal-court-judges/honorable-damon-shadid",
+        "https://www.washingtonlawhelp.org/en/el-faro-legal",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/85.08.190"
+      ]
+    },
+    "Vacating Record": {
+      "code": 97,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/68",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/23A",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/85.08.190",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/32",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/53",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/86",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/90",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/86",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/4",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/2"
+      ]
+    },
+    "Criminal": {
+      "code": 98,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/90",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/1",
+        "https://app.leg.wa.gov/rcw/",
+        "https://app.leg.wa.gov/rcw/default.aspx",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/1",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/23A",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/85.08.190",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/32",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/53",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/86"
+      ]
+    },
+    "Other": {
+      "code": 99,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/23A",
+        "http://app.leg.wa.gov/RCW/default.aspx/cite/85.08.190",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/32",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/53",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/86",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/90",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/2",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/86",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/1",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/4"
+      ]
+    },
+    "Municipal Legal Needs": {
+      "code": 100,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/4",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/86",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/35A",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/70A",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/30A",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/30",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/53",
+        "https://app.leg.wa.gov/rcw/default.aspx/Cite/80",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/1",
+        "https://app.leg.wa.gov/rcw/"
+      ]
+    }
+  }
+}

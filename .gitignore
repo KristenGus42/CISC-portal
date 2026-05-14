@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ML
+.venv
+server/ml_scripts/ML/Crawled Contents
+server/ml_scripts/ML/index
