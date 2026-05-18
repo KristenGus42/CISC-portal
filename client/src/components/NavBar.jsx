@@ -28,6 +28,12 @@ export function NavBar(props){
             >
                 Personnel
             </Link>
+            <Link
+                to="/access-management"
+                className={active === "access-management" ? "app-navbar-link active-nav-link" : "app-navbar-link"}
+            >
+                Access
+            </Link>
         </nav>
 
         <button type="button" className="app-navbar-user">

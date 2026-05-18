@@ -10,6 +10,7 @@ import DndExample from './components/DndExample'
 import PersonnelLibary from './components/PersonnelLibrary'
 import IndividualPersonnel from './components/IndividualPersonnel';
 import AttorneyView from './components/AttorneyView';
+import AccessManagement from './components/AccessManagement';
 
 function App() {
 
@@ -32,6 +33,8 @@ function App() {
         <Route path="example" element={<DndExample />} />
 
         <Route path="attorney-view" element={<AttorneyView />} />
+
+        <Route path="access-management" element={<AccessManagement />} />
 
       </Routes>
     </div>
