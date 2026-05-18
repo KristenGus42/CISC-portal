@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router';
 
 
-// Import page compinen
+// Import page components
 import EditForm from './components/EditForm'
 import Index from './components/Index'
 import CaseLibrary from './components/CaseLibrary'
@@ -9,6 +9,7 @@ import Schedule from './components/Schedule'
 import DndExample from './components/DndExample'
 import PersonnelLibary from './components/PersonnelLibrary'
 import IndividualPersonnel from './components/IndividualPersonnel';
+import AttorneyView from './components/AttorneyView';
 
 function App() {
 
@@ -29,6 +30,8 @@ function App() {
 
         <Route path="schedule" element={<Schedule />} />
         <Route path="example" element={<DndExample />} />
+
+        <Route path="attorney-view" element={<AttorneyView />} />
 
       </Routes>
     </div>
