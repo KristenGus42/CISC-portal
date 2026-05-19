@@ -196,6 +196,14 @@ body {
   color: var(--call-to-action);
 }
 
+.app-auth-loading {
+  align-items: center;
+  color: var(--primary-text);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
 .active-nav-link {
   border-bottom-color: var(--call-to-action);
 }
@@ -209,6 +217,7 @@ body {
 
   .app-navbar-brand,
   .app-navbar-links,
+  .app-navbar-user-wrapper,
   .app-navbar-user {
     grid-column: 1;
     justify-self: center;

@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  browserLocalPersistence,
+  browserSessionPersistence,
+  getAuth,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { getDatabase, ref, get } from "firebase/database";
+import { isValidRole } from "../auth/roles";
+import { useAuth } from "../auth/useAuth";
 
 export default function Index() {
   const [username, setUsername] = useState("");
@@ -9,16 +18,23 @@ export default function Index() {
   const [keepSignedIn, setKeepSignedIn] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { accessError, clearAccessError } = useAuth();
   
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    clearAccessError();
     setLoading(true);
 
     try {
       const auth = getAuth();
+      await setPersistence(
+        auth,
+        keepSignedIn ? browserLocalPersistence : browserSessionPersistence
+      );
+
       // Username is usually an email for Firebase Auth
       const userCredential = await signInWithEmailAndPassword(auth, username, password);
       const user = userCredential.user;
@@ -27,11 +43,16 @@ export default function Index() {
       const userRef = ref(db, `users/${user.uid}`);
       const snapshot = await get(userRef);
 
-      if (snapshot.exists()) {
-        const userData = snapshot.val();
-        const role = userData.role;
+      const userData = snapshot.exists() ? snapshot.val() : null;
+      const role = userData?.role;
 
-        localStorage.setItem("userRole", role);
+      if (!userData) {
+        setError("Your account may have been deleted by an administrator. Please contact an administrator if you need access.");
+        await signOut(auth);
+        return;
+      }
+
+      if (isValidRole(role)) {
 
         // Route based on role
         if (role === "Admin") {
@@ -44,7 +65,8 @@ export default function Index() {
           navigate("/schedule");
         }
       } else {
-        setError("User role not found. Please contact an administrator.");
+        setError("User access not found. Please contact an administrator.");
+        await signOut(auth);
       }
     } catch (err) {
       console.error(err);
@@ -91,9 +113,9 @@ export default function Index() {
           Welcome
         </h2>
 
-        {error && (
+        {(error || accessError) && (
           <div className="alert alert-danger p-2 text-center mb-3" style={{ fontSize: "0.9rem" }}>
-            {error}
+            {error || accessError}
           </div>
         )}
 

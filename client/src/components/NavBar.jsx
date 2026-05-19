@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { getAuth, signOut } from "firebase/auth";
+import { useAuth } from "../auth/useAuth";
 
 export function NavBar(props) {
     const { active } = props;
-    const userRole = localStorage.getItem("userRole");
+    const { role } = useAuth();
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const navigate = useNavigate();
@@ -23,7 +24,6 @@ export function NavBar(props) {
     async function handleSignOut() {
         const auth = getAuth();
         await signOut(auth);
-        localStorage.removeItem("userRole");
         navigate("/");
     }
 
@@ -33,7 +33,7 @@ export function NavBar(props) {
                 <img src="/img/cisc-logo.png" alt="CISC Logo" height="50" style={{ padding: "5%" }} />
             </Link>
 
-            {userRole === "Admin" && (
+            {role === "Admin" && (
                 <nav className="app-navbar-links" aria-label="Primary">
                     <Link
                         to="/schedule"
@@ -74,7 +74,7 @@ export function NavBar(props) {
                         <span className="app-navbar-user-head"></span>
                         <span className="app-navbar-user-body"></span>
                     </span>
-                    <span>{userRole ?? "User"}</span>
+                    <span>{role ?? "User"}</span>
                 </button>
 
                 {menuOpen && (
@@ -96,4 +96,4 @@ export function NavBar(props) {
             </div>
         </header>
     );
-}
+}

@@ -10,6 +10,7 @@ import PersonnelLibary from './components/PersonnelLibrary'
 import IndividualPersonnel from './components/IndividualPersonnel';
 import AttorneyView from './components/AttorneyView';
 import AccessManagement from './components/AccessManagement';
+import { useAuth } from './auth/useAuth';
 
 /**
  * ProtectedRoute — wraps a route and enforces role-based access.
@@ -17,7 +18,9 @@ import AccessManagement from './components/AccessManagement';
  * fallback: path to redirect to when access is denied
  */
 function ProtectedRoute({ element, allowedRoles, fallback }) {
-  const role = localStorage.getItem("userRole");
+  const { role, loading } = useAuth();
+
+  if (loading) return <div className="app-auth-loading">Loading...</div>;
 
   // Not logged in → back to login
   if (!role) return <Navigate to="/" replace />;
@@ -37,7 +40,7 @@ function roleHome(role) {
 
 function App() {
   const attorney = true;
-  const role = localStorage.getItem("userRole");
+  const { role, loading } = useAuth();
 
   return (
     <div>
@@ -45,7 +48,7 @@ function App() {
         {/* Login page — if already logged in, redirect to role home */}
         <Route
           index
-          element={role ? <Navigate to={roleHome(role)} replace /> : <Index />}
+          element={loading ? <div className="app-auth-loading">Loading...</div> : role ? <Navigate to={roleHome(role)} replace /> : <Index />}
         />
 
         {/* Admin + Staff */}

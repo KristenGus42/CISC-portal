@@ -3,14 +3,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router";
 // Import Firebase database functions
 import { getDatabase, ref, onValue } from 'firebase/database';
-import { getAuth } from 'firebase/auth';
+import { useAuth } from "../auth/useAuth";
 
 export default function CaseLibrary() {
     const [allCasesArr, setAllCasesArr] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const db = getDatabase();
-    const userRole = localStorage.getItem("userRole");
-    const currentUser = getAuth().currentUser;
+    const { role, user } = useAuth();
 
     // Listen for changes in the 'cases' table
     useEffect(() => {
@@ -42,8 +41,8 @@ export default function CaseLibrary() {
     }, [db]);
 
     // If Staff, only show cases they created
-    const visibleCases = userRole === "Staff" && currentUser
-        ? allCasesArr.filter((c) => c.createdBy === currentUser.uid)
+    const visibleCases = role === "Staff" && user
+        ? allCasesArr.filter((c) => c.createdBy === user.uid)
         : allCasesArr;
 
     // Filter visible cases by search query
