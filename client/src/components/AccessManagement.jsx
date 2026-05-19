@@ -29,9 +29,12 @@ export default function AccessManagement() {
     const [loading, setLoading] = useState(false);
     const [feedback, setFeedback] = useState(null); // { type: "success" | "error", message }
     const [deleteFeedback, setDeleteFeedback] = useState(null); // { type: "success" | "error", message }
+    const [resetFeedback, setResetFeedback] = useState(null); // { type: "success" | "error", message }
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [resettingUserId, setResettingUserId] = useState(null);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [userToReset, setUserToReset] = useState(null);
 
     const db = getDatabase();
 
@@ -68,6 +71,7 @@ export default function AccessManagement() {
         e.preventDefault();
         setFeedback(null);
         setDeleteFeedback(null);
+        setResetFeedback(null);
 
         const trimmedEmail = email.trim().toLowerCase();
         if (!trimmedEmail) {
@@ -141,6 +145,7 @@ export default function AccessManagement() {
         if (!userToDelete) return;
         const deletedEmail = userToDelete.email;
         setDeleteFeedback(null);
+        setResetFeedback(null);
         setLoading(true);
         try {
             const userRef = ref(db, `users/${userToDelete.uid}`);
@@ -156,6 +161,38 @@ export default function AccessManagement() {
                 type: "error",
                 message: `Failed to delete ${deletedEmail}. Please try again.`,
             });
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    /** Send a password reset email to an existing user */
+    async function confirmPasswordReset() {
+        if (!userToReset?.email) return;
+        const user = userToReset;
+        setFeedback(null);
+        setDeleteFeedback(null);
+        setResetFeedback(null);
+        setLoading(true);
+
+        try {
+            const primaryAuth = getAuth();
+            await sendPasswordResetEmail(primaryAuth, user.email);
+            setUserToReset(null);
+            setResetFeedback({
+                type: "success",
+                message: `Password reset email sent to ${user.email}.`,
+            });
+        } catch (err) {
+            console.error("Password reset error:", err);
+            let message = `Failed to send password reset email to ${user.email}.`;
+            if (err.code === "auth/invalid-email") {
+                message = "Please enter a valid email address.";
+            } else if (err.code === "auth/user-not-found") {
+                message = `${user.email} was not found in Firebase Auth.`;
+            }
+            setUserToReset(null);
+            setResetFeedback({ type: "error", message });
         } finally {
             setLoading(false);
         }
@@ -327,6 +364,29 @@ export default function AccessManagement() {
                         </div>
                     )}
 
+                    {resetFeedback && (
+                        <div
+                            className={`am-feedback am-reset-feedback ${
+                                resetFeedback.type === "success"
+                                    ? "am-feedback-success"
+                                    : "am-feedback-error"
+                            }`}
+                        >
+                            {resetFeedback.type === "success" ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="15" y1="9" x2="9" y2="15" />
+                                    <line x1="9" y1="9" x2="15" y2="15" />
+                                </svg>
+                            )}
+                            <span>{resetFeedback.message}</span>
+                        </div>
+                    )}
+
                     {users.length === 0 ? (
                         <p className="text-muted small text-center" style={{ marginTop: "2rem" }}>
                             No users have been invited yet.
@@ -343,6 +403,7 @@ export default function AccessManagement() {
                                         <th>Email</th>
                                         <th>Role</th>
                                         <th>Invited</th>
+                                        <th>Password</th>
                                         <th>Remove</th>
                                     </tr>
                                 </thead>
@@ -357,6 +418,15 @@ export default function AccessManagement() {
                                             </td>
                                             <td className="am-table-date">
                                                 {formatDate(user.invitedAt)}
+                                            </td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    className="am-reset-btn"
+                                                    onClick={() => setUserToReset(user)}
+                                                >
+                                                    Reset
+                                                </button>
                                             </td>
                                             <td>
                                                 <button
@@ -418,6 +488,49 @@ export default function AccessManagement() {
                                 disabled={loading}
                             >
                                 {loading ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Reset Confirmation Modal */}
+            {userToReset && (
+                <div className="am-modal-overlay">
+                    <div className="am-modal">
+                        <div className="am-modal-header">
+                            <h3 className="am-modal-title">Reset Password</h3>
+                            <button
+                                type="button"
+                                className="am-modal-close"
+                                onClick={() => setUserToReset(null)}
+                                disabled={loading}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="am-modal-body">
+                            <p>Are you sure you want to send a password reset email to <strong>{userToReset.email}</strong>?</p>
+                        </div>
+                        <div className="am-modal-footer">
+                            <button
+                                type="button"
+                                className="am-modal-btn am-modal-btn-cancel"
+                                onClick={() => setUserToReset(null)}
+                                disabled={loading}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="am-modal-btn am-modal-btn-confirm"
+                                onClick={confirmPasswordReset}
+                                disabled={loading}
+                            >
+                                {loading ? "Sending..." : "Send Email"}
                             </button>
                         </div>
                     </div>

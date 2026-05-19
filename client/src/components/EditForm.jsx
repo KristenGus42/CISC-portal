@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 // Import Firebase functions
 import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue } from 'firebase/database';
+import { getAuth } from 'firebase/auth';
 
 // ─── Reusable floating label components ───────────────────────────────────────
 
@@ -174,6 +175,11 @@ export default function ContactForm(props) {
         .then(() => navigate("/case-library"))
         .catch((err) => console.error("Error updating case: ", err));
     } else {
+      // Stamp the creator's UID on new cases
+      const currentUser = getAuth().currentUser;
+      if (currentUser) {
+        fullCaseData.createdBy = currentUser.uid;
+      }
       // Create new record
       const casesListRef = ref(db, 'cases');
       firebasePush(casesListRef, fullCaseData)
