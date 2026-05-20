@@ -168,10 +168,8 @@ export default function ContactForm(props) {
      };
 
     if (id) {
-      // Update existing record
-      const updates = {};
-      updates[`/cases/${id}`] = fullCaseData;
-      firebaseUpdate(ref(db), updates)
+      // Update existing record fields without replacing metadata like createdBy.
+      firebaseUpdate(ref(db, `cases/${id}`), fullCaseData)
         .then(() => navigate("/case-library"))
         .catch((err) => console.error("Error updating case: ", err));
     } else {
