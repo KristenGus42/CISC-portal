@@ -5,7 +5,8 @@ import { useAuth } from "../auth/useAuth";
 
 export function NavBar(props) {
     const { active } = props;
-    const { role } = useAuth();
+    const { role, user, userProfile } = useAuth();
+    const profileName = userProfile?.name || user?.displayName || userProfile?.email || user?.email || role || "User";
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const navigate = useNavigate();
@@ -74,7 +75,7 @@ export function NavBar(props) {
                         <span className="app-navbar-user-head"></span>
                         <span className="app-navbar-user-body"></span>
                     </span>
-                    <span>{role ?? "User"}</span>
+                    <span>{profileName}</span>
                 </button>
 
                 {menuOpen && (

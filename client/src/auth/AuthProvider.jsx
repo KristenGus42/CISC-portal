@@ -6,6 +6,7 @@ import { isValidRole } from "./roles";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [accessError, setAccessError] = useState("");
@@ -17,6 +18,7 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
       setUser(null);
+      setUserProfile(null);
       setRole(null);
 
       if (!firebaseUser) {
@@ -43,11 +45,13 @@ export function AuthProvider({ children }) {
 
         setAccessError("");
         setUser(firebaseUser);
+        setUserProfile(databaseUser);
         setRole(databaseRole);
       } catch (err) {
         console.error("Failed to verify user access:", err);
         setRole(null);
         setUser(null);
+        setUserProfile(null);
         setAccessError("Your account could not be verified. Please contact an administrator if you need access.");
         await signOut(auth);
       } finally {
@@ -61,12 +65,13 @@ export function AuthProvider({ children }) {
   const value = useMemo(
     () => ({
       user,
+      userProfile,
       role,
       loading,
       accessError,
       clearAccessError: () => setAccessError(""),
     }),
-    [user, role, loading, accessError]
+    [user, userProfile, role, loading, accessError]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

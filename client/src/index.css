@@ -1627,12 +1627,17 @@ body {
 }
 
 .am-field-email {
-  flex: 2;
+  flex: 1.4;
   min-width: 220px;
 }
 
-.am-field-role {
+.am-field-name {
   flex: 1;
+  min-width: 180px;
+}
+
+.am-field-role {
+  flex: 0.8;
   min-width: 140px;
 }
 
@@ -1849,13 +1854,83 @@ body {
   background-color: var(--background);
 }
 
-.am-table-email {
-  font-weight: 600;
+.am-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 220px;
 }
 
-.am-table-date {
+.am-profile-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--primary-text);
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.am-profile-icon-head {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border: 1.5px solid var(--primary-text);
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.am-profile-icon-body {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 16px;
+  height: 8px;
+  margin-left: -8px;
+  border: 1.5px solid var(--primary-text);
+  border-bottom: 0;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.am-profile-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.am-profile-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  color: var(--primary-text);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.am-inline-you-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--call-to-action-3);
+  background-color: rgba(109, 47, 62, 0.1);
+  color: var(--call-to-action);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.am-profile-email {
   color: var(--dark-gray);
   font-size: 0.82rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 /* Role Badges */
@@ -1883,46 +1958,57 @@ body {
   color: #fff;
 }
 
-/* Delete Button */
-.am-reset-btn {
-  border: 1px solid var(--call-to-action);
-  border-radius: 6px;
+.am-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.am-action-btn {
   background-color: var(--background);
-  color: var(--call-to-action);
-  cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  transition: background-color 0.15s, color 0.15s, opacity 0.15s;
-  white-space: nowrap;
-}
-
-.am-reset-btn:hover:not(:disabled) {
-  background-color: var(--call-to-action);
-  color: var(--background);
-}
-
-.am-reset-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.am-delete-btn {
-  background: none;
-  border: none;
+  border: 1px solid var(--neutral-gray);
   color: var(--dark-gray);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  min-height: 30px;
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.15s, background-color 0.15s;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
 }
 
-.am-delete-btn:hover {
+.am-action-btn svg {
+  flex-shrink: 0;
+}
+
+.am-action-btn:hover {
+  color: var(--call-to-action);
+  background-color: rgba(109, 47, 62, 0.1);
+  border-color: var(--call-to-action-3);
+}
+
+.am-action-btn-danger:hover {
   color: var(--error);
   background-color: #fde8e8;
+  border-color: #f5c2c2;
+}
+
+.am-manage-profile-btn {
+  color: var(--call-to-action);
+  border-color: var(--call-to-action-3);
+}
+
+.am-manage-profile-btn:hover {
+  background-color: var(--call-to-action);
+  border-color: var(--call-to-action);
+  color: var(--background);
 }
 
 /* Modal Overlay & Dialog */
@@ -2005,6 +2091,11 @@ body {
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 0 !important;
+}
+
+.am-modal-select {
+  width: 100%;
+  margin-top: 0.75rem;
 }
 
 .am-modal-footer {

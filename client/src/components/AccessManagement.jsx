@@ -7,7 +7,8 @@ import {
     sendPasswordResetEmail,
     signOut,
 } from "firebase/auth";
-import { getDatabase, ref, set, onValue, remove } from "firebase/database";
+import { getDatabase, ref, set, onValue, remove, update } from "firebase/database";
+import { useAuth } from "../auth/useAuth";
 
 // Firebase config (same as main.jsx — needed for the secondary app instance)
 const firebaseConfig = {
@@ -24,7 +25,9 @@ const firebaseConfig = {
 const ROLES = ["Staff", "Admin", "Attorney"];
 
 export default function AccessManagement() {
+    const { user: currentUser } = useAuth();
     const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
     const [role, setRole] = useState("Staff");
     const [loading, setLoading] = useState(false);
     const [feedback, setFeedback] = useState(null); // { type: "success" | "error", message }
@@ -32,9 +35,10 @@ export default function AccessManagement() {
     const [resetFeedback, setResetFeedback] = useState(null); // { type: "success" | "error", message }
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [resettingUserId, setResettingUserId] = useState(null);
     const [userToDelete, setUserToDelete] = useState(null);
     const [userToReset, setUserToReset] = useState(null);
+    const [userToModifyRole, setUserToModifyRole] = useState(null);
+    const [roleToModify, setRoleToModify] = useState("Staff");
 
     const db = getDatabase();
 
@@ -51,8 +55,14 @@ export default function AccessManagement() {
                 uid,
                 ...usersObj[uid],
             }));
-            // Sort by invitedAt descending (newest first)
-            formatted.sort((a, b) => (b.invitedAt || 0) - (a.invitedAt || 0));
+            // Sort alphabetically by profile name, then email as a stable fallback.
+            formatted.sort((a, b) => {
+                const nameA = (a.name || a.email || "").toLowerCase();
+                const nameB = (b.name || b.email || "").toLowerCase();
+                const nameComparison = nameA.localeCompare(nameB);
+                if (nameComparison !== 0) return nameComparison;
+                return (a.email || "").toLowerCase().localeCompare((b.email || "").toLowerCase());
+            });
             setUsers(formatted);
         });
         return () => unsubscribe();
@@ -74,8 +84,13 @@ export default function AccessManagement() {
         setResetFeedback(null);
 
         const trimmedEmail = email.trim().toLowerCase();
+        const trimmedName = name.trim();
         if (!trimmedEmail) {
             setFeedback({ type: "error", message: "Please enter an email address." });
+            return;
+        }
+        if (!trimmedName) {
+            setFeedback({ type: "error", message: "Please enter a name." });
             return;
         }
 
@@ -109,8 +124,8 @@ export default function AccessManagement() {
             const userRef = ref(db, `users/${uid}`);
             await set(userRef, {
                 email: trimmedEmail,
+                name: trimmedName,
                 role: role,
-                invitedAt: Date.now(),
             });
 
             setFeedback({
@@ -118,6 +133,7 @@ export default function AccessManagement() {
                 message: `Invite sent to ${trimmedEmail}. A password reset email has been delivered.`,
             });
             setEmail("");
+            setName("");
             setRole("Staff");
         } catch (err) {
             console.error("Invite error:", err);
@@ -125,7 +141,7 @@ export default function AccessManagement() {
             // Clean up secondary app if it still exists
             const secondary = getApps().find((a) => a.name === "secondary");
             if (secondary) {
-                try { await deleteApp(secondary); } catch (_) { /* ignore */ }
+                try { await deleteApp(secondary); } catch { /* ignore */ }
             }
 
             let message = "Something went wrong. Please try again.";
@@ -198,22 +214,45 @@ export default function AccessManagement() {
         }
     }
 
-    /** Format a timestamp to a readable date string */
-    function formatDate(timestamp) {
-        if (!timestamp) return "—";
-        return new Date(timestamp).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-        });
+    /** Update an existing user's role */
+    async function confirmRoleUpdate() {
+        if (!userToModifyRole) return;
+        const user = userToModifyRole;
+        setFeedback(null);
+        setDeleteFeedback(null);
+        setResetFeedback(null);
+        setLoading(true);
+
+        try {
+            const userRef = ref(db, `users/${user.uid}`);
+            await update(userRef, { role: roleToModify });
+            setUserToModifyRole(null);
+            setResetFeedback({
+                type: "success",
+                message: `${user.email}'s role has been updated to ${roleToModify}.`,
+            });
+        } catch (err) {
+            console.error("Role update error:", err);
+            setResetFeedback({
+                type: "error",
+                message: `Failed to update ${user.email}'s role. Please try again.`,
+            });
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function getProfileName(user) {
+        return user.name || user.email || "Unnamed User";
     }
 
     const filteredUsers = users.filter((user) => {
         if (!searchQuery.trim()) return true;
         const q = searchQuery.toLowerCase();
         const userEmail = (user.email || "").toLowerCase();
+        const userName = (user.name || "").toLowerCase();
         const userRole = (user.role || "").toLowerCase();
-        return userEmail.includes(q) || userRole.includes(q);
+        return userEmail.includes(q) || userName.includes(q) || userRole.includes(q);
     });
 
     return (
@@ -254,6 +293,22 @@ export default function AccessManagement() {
                                     placeholder="user@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    disabled={loading}
+                                    required
+                                />
+                            </div>
+
+                            <div className="am-field am-field-name">
+                                <label htmlFor="am-name" className="am-label">
+                                    Name
+                                </label>
+                                <input
+                                    id="am-name"
+                                    type="text"
+                                    className="am-input"
+                                    placeholder="Michael Itti"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     disabled={loading}
                                     required
                                 />
@@ -321,7 +376,7 @@ export default function AccessManagement() {
                     )}
                 </div>
 
-                {/* Invited Users Table */}
+                {/* Users Table */}
                 <div className="am-users-section">
                     <p className="am-section-title fw-bold">Users</p>
 
@@ -334,7 +389,7 @@ export default function AccessManagement() {
                             <input
                                 type="text"
                                 className="am-search-input form-control"
-                                placeholder="Search by Email or Role"
+                                placeholder="Search by Profile or Role"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -400,49 +455,112 @@ export default function AccessManagement() {
                             <table className="am-table">
                                 <thead>
                                     <tr>
-                                        <th>Email</th>
+                                        <th>Name</th>
                                         <th>Role</th>
-                                        <th>Invited</th>
-                                        <th>Password</th>
-                                        <th>Remove</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredUsers.map((user) => (
+                                    {filteredUsers.map((user) => {
+                                        const isCurrentUser = user.uid === currentUser?.uid;
+
+                                        return (
                                         <tr key={user.uid}>
-                                            <td className="am-table-email">{user.email}</td>
+                                            <td>
+                                                <div className="am-profile">
+                                                    <span className="am-profile-icon" aria-hidden="true">
+                                                        <span className="am-profile-icon-head"></span>
+                                                        <span className="am-profile-icon-body"></span>
+                                                    </span>
+                                                    <div className="am-profile-copy">
+                                                        <span className="am-profile-name">
+                                                            {getProfileName(user)}
+                                                            {isCurrentUser && (
+                                                                <span className="am-inline-you-badge">You</span>
+                                                            )}
+                                                        </span>
+                                                        <span className="am-profile-email">
+                                                            {user.email}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <span className={`am-role-badge am-role-${user.role?.toLowerCase()}`}>
                                                     {user.role}
                                                 </span>
                                             </td>
-                                            <td className="am-table-date">
-                                                {formatDate(user.invitedAt)}
-                                            </td>
                                             <td>
-                                                <button
-                                                    type="button"
-                                                    className="am-reset-btn"
-                                                    onClick={() => setUserToReset(user)}
-                                                >
-                                                    Reset
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    className="am-delete-btn"
-                                                    onClick={() => setUserToDelete(user)}
-                                                    title="Delete user"
-                                                >
-                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                    </svg>
-                                                </button>
+                                                {isCurrentUser ? (
+                                                    <button
+                                                        type="button"
+                                                        className="am-action-btn am-manage-profile-btn"
+                                                        title="Manage in Profile"
+                                                        aria-label="Manage your account in Profile"
+                                                    >
+                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                            <path d="M12 20h9"></path>
+                                                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                                                        </svg>
+                                                        <span>Manage in Profile</span>
+                                                    </button>
+                                                ) : (
+                                                    <div className="am-actions">
+                                                        <button
+                                                            type="button"
+                                                            className="am-action-btn"
+                                                            onClick={() => {
+                                                                setUserToModifyRole(user);
+                                                                setRoleToModify(user.role || "Staff");
+                                                            }}
+                                                            title="Modify roles"
+                                                            aria-label={`Modify roles for ${user.email}`}
+                                                        >
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                                                <circle cx="9" cy="7" r="4"></circle>
+                                                                <path d="m16 11 2 2 4-4"></path>
+                                                            </svg>
+                                                            <span>Modify Role</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="am-action-btn"
+                                                            onClick={() => setUserToReset(user)}
+                                                            title="Reset password"
+                                                            aria-label={`Reset password for ${user.email}`}
+                                                        >
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <rect x="5" y="11" width="10" height="8" rx="2"></rect>
+                                                                <path d="M7 11V8a3 3 0 0 1 6 0v3"></path>
+                                                                <path d="M18.5 8.5A5 5 0 0 0 10 5"></path>
+                                                                <path d="M18.5 8.5V5"></path>
+                                                                <path d="M18.5 8.5H15"></path>
+                                                                <path d="M10 15h.01"></path>
+                                                            </svg>
+                                                            <span>Reset Password</span>
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="am-action-btn am-action-btn-danger"
+                                                            onClick={() => setUserToDelete(user)}
+                                                            title="Remove users"
+                                                            aria-label={`Remove user ${user.email}`}
+                                                        >
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                                                <circle cx="9" cy="7" r="4"></circle>
+                                                                <line x1="17" y1="8" x2="22" y2="13"></line>
+                                                                <line x1="22" y1="8" x2="17" y2="13"></line>
+                                                            </svg>
+                                                            <span>Remove User</span>
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -488,6 +606,61 @@ export default function AccessManagement() {
                                 disabled={loading}
                             >
                                 {loading ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modify Role Modal */}
+            {userToModifyRole && (
+                <div className="am-modal-overlay">
+                    <div className="am-modal">
+                        <div className="am-modal-header">
+                            <h3 className="am-modal-title">Modify Roles</h3>
+                            <button
+                                type="button"
+                                className="am-modal-close"
+                                onClick={() => setUserToModifyRole(null)}
+                                disabled={loading}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="am-modal-body">
+                            <p>Choose a new role for <strong>{userToModifyRole.email}</strong>.</p>
+                            <select
+                                className="am-select am-modal-select"
+                                value={roleToModify}
+                                onChange={(e) => setRoleToModify(e.target.value)}
+                                disabled={loading}
+                            >
+                                {ROLES.map((roleOption) => (
+                                    <option key={roleOption} value={roleOption}>
+                                        {roleOption}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="am-modal-footer">
+                            <button
+                                type="button"
+                                className="am-modal-btn am-modal-btn-cancel"
+                                onClick={() => setUserToModifyRole(null)}
+                                disabled={loading}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="am-modal-btn am-modal-btn-confirm"
+                                onClick={confirmRoleUpdate}
+                                disabled={loading}
+                            >
+                                {loading ? "Saving..." : "Save Role"}
                             </button>
                         </div>
                     </div>
