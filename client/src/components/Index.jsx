@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import {
   browserLocalPersistence,
   browserSessionPersistence,
@@ -74,6 +74,11 @@ export default function Index() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = () => {
+    clearAccessError();
+    setError("Please contact an administrator to reset your password.");
   };
 
   return (
@@ -176,17 +181,22 @@ export default function Index() {
                 Keep me signed in
               </label>
             </div>
-            <Link
-              to="#"
+            <button
+              type="button"
+              onClick={handleForgotPassword}
               style={{
                 color: "var(--call-to-action)",
                 fontWeight: 600,
                 fontSize: "0.9rem",
                 textDecoration: "none",
+                border: "none",
+                background: "none",
+                padding: 0,
+                cursor: "pointer",
               }}
             >
               Forgot Password?
-            </Link>
+            </button>
           </div>
 
           {/* Sign In Button */}
