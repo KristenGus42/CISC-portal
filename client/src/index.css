@@ -60,6 +60,69 @@ body {
   border-color: var(--call-to-action);
 }
 
+/* Login */
+.login-page {
+  min-height: 90vh;
+  background-color: var(--background);
+}
+
+.login-logo {
+  width: 170px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  border: 2px solid var(--call-to-action);
+  border-radius: 12px;
+  background-color: var(--background);
+}
+
+.login-title {
+  color: var(--call-to-action);
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.login-alert {
+  font-size: 0.9rem;
+}
+
+.login-input {
+  border: 2px solid var(--call-to-action);
+  border-radius: 50px;
+  color: var(--primary-text);
+  padding: 0.6rem 1.1rem;
+}
+
+.login-check-label,
+.login-forgot-btn {
+  font-size: 0.9rem;
+}
+
+.login-check-label {
+  color: var(--primary-text);
+}
+
+.login-forgot-btn {
+  background: none;
+  border: none;
+  color: var(--call-to-action);
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: none;
+}
+
+.login-submit-btn {
+  border-color: var(--call-to-action);
+  border-radius: 50px;
+  background-color: var(--call-to-action);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
 /*Nav Bar */
 .app-navbar {
   display: grid;

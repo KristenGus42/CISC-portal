@@ -82,44 +82,25 @@ export default function Index() {
   };
 
   return (
-    <div
-      className="d-flex flex-column align-items-center justify-content-center"
-      style={{ minHeight: "90vh", backgroundColor: "var(--background)" }}
-    >
+    <div className="login-page d-flex flex-column align-items-center justify-content-center">
       {/* CISC Logo */}
       <div className="mb-4 text-center">
         <img
           src="/img/cisc-logo-with-description.png"
           alt="CISC – Bridging Cultures, Communities & Generations"
-          style={{ width: "170px" }}
+          className="login-logo"
         />
       </div>
 
       {/* Login Card */}
-      <div
-        className="p-4"
-        style={{
-          width: "100%",
-          maxWidth: "420px",
-          border: "2px solid var(--call-to-action)",
-          borderRadius: "12px",
-          backgroundColor: "var(--background)",
-        }}
-      >
+      <div className="login-card p-4">
         {/* Welcome Heading */}
-        <h2
-          className="text-center mb-4"
-          style={{
-            color: "var(--call-to-action)",
-            fontWeight: 600,
-            fontSize: "1.4rem",
-          }}
-        >
+        <h2 className="login-title text-center mb-4">
           Welcome
         </h2>
 
         {(error || accessError) && (
-          <div className="alert alert-danger p-2 text-center mb-3" style={{ fontSize: "0.9rem" }}>
+          <div className="login-alert alert alert-danger p-2 text-center mb-3">
             {error || accessError}
           </div>
         )}
@@ -130,16 +111,10 @@ export default function Index() {
             <input
               id="username"
               type="text"
-              className="form-control"
+              className="login-input form-control"
               placeholder="Email or Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={{
-                borderRadius: "50px",
-                border: "2px solid var(--call-to-action)",
-                padding: "0.6rem 1.1rem",
-                color: "var(--primary-text)",
-              }}
               required
             />
           </div>
@@ -149,16 +124,10 @@ export default function Index() {
             <input
               id="password"
               type="password"
-              className="form-control"
+              className="login-input form-control"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{
-                borderRadius: "50px",
-                border: "2px solid var(--call-to-action)",
-                padding: "0.6rem 1.1rem",
-                color: "var(--primary-text)",
-              }}
               required
             />
           </div>
@@ -174,9 +143,8 @@ export default function Index() {
                 onChange={(e) => setKeepSignedIn(e.target.checked)}
               />
               <label
-                className="form-check-label"
+                className="login-check-label form-check-label"
                 htmlFor="keepSignedIn"
-                style={{ fontSize: "0.9rem", color: "var(--primary-text)" }}
               >
                 Keep me signed in
               </label>
@@ -184,16 +152,7 @@ export default function Index() {
             <button
               type="button"
               onClick={handleForgotPassword}
-              style={{
-                color: "var(--call-to-action)",
-                fontWeight: 600,
-                fontSize: "0.9rem",
-                textDecoration: "none",
-                border: "none",
-                background: "none",
-                padding: 0,
-                cursor: "pointer",
-              }}
+              className="login-forgot-btn"
             >
               Forgot Password?
             </button>
@@ -204,16 +163,8 @@ export default function Index() {
             <button
               type="submit"
               id="sign-in-btn"
-              className="btn btn-primary px-5 py-2"
+              className="login-submit-btn btn btn-primary px-5 py-2"
               disabled={loading}
-              style={{
-                borderRadius: "50px",
-                backgroundColor: "var(--call-to-action)",
-                borderColor: "var(--call-to-action)",
-                fontWeight: 600,
-                fontSize: "1rem",
-                letterSpacing: "0.03em",
-              }}
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>
