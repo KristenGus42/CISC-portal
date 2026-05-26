@@ -37,6 +37,12 @@ export function AuthProvider({ children }) {
           return;
         }
 
+        if (databaseUser.status === "disabled") {
+          setAccessError("Your account has been disabled. Please contact an administrator if you need access.");
+          await signOut(auth);
+          return;
+        }
+
         if (!isValidRole(databaseRole)) {
           setAccessError("User access not found. Please contact an administrator.");
           await signOut(auth);

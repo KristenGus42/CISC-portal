@@ -7,7 +7,7 @@ import {
     sendPasswordResetEmail,
     signOut,
 } from "firebase/auth";
-import { getDatabase, ref, set, onValue, remove, update } from "firebase/database";
+import { getDatabase, ref, set, onValue, update } from "firebase/database";
 import { useAuth } from "../auth/useAuth";
 
 // Firebase config (same as main.jsx — needed for the secondary app instance)
@@ -94,6 +94,47 @@ export default function AccessManagement() {
             return;
         }
 
+        const existingUser = users.find((u) => (u.email || "").toLowerCase() === trimmedEmail);
+        if (existingUser) {
+            if (existingUser.status !== "disabled") {
+                setFeedback({
+                    type: "error",
+                    message: "This email is already registered and active.",
+                });
+                return;
+            } else {
+                setLoading(true);
+                try {
+                    const userRef = ref(db, `users/${existingUser.uid}`);
+                    await update(userRef, {
+                        status: "active",
+                        name: trimmedName,
+                        role: role,
+                    });
+
+                    const primaryAuth = getAuth();
+                    await sendPasswordResetEmail(primaryAuth, trimmedEmail);
+
+                    setFeedback({
+                        type: "success",
+                        message: `User ${trimmedEmail} has been reactivated. A password reset email has been delivered.`,
+                    });
+                    setEmail("");
+                    setName("");
+                    setRole("Staff");
+                } catch (err) {
+                    console.error("Reactivate error:", err);
+                    setFeedback({
+                        type: "error",
+                        message: `Failed to reactivate ${trimmedEmail}. Please try again.`,
+                    });
+                } finally {
+                    setLoading(false);
+                }
+                return;
+            }
+        }
+
         setLoading(true);
 
         try {
@@ -126,6 +167,7 @@ export default function AccessManagement() {
                 email: trimmedEmail,
                 name: trimmedName,
                 role: role,
+                status: "active"
             });
 
             setFeedback({
@@ -165,11 +207,11 @@ export default function AccessManagement() {
         setLoading(true);
         try {
             const userRef = ref(db, `users/${userToDelete.uid}`);
-            await remove(userRef);
+            await update(userRef, { status: "disabled" });
             setUserToDelete(null);
             setDeleteFeedback({
                 type: "success",
-                message: `${deletedEmail} has been deleted.`,
+                message: `${deletedEmail} has been disabled.`,
             });
         } catch (err) {
             console.error("Delete error:", err);
@@ -246,14 +288,16 @@ export default function AccessManagement() {
         return user.name || user.email || "Unnamed User";
     }
 
-    const filteredUsers = users.filter((user) => {
-        if (!searchQuery.trim()) return true;
-        const q = searchQuery.toLowerCase();
-        const userEmail = (user.email || "").toLowerCase();
-        const userName = (user.name || "").toLowerCase();
-        const userRole = (user.role || "").toLowerCase();
-        return userEmail.includes(q) || userName.includes(q) || userRole.includes(q);
-    });
+    const filteredUsers = users
+        .filter((user) => user.status !== "disabled")
+        .filter((user) => {
+            if (!searchQuery.trim()) return true;
+            const q = searchQuery.toLowerCase();
+            const userEmail = (user.email || "").toLowerCase();
+            const userName = (user.name || "").toLowerCase();
+            const userRole = (user.role || "").toLowerCase();
+            return userEmail.includes(q) || userName.includes(q) || userRole.includes(q);
+        });
 
     return (
         <>
@@ -573,7 +617,7 @@ export default function AccessManagement() {
                 <div className="am-modal-overlay">
                     <div className="am-modal">
                         <div className="am-modal-header">
-                            <h3 className="am-modal-title">Delete User</h3>
+                            <h3 className="am-modal-title">Remove User</h3>
                             <button
                                 type="button"
                                 className="am-modal-close"
@@ -587,8 +631,8 @@ export default function AccessManagement() {
                             </button>
                         </div>
                         <div className="am-modal-body">
-                            <p>Are you sure you want to delete <strong>{userToDelete.email}</strong>?</p>
-                            <p className="am-modal-warning">This action cannot be undone.</p>
+                            <p>Are you sure you want to remove <strong>{userToDelete.email}</strong>?</p>
+                            <p className="am-modal-warning">This will disable their account and revoke their access.</p>
                         </div>
                         <div className="am-modal-footer">
                             <button
@@ -605,7 +649,7 @@ export default function AccessManagement() {
                                 onClick={confirmDelete}
                                 disabled={loading}
                             >
-                                {loading ? "Deleting..." : "Delete"}
+                                {loading ? "Removing..." : "Remove"}
                             </button>
                         </div>
                     </div>

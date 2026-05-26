@@ -52,6 +52,12 @@ export default function Index() {
         return;
       }
 
+      if (userData.status === "disabled") {
+        setError("Your account has been disabled. Please contact an administrator if you need access.");
+        await signOut(auth);
+        return;
+      }
+
       if (isValidRole(role)) {
 
         // Route based on role
