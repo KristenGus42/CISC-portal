@@ -69,7 +69,7 @@ export default function AccessManagement() {
     }, [db]);
 
     /** Generate a cryptographically random password */
-    function generatePassword(length = 16) {
+    function generatePassword(length = 30) {
         const charset =
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*";
         const values = crypto.getRandomValues(new Uint8Array(length));
