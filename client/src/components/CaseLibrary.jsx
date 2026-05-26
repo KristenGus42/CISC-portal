@@ -2,7 +2,7 @@ import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 // Import Firebase database functions
-import { getDatabase, ref, onValue } from 'firebase/database';
+import { getDatabase, ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 import { useAuth } from "../auth/useAuth";
 
 export default function CaseLibrary() {
@@ -13,10 +13,18 @@ export default function CaseLibrary() {
 
     // Listen for changes in the 'cases' table
     useEffect(() => {
-        const casesRef = ref(db, "cases");
+        // Wait until role and user are loaded
+        if (!role || !user) return;
+
+        let casesQuery = ref(db, "cases");
+        
+        // Staff can only read cases they created; query by createdBy to pass Firebase Rules
+        if (role === "Staff") {
+            casesQuery = query(casesQuery, orderByChild("createdBy"), equalTo(user.uid));
+        }
 
         // onValue provides a real-time connection to the database
-        const unsubscribe = onValue(casesRef, (snapshot) => {
+        const unsubscribe = onValue(casesQuery, (snapshot) => {
             const casesObj = snapshot.val();
             
             if (casesObj === null) {
@@ -34,19 +42,16 @@ export default function CaseLibrary() {
             });
 
             setAllCasesArr(formattedCases);
+        }, (error) => {
+            console.error("Error fetching cases:", error);
         });
 
         // Cleanup the listener when the component unmounts
         return () => unsubscribe();
-    }, [db]);
-
-    // If Staff, only show cases they created
-    const visibleCases = role === "Staff" && user
-        ? allCasesArr.filter((c) => c.createdBy === user.uid)
-        : allCasesArr;
+    }, [db, role, user]);
 
     // Filter visible cases by search query
-    const filteredCases = visibleCases.filter((client) => {
+    const filteredCases = allCasesArr.filter((client) => {
         if (!searchQuery.trim()) return true;
         const q = searchQuery.toLowerCase();
         const fullName = `${client.clientInfo?.fname || ""} ${client.clientInfo?.lname || ""}`.toLowerCase();
