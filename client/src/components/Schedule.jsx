@@ -212,10 +212,6 @@ export default function Schedule() {
 
   // ── Auto-match: fill empty slots for active attorneys ──────────────────────
   function handleAutoMatch() {
-    // If not already in edit mode, turn it on
-    if (!isEditMode) {
-      setIsEditMode(true);
-    }
 
     // Collect all empty slots for columns that have an attorney assigned
     const emptySlots = [];
@@ -335,7 +331,7 @@ export default function Schedule() {
 
               {/* Action Buttons */}
               <div className="schedule-action-buttons">
-                <button 
+                {isEditMode && (<button 
                   className="btn btn-sm schedule-action-btn schedule-action-btn-primary"
                   onClick={handleAutoMatch}
                 >
@@ -343,12 +339,7 @@ export default function Schedule() {
                     <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
                   </svg>
                   Auto-match
-                </button>
-                {isEditMode && (
-                  <button className="btn btn-sm schedule-action-btn schedule-action-btn-primary">
-                    Auto-match
-                  </button>
-                )}
+                </button>)}
 
                 {isEditMode ? (
                   <button
