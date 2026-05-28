@@ -378,6 +378,7 @@ export default function Schedule() {
                   onRemove={handleRemove}
                   isEditMode={isEditMode}
                   allAttorneysArr={allAttorneysArr}
+                  allLegalStudentsArr={allLegalStudentsArr}
                   onAttorneySelect={(attorney) => handleAttorneySelect(colIdx, attorney)}
                 />
               ))}
@@ -449,7 +450,7 @@ export default function Schedule() {
 
 // ─── Attorney Column ──────────────────────────────────────────────────────────
 
-function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignments, onRemove, isEditMode, allAttorneysArr, onAttorneySelect }) {
+function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignments, onRemove, isEditMode, allAttorneysArr,allLegalStudentsArr, onAttorneySelect }) {
   const [selectedAttorney, setSelectedAttorney] = useState(null);
 
   // Populate from Firebase-loaded saved attorney
@@ -504,6 +505,8 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
             assignedSlot={assignments[slotKey] ?? null}
             onRemove={onRemove}
             isEditMode={isEditMode}
+            allAttorneysArr={allAttorneysArr}
+            allLegalStudentsArr={allLegalStudentsArr}
           />
         );
       })}
@@ -514,7 +517,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
-function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode }) {
+function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey });
   const [selectedTime, setSelectedTime] = useState(time);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
@@ -618,7 +621,7 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
               </div>
 
               <div className="schedule-slot-actions">
-                <div className="schedule-slot-assign-wrapper schedule-slot-assign-full">
+                {/*<div className="schedule-slot-assign-wrapper schedule-slot-assign-full">
                   <button className="schedule-slot-btn schedule-slot-btn-assign">
                     <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16">
                       <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z"/>
@@ -629,6 +632,29 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" className="schedule-slot-assign-chevron">
                     <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
                   </svg>
+                </div>*/}
+                {/* DEMO CODE: Probably heavily refactor/remove */}
+                <div className="schedule-slot-assign-wrapper schedule-slot-assign-full">
+                  <select
+                    className="schedule-slot-btn schedule-slot-btn-assign"
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Assign Interpreter</option>
+                    <optgroup label="Attorneys">
+                      {allAttorneysArr.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim()}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="Legal Students">
+                      {allLegalStudentsArr.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim()}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
                 </div>
 
                 <div className="schedule-slot-bottom-row">
