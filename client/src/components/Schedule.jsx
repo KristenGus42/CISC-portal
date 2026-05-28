@@ -8,6 +8,7 @@ import CasePreview from "./CasePreview";
 
 import DatalistInput from 'react-datalist-input';
 import 'react-datalist-input/dist/styles.css';
+import { calculateMatchScore } from "./matcher";
 
 // ─── Date Helpers ─────────────────────────────────────────────────────────────
 
@@ -182,11 +183,12 @@ export default function Schedule() {
     const attorneyPayload = {
       attorneyId: attorney.id,
       name:       attorney.value ?? attorney.name ?? "",
-      specialty:  attorney.specialty ?? "",
-      language:   attorney.language ?? attorney.primaryLanguage ?? "",
+      specialty:  attorney.specialty ?? attorney.mainPracticeAreas ?? "",
+      language:   attorney.language ?? attorney.languageSkills ?? attorney.primaryLanguage ?? "",
     };
     setColumnAttorneys((prev) => ({ ...prev, [colKey]: attorneyPayload }));
   }
+
 
   // ── Save: write everything to Firebase ───────────────────────────────────
   async function handleSave() {
@@ -206,6 +208,87 @@ export default function Schedule() {
     } catch (err) {
       console.error("Failed to save schedule:", err);
     }
+  }
+
+  // ── Auto-match: fill empty slots for active attorneys ──────────────────────
+  function handleAutoMatch() {
+    // If not already in edit mode, turn it on
+    if (!isEditMode) {
+      setIsEditMode(true);
+    }
+
+    // Collect all empty slots for columns that have an attorney assigned
+    const emptySlots = [];
+    for (let colIdx = 0; colIdx < colArray.length; colIdx++) {
+      const attorney = columnAttorneys[`col${colIdx}`];
+      if (!attorney) continue; // No attorney selected for this column
+
+      for (let slotIdx = 0; slotIdx < mockTimeSlots.length; slotIdx++) {
+        const slotKey = `${colIdx}-${slotIdx}`;
+        if (!assignments[slotKey]?.client) {
+          emptySlots.push({ colIdx, slotIdx, slotKey, attorney });
+        }
+      }
+    }
+
+    if (emptySlots.length === 0) return;
+
+    // Available cases are the waitlisted ones not already assigned on the board
+    const assignedCaseIds = new Set(
+      Object.values(assignments)
+        .map((s) => s?.client?.caseId)
+        .filter(Boolean)
+    );
+    let availableCases = waitlistCases.filter((c) => !assignedCaseIds.has(c.id));
+    let slotsToFill = [...emptySlots];
+    const newAssignments = { ...assignments };
+
+    while (slotsToFill.length > 0 && availableCases.length > 0) {
+      let bestMatch = null;
+
+      // Evaluate all combinations of remaining slots and remaining cases
+      for (const slot of slotsToFill) {
+        for (const caseObj of availableCases) {
+          const scoreResult = calculateMatchScore(caseObj, slot.attorney);
+          const score = scoreResult.totalScore;
+
+          if (!bestMatch || score > bestMatch.score) {
+            bestMatch = {
+              slot,
+              caseObj,
+              score
+            };
+          }
+        }
+      }
+
+      if (bestMatch) {
+        const { slot, caseObj } = bestMatch;
+        const time = mockTimeSlots[slot.slotIdx] ?? mockTimeSlots[0];
+
+        newAssignments[slot.slotKey] = {
+          time,
+          client: {
+            caseId:   caseObj.id,
+            fname:    caseObj.clientInfo?.fname    ?? "",
+            lname:    caseObj.clientInfo?.lname    ?? "",
+            category: caseObj.caseInfo?.category   ?? "",
+            language: caseObj.clientInfo?.primaryLanguage ?? "",
+            phone:    caseObj.clientInfo?.phone    ?? "",
+            email:    caseObj.clientInfo?.email    ?? "",
+          },
+          attorney: slot.attorney,
+        };
+
+        // Remove from available pools
+        availableCases = availableCases.filter((c) => c.id !== caseObj.id);
+        slotsToFill = slotsToFill.filter((s) => s.slotKey !== slot.slotKey);
+      } else {
+        break;
+      }
+    }
+
+    setAssignments(newAssignments);
   }
 
   // ── Cases already placed this week — hide from waitlist ───────────────────
@@ -252,6 +335,15 @@ export default function Schedule() {
 
               {/* Action Buttons */}
               <div className="schedule-action-buttons">
+                <button 
+                  className="btn btn-sm schedule-action-btn schedule-action-btn-primary"
+                  onClick={handleAutoMatch}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                  </svg>
+                  Auto-match
+                </button>
                 {isEditMode && (
                   <button className="btn btn-sm schedule-action-btn schedule-action-btn-primary">
                     Auto-match
@@ -400,8 +492,12 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
         />
         {selectedAttorney && (
           <div className="schedule-attorney-meta">
-            <span className="schedule-attorney-specialty">{selectedAttorney.specialty ?? "—"}</span>
-            <span className="schedule-attorney-language">{selectedAttorney.language ?? selectedAttorney.primaryLanguage ?? "—"}</span>
+            <span className="schedule-attorney-specialty">
+              {selectedAttorney.specialty ?? selectedAttorney.mainPracticeAreas ?? "—"}
+            </span>
+            <span className="schedule-attorney-language">
+              {selectedAttorney.language ?? selectedAttorney.languageSkills ?? selectedAttorney.primaryLanguage ?? "—"}
+            </span>
           </div>
         )}
       </div>
