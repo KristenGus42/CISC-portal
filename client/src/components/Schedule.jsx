@@ -68,6 +68,10 @@ export default function Schedule() {
   const weekEndDate = addDays(currentWeekStart, 6);
   const clinicLabel = `${toMDY(currentWeekStart)} – ${toMDY(weekEndDate)}`;
 
+  // Pop ups: 
+  const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
   // Personnel
   const [allAttorneysArr, setAllAttorneysArr] = useState([]);
   const [allLegalStudentsArr, setAllLegalStudentsArr] = useState([]);
@@ -124,6 +128,10 @@ export default function Schedule() {
   // ── Week navigation ───────────────────────────────────────────────────────
   function goToPrevWeek() { setCurrentWeekStart((prev) => addDays(prev, -7)); }
   function goToNextWeek() { setCurrentWeekStart((prev) => addDays(prev, 7)); }
+  function goToWeek(dateStr) {
+    if (!dateStr) return;
+    setCurrentWeekStart(getWeekStart(new Date(dateStr)));
+  }
 
   // ── DnD sensors ───────────────────────────────────────────────────────────
   const sensors = useSensors(
@@ -235,16 +243,21 @@ export default function Schedule() {
                 <button className="btn btn-sm schedule-nav-arrow" onClick={goToPrevWeek}>‹</button>
                 <span className="schedule-clinic-label">{clinicLabel}</span>
                 <button className="btn btn-sm schedule-nav-arrow" onClick={goToNextWeek}>›</button>
+                <input
+                  type="date"
+                  className="schedule-date-jump-input"
+                  onChange={(e) => goToWeek(e.target.value)}
+                />
               </div>
 
               {/* Action Buttons */}
               <div className="schedule-action-buttons">
-                <button className="btn btn-sm schedule-action-btn schedule-action-btn-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                  </svg>
-                  Auto-match
-                </button>
+                {isEditMode && (
+                  <button className="btn btn-sm schedule-action-btn schedule-action-btn-primary">
+                    Auto-match
+                  </button>
+                )}
+
                 {isEditMode ? (
                   <button
                     className="btn btn-sm schedule-action-btn schedule-action-btn-save"
@@ -413,10 +426,13 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
 
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 
+// ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey });
   const [selectedTime, setSelectedTime] = useState(time);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
+  const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
+  const [isContactOpen, setIsContactOpen] = useState(false);
 
   const assignedClient = assignedSlot?.client ?? null;
   const assignedAttorney = assignedSlot?.attorney ?? null;
@@ -426,8 +442,26 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
     setIsTimeMenuOpen(false);
   }
 
+  function handleMeetingLink() {
+    setIsMeetingLinkOpen(true);
+  }
+
+  function handleContact() {
+    setIsContactOpen(true);
+  }
+
   return (
+    
     <div className="schedule-slot-card-outer">
+      {isMeetingLinkOpen && (
+        <MeetingPopUp onClose={() => setIsMeetingLinkOpen(false)} />
+      )}
+      {isContactOpen && (
+        <ContactPopUp
+          client={assignedClient}
+          onClose={() => setIsContactOpen(false)}
+        />
+      )}
       {isEditMode && assignedClient && (
         <div className="schedule-slot-remove-zone">
           <button
@@ -511,13 +545,14 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
                 </div>
 
                 <div className="schedule-slot-bottom-row">
-                  <button className="schedule-slot-btn schedule-slot-btn-meeting">
+                  <button className="schedule-slot-btn schedule-slot-btn-meeting" onClick={handleMeetingLink}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16">
                       <path d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z" />
                     </svg>
                     Meeting link
                   </button>
-                  <button className="schedule-slot-btn schedule-slot-btn-contact">
+
+                  <button className="schedule-slot-btn schedule-slot-btn-contact" onClick={handleContact}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16">
                       <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
                       <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
@@ -597,5 +632,63 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date,
         </div>
       </div>
     </div>
+  );
+}
+
+function MeetingPopUp({ onClose }) {
+  return (
+    <>
+      <div className="schedule-modal-backdrop" onClick={onClose} />
+      <div className="schedule-modal-popup">
+        <button className="schedule-modal-close-btn" onClick={onClose}>✕</button>
+        <h6 className="schedule-modal-title">Meeting Link</h6>
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Paste meeting link here…"
+        />
+      </div>
+    </>
+  );
+}
+
+// ─── Contact Pop Up ───────────────────────────────────────────────────────────
+function ContactPopUp({ client, onClose }) {
+  const [phone, setPhone] = useState(client?.phone || "");
+  const [email, setEmail] = useState(client?.email || "");
+
+  return (
+    <>
+      <div className="schedule-modal-backdrop" onClick={onClose} />
+      <div className="schedule-modal-popup">
+        <button className="schedule-modal-close-btn" onClick={onClose}>✕</button>
+        <h6 className="schedule-modal-title">Contact</h6>
+        {client ? (
+          <div className="schedule-modal-contact-info">
+            <p className="mb-2"><strong>{client.fname} {client.lname}</strong></p>
+            <div className="mb-2">
+              <label className="form-label small mb-1">Phone</label>
+              <input
+                type="tel"
+                className="form-control form-control-sm"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="form-label small mb-1">Email</label>
+              <input
+                type="email"
+                className="form-control form-control-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
+        ) : (
+          <p className="text-muted small">No contact info available.</p>
+        )}
+      </div>
+    </>
   );
 }

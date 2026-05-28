@@ -527,6 +527,10 @@ body {
 }
 
 /*Edit Form*/
+.danger {
+  background-color: var(--error);
+}
+
 .edit-form-title {
   font-size: 1.5rem;
 }
@@ -554,6 +558,49 @@ body {
 }
 
 /*Schedule*/
+.schedule-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+}
+.schedule-modal-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  z-index: 101;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 320px;
+}
+.schedule-modal-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #888;
+}
+.schedule-modal-title {
+  margin-bottom: 1rem;
+}
+
+.schedule-date-jump-input {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 24px;
+  color: transparent;
+}
+
+.schedule-date-jump-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
 
 /* Page Layout */
 .schedule-page {
