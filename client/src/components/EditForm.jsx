@@ -2,7 +2,7 @@ import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 // Import Firebase functions
-import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue } from 'firebase/database';
+import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue, remove as firebaseRemove} from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 
 // ─── Reusable floating label components ───────────────────────────────────────
@@ -121,6 +121,8 @@ export default function ContactForm(props) {
 
   const [isFormValid, setIsFormValid] = useState(false);
 
+  const [dateAdded, setDateAdded] = useState("");
+
   // 1. EFFECT: Fetch data from Firebase if an ID exists (Editing mode)
   useEffect(() => {
     if (id) {
@@ -133,6 +135,7 @@ export default function ContactForm(props) {
           if (data.schedulingInfo) setSchedulingFormData(data.schedulingInfo);
           if (data.attorneyNotes) setAttorneyNotesFormData(data.attorneyNotes);
           if (data.matchInfo) setMatchFormData(data.matchInfo);
+          if (data.dateAdded) setDateAdded(data.dateAdded);
         }
       });
     }
@@ -164,7 +167,8 @@ export default function ContactForm(props) {
       schedulingInfo: schedulingFormData,
       attorneyNotes: attorneyNotesFormData,
       matchInfo: matchFormData,
-      status: (matchFormData && matchFormData.attorney) ? "scheduled" : "waitlisted"   
+      status: (matchFormData && matchFormData.attorney) ? "scheduled" : "waitlisted", 
+      dateAdded: dateAdded ? dateAdded : new Date().toLocaleString()
      };
 
     if (id) {
@@ -186,13 +190,23 @@ export default function ContactForm(props) {
     }
   };
 
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this case? This action cannot be undone.")) {
+      firebaseRemove(ref(db, `cases/${id}`))
+        .then(() => navigate("/case-library"))
+        .catch((err) => console.error(`Error removing case: `, err));
+    }
+  };
+
   const handleCancel = () => {
-    navigate("/case-library");
+    if (window.confirm("Are you sure you want to exit this page? All progress will be lost.")) {
+      navigate("/case-library");
+    }
   };
 
   const header = props.newForm
     ? <NewClientHeader />
-    : <ExistingClientHeader clientFormData={clientFormData} caseFormData={caseFormData} />;
+    : <ExistingClientHeader clientFormData={clientFormData} caseFormData={caseFormData} dateAdded={dateAdded}/>;
 
   const attorneySection = props.attorney 
     ? <AttorneySection
@@ -378,14 +392,18 @@ export default function ContactForm(props) {
         {attorneySection}
 
         {/* Bottom Section */}
-        <div className="d-flex flex-column align-items-end">
-          <div className="mb-2">
-            <div>
-              <p className="err-color">{countFilledReqFields(clientFormData)}/4 required fields</p>
-            </div>
+        <div className="d-flex justify-content-between align-items-end mb-2">
+          {/* Left side */}
+          <div>
+            <button type="button" className="btn btn-submit danger" disabled={!isFormValid} onClick={handleDelete}>Delete</button>
+          </div>
+
+          {/* Right side */}
+          <div className="d-flex flex-column align-items-end">
+            <p className="err-color">{countFilledReqFields(clientFormData)}/4 required fields</p>
             <div>
               <button type="button" className="btn btn-cancel" onClick={handleCancel}>Cancel</button>
-              <button type="button" className="btn btn-submit" disabled={!isFormValid} onClick={handleSubmit}> Save </button>
+              <button type="button" className="btn btn-submit" disabled={!isFormValid} onClick={handleSubmit}>Save</button>
             </div>
           </div>
         </div>
@@ -397,16 +415,16 @@ export default function ContactForm(props) {
 
 // ─── Headers ──────────────────────────────────────────────────────────────────
 
-function ExistingClientHeader({ clientFormData, caseFormData }) {
+function ExistingClientHeader({ clientFormData, caseFormData, dateAdded }) {
   return (
-    <div className="container py-5">
+    <div className="container py-5 mb-0">
       <div className="d-flex justify-content-between align-items-center">
         <div>
           <p className="mb-0 edit-form-title">
             {clientFormData.fname || "Client Name not Assigned"} {clientFormData.lname || ""}
           </p>
           <p className="mb-0 edit-form-subtitle">
-            {caseFormData.category || "Category not Assigned"} | {clientFormData.primaryLanguage || "Language not Assigned"}
+            {caseFormData.category || "Category not Assigned"} | {clientFormData.primaryLanguage || "Language not Assigned"} | Date Added: {dateAdded.split(" ")[0]}
           </p>
         </div>
       </div>

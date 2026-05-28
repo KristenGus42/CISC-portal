@@ -2,7 +2,7 @@ import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 // Import Firebase functions
-import { getDatabase, ref, update as firebaseUpdate, onValue } from 'firebase/database';
+import { getDatabase, ref, update as firebaseUpdate, onValue, remove as firebaseRemove } from 'firebase/database';
 
 function countFilledReqFields(personnelFormData) {
   const reqFieldNames = ["name", "email", "phoneNumber"];
@@ -47,7 +47,6 @@ export default function PersonnelEditForm() {
         if (data) {
           setPersonnelFormData(data);
           setPersonType("Attorney");
-          setLoading(false);
         } else {
           // If not found in attorneys, try legal students
           const studentRef = ref(db, `legalStudents/${id}`);
@@ -56,7 +55,6 @@ export default function PersonnelEditForm() {
             if (data) {
               setPersonnelFormData(data);
               setPersonType("Legal Student");
-              setLoading(false);
             }
           });
         }
@@ -87,6 +85,15 @@ export default function PersonnelEditForm() {
       })
       .catch((err) => console.error(`Error updating ${personType.toLowerCase()}: `, err));
   };
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this personnel?")) {
+      const collectionName = personType === "Attorney" ? "attorneys" : "legalStudents";
+      firebaseRemove(ref(db, `${collectionName}/${id}`))
+        .then(() => navigate("/personnel-library"))
+        .catch((err) => console.error(`Error removing personnel: `, err));
+    }
+  };
   
   // Handle person type change
   const handlePersonChange = (e) => {
@@ -105,6 +112,7 @@ export default function PersonnelEditForm() {
             <div className="text-end">
                 <button type="button" className="btn btn-cancel me-2" onClick={() => navigate("/personnel-library")}>Cancel</button>
                 <button type="button" className="btn btn-submit" disabled={!isFormValid} onClick={handleSave}>Save</button>
+                <button type="button" className="btn btn-submit mx-3" onClick={handleDelete}>Delete</button>
             </div>
             </div>
             
