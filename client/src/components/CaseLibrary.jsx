@@ -59,7 +59,13 @@ export default function CaseLibrary() {
         const category = (client.caseInfo?.category || "").toLowerCase();
         const language = (client.clientInfo?.primaryLanguage || "").toLowerCase();
         return fullName.includes(q) || id.includes(q) || category.includes(q) || language.includes(q);
-    });
+    }).sort((a, b) => {
+            // Sort by dateAdded - newest first
+            const dateA = new Date(a.dateAdded || 0);
+            const dateB = new Date(b.dateAdded || 0);
+            return dateB - dateA; // Descending order (newest first)
+            // Use: return dateA - dateB; for ascending order (oldest first)
+    });;
 
     const caseCards = filteredCases.map((client) => (
         <CaseCard
@@ -130,17 +136,14 @@ export default function CaseLibrary() {
 
                 {/* Color-coded case age legend */}
                 <div className="cl-legend">
-                    <div className="cl-legend-item">
-                        <span className="cl-legend-dot cl-legend-dot--old"></span>
-                        Older cases
-                    </div>
+
                     <div className="cl-legend-item">
                         <span className="cl-legend-dot cl-legend-dot--medium"></span>
-                        Medium age cases
+                        Waitlist
                     </div>
                     <div className="cl-legend-item">
                         <span className="cl-legend-dot cl-legend-dot--new"></span>
-                        Newer cases
+                        Scheduled
                     </div>
                 </div>
             </div>
