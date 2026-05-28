@@ -168,7 +168,7 @@ export default function ContactForm(props) {
       attorneyNotes: attorneyNotesFormData,
       matchInfo: matchFormData,
       status: (matchFormData && matchFormData.attorney) ? "scheduled" : "waitlisted", 
-      dateAdded: new Date().toLocaleString()
+      dateAdded: dateAdded ? dateAdded : new Date().toLocaleString()
      };
 
     if (id) {
