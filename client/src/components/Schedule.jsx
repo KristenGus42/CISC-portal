@@ -482,16 +482,6 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
           value={selectedAttorney?.value ?? selectedAttorney?.name ?? ""}
           disabled={!isEditMode}
         />
-        {selectedAttorney && (
-          <div className="schedule-attorney-meta">
-            <span className="schedule-attorney-specialty">
-              {selectedAttorney.specialty ?? selectedAttorney.mainPracticeAreas ?? "—"}
-            </span>
-            <span className="schedule-attorney-language">
-              {selectedAttorney.language ?? selectedAttorney.languageSkills ?? selectedAttorney.primaryLanguage ?? "—"}
-            </span>
-          </div>
-        )}
       </div>
 
       {timeSlots.map((time, slotIdx) => {
@@ -685,7 +675,6 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
 }
 
 // ─── Waitlist Card (Draggable) ────────────────────────────────────────────────
-
 function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date, onPreview, isDraggable }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: firebaseKey,
