@@ -2110,6 +2110,65 @@ body {
   border-color: #f5c2c2;
 }
 
+/* Disable Account button — amber/warning tone */
+.am-action-btn-warning {
+  color: #92400e;
+  border-color: #fcd34d;
+  background-color: #fffbeb;
+}
+
+.am-action-btn-warning:hover {
+  color: #78350f;
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+}
+
+/* Enable Account button — green tone */
+.am-action-btn-enable {
+  color: #065f46;
+  border-color: #6ee7b7;
+  background-color: #ecfdf5;
+}
+
+.am-action-btn-enable:hover {
+  color: #064e3b;
+  background-color: #d1fae5;
+  border-color: #34d399;
+}
+
+/* Disabled row visual dim */
+.am-row-disabled td {
+  opacity: 0.5;
+}
+
+/* Inline "Disabled" badge next to name */
+.am-inline-disabled-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  border-radius: 4px;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+/* Small spinner for inline toggling */
+.am-spinner-sm {
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: am-spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
 .am-manage-profile-btn {
   color: var(--call-to-action);
   border-color: var(--call-to-action-3);

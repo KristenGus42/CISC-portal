@@ -1,26 +1,9 @@
 import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
-import { initializeApp, getApps, deleteApp } from "firebase/app";
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signOut,
-} from "firebase/auth";
-import { getDatabase, ref, set, onValue, update } from "firebase/database";
+import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuth } from "../auth/useAuth";
-
-// Firebase config (same as main.jsx — needed for the secondary app instance)
-const firebaseConfig = {
-    apiKey: "AIzaSyADNdwf_eraJtHEz6sI5FAWq_DPW4UbfF8",
-    authDomain: "cisc-portal.firebaseapp.com",
-    databaseURL: "https://cisc-portal-default-rtdb.firebaseio.com",
-    projectId: "cisc-portal",
-    storageBucket: "cisc-portal.firebasestorage.app",
-    messagingSenderId: "789232261204",
-    appId: "1:789232261204:web:3f8203a777e3218e3a35c1",
-    measurementId: "G-N9VMCVB51E",
-};
 
 const ROLES = ["Staff", "Admin", "Attorney"];
 
@@ -31,16 +14,27 @@ export default function AccessManagement() {
     const [role, setRole] = useState("Staff");
     const [loading, setLoading] = useState(false);
     const [feedback, setFeedback] = useState(null); // { type: "success" | "error", message }
-    const [deleteFeedback, setDeleteFeedback] = useState(null); // { type: "success" | "error", message }
-    const [resetFeedback, setResetFeedback] = useState(null); // { type: "success" | "error", message }
+    const [deleteFeedback, setDeleteFeedback] = useState(null);
+    const [resetFeedback, setResetFeedback] = useState(null);
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [userToDelete, setUserToDelete] = useState(null);
     const [userToReset, setUserToReset] = useState(null);
     const [userToModifyRole, setUserToModifyRole] = useState(null);
     const [roleToModify, setRoleToModify] = useState("Staff");
+    // Track locally which uids are disabled (toggled via cloud function)
+    const [disabledUids, setDisabledUids] = useState(new Set());
+    const [togglingUid, setTogglingUid] = useState(null);
 
     const db = getDatabase();
+    const functions = getFunctions();
+
+    // Cloud function callables
+    const createUserAccount = httpsCallable(functions, "createUserAccount");
+    const deleteUserAccount = httpsCallable(functions, "deleteUserAccount");
+    const disableUserAccount = httpsCallable(functions, "disableUserAccount");
+    const enableUserAccount = httpsCallable(functions, "enableUserAccount");
+    const updateUserRole = httpsCallable(functions, "updateUserRole");
 
     // Listen for the users/ node in RTDB
     useEffect(() => {
@@ -55,12 +49,12 @@ export default function AccessManagement() {
                 uid,
                 ...usersObj[uid],
             }));
-            // Sort alphabetically by profile name, then email as a stable fallback.
+            // Sort alphabetically by name, then email as fallback
             formatted.sort((a, b) => {
                 const nameA = (a.name || a.email || "").toLowerCase();
                 const nameB = (b.name || b.email || "").toLowerCase();
-                const nameComparison = nameA.localeCompare(nameB);
-                if (nameComparison !== 0) return nameComparison;
+                const cmp = nameA.localeCompare(nameB);
+                if (cmp !== 0) return cmp;
                 return (a.email || "").toLowerCase().localeCompare((b.email || "").toLowerCase());
             });
             setUsers(formatted);
@@ -68,15 +62,7 @@ export default function AccessManagement() {
         return () => unsubscribe();
     }, [db]);
 
-    /** Generate a cryptographically random password */
-    function generatePassword(length = 30) {
-        const charset =
-            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*";
-        const values = crypto.getRandomValues(new Uint8Array(length));
-        return Array.from(values, (v) => charset[v % charset.length]).join("");
-    }
-
-    /** Invite a new user */
+    /** Invite a new user via Cloud Function */
     async function handleInvite(e) {
         e.preventDefault();
         setFeedback(null);
@@ -85,6 +71,7 @@ export default function AccessManagement() {
 
         const trimmedEmail = email.trim().toLowerCase();
         const trimmedName = name.trim();
+
         if (!trimmedEmail) {
             setFeedback({ type: "error", message: "Please enter an email address." });
             return;
@@ -94,103 +81,25 @@ export default function AccessManagement() {
             return;
         }
 
-        const existingUser = users.find((u) => (u.email || "").toLowerCase() === trimmedEmail);
-        if (existingUser) {
-            if (existingUser.status !== "disabled") {
-                setFeedback({
-                    type: "error",
-                    message: "This email is already registered and active.",
-                });
-                return;
-            } else {
-                setLoading(true);
-                try {
-                    const userRef = ref(db, `users/${existingUser.uid}`);
-                    await update(userRef, {
-                        status: "active",
-                        name: trimmedName,
-                        role: role,
-                    });
-
-                    const primaryAuth = getAuth();
-                    await sendPasswordResetEmail(primaryAuth, trimmedEmail);
-
-                    setFeedback({
-                        type: "success",
-                        message: `User ${trimmedEmail} has been reactivated. A password reset email has been delivered.`,
-                    });
-                    setEmail("");
-                    setName("");
-                    setRole("Staff");
-                } catch (err) {
-                    console.error("Reactivate error:", err);
-                    setFeedback({
-                        type: "error",
-                        message: `Failed to reactivate ${trimmedEmail}. Please try again.`,
-                    });
-                } finally {
-                    setLoading(false);
-                }
-                return;
-            }
-        }
-
         setLoading(true);
-
         try {
-            // 1. Create a secondary Firebase App so we don't clobber the admin session
-            const secondaryApp = initializeApp(firebaseConfig, "secondary");
-            const secondaryAuth = getAuth(secondaryApp);
-
-            // 2. Create the user with a random password
-            const tempPassword = generatePassword();
-            const userCredential = await createUserWithEmailAndPassword(
-                secondaryAuth,
-                trimmedEmail,
-                tempPassword
-            );
-            const uid = userCredential.user.uid;
-
-            // 3. Sign out of secondary auth immediately
-            await signOut(secondaryAuth);
-
-            // 4. Delete the secondary app instance
-            await deleteApp(secondaryApp);
-
-            // 5. Send a password-reset email via the primary auth so the user can set their own password
-            const primaryAuth = getAuth();
-            await sendPasswordResetEmail(primaryAuth, trimmedEmail);
-
-            // 6. Store the user record in RTDB under users/{uid}
-            const userRef = ref(db, `users/${uid}`);
-            await set(userRef, {
-                email: trimmedEmail,
-                name: trimmedName,
-                role: role,
-                status: "active"
-            });
-
+            const result = await createUserAccount({ email: trimmedEmail, name: trimmedName, role });
             setFeedback({
                 type: "success",
-                message: `Invite sent to ${trimmedEmail}. A password reset email has been delivered.`,
+                message: result.data.message,
             });
             setEmail("");
             setName("");
             setRole("Staff");
         } catch (err) {
             console.error("Invite error:", err);
-
-            // Clean up secondary app if it still exists
-            const secondary = getApps().find((a) => a.name === "secondary");
-            if (secondary) {
-                try { await deleteApp(secondary); } catch { /* ignore */ }
-            }
-
             let message = "Something went wrong. Please try again.";
-            if (err.code === "auth/email-already-in-use") {
+            if (err.code === "functions/already-exists") {
                 message = "This email is already registered.";
-            } else if (err.code === "auth/invalid-email") {
-                message = "Please enter a valid email address.";
+            } else if (err.code === "functions/invalid-argument") {
+                message = err.message || "Please provide valid information.";
+            } else if (err.code === "functions/permission-denied") {
+                message = "You do not have permission to invite users.";
             }
             setFeedback({ type: "error", message });
         } finally {
@@ -198,7 +107,7 @@ export default function AccessManagement() {
         }
     }
 
-    /** Delete a user */
+    /** Permanently delete a user's Auth account + RTDB record */
     async function confirmDelete() {
         if (!userToDelete) return;
         const deletedEmail = userToDelete.email;
@@ -206,21 +115,55 @@ export default function AccessManagement() {
         setResetFeedback(null);
         setLoading(true);
         try {
-            const userRef = ref(db, `users/${userToDelete.uid}`);
-            await update(userRef, { status: "disabled" });
+            await deleteUserAccount({ uid: userToDelete.uid });
             setUserToDelete(null);
             setDeleteFeedback({
                 type: "success",
-                message: `${deletedEmail} has been disabled.`,
+                message: `${deletedEmail} has been permanently removed.`,
             });
         } catch (err) {
             console.error("Delete error:", err);
             setDeleteFeedback({
                 type: "error",
-                message: `Failed to delete ${deletedEmail}. Please try again.`,
+                message: `Failed to remove ${deletedEmail}. Please try again.`,
             });
         } finally {
             setLoading(false);
+        }
+    }
+
+    /** Toggle Firebase Auth disabled flag for a user (no RTDB write) */
+    async function handleToggleDisable(user) {
+        const isDisabled = disabledUids.has(user.uid);
+        setTogglingUid(user.uid);
+        try {
+            if (isDisabled) {
+                await enableUserAccount({ uid: user.uid });
+                setDisabledUids((prev) => {
+                    const next = new Set(prev);
+                    next.delete(user.uid);
+                    return next;
+                });
+                setResetFeedback({
+                    type: "success",
+                    message: `${user.email}'s account has been re-enabled.`,
+                });
+            } else {
+                await disableUserAccount({ uid: user.uid });
+                setDisabledUids((prev) => new Set([...prev, user.uid]));
+                setResetFeedback({
+                    type: "success",
+                    message: `${user.email}'s account has been disabled.`,
+                });
+            }
+        } catch (err) {
+            console.error("Toggle disable error:", err);
+            setResetFeedback({
+                type: "error",
+                message: `Failed to update ${user.email}'s account status. Please try again.`,
+            });
+        } finally {
+            setTogglingUid(null);
         }
     }
 
@@ -266,12 +209,11 @@ export default function AccessManagement() {
         setLoading(true);
 
         try {
-            const userRef = ref(db, `users/${user.uid}`);
-            await update(userRef, { role: roleToModify });
+            const result = await updateUserRole({ uid: user.uid, role: roleToModify });
             setUserToModifyRole(null);
             setResetFeedback({
                 type: "success",
-                message: `${user.email}'s role has been updated to ${roleToModify}.`,
+                message: result.data?.message || `${user.email}'s role has been updated to ${roleToModify}.`,
             });
         } catch (err) {
             console.error("Role update error:", err);
@@ -288,16 +230,14 @@ export default function AccessManagement() {
         return user.name || user.email || "Unnamed User";
     }
 
-    const filteredUsers = users
-        .filter((user) => user.status !== "disabled")
-        .filter((user) => {
-            if (!searchQuery.trim()) return true;
-            const q = searchQuery.toLowerCase();
-            const userEmail = (user.email || "").toLowerCase();
-            const userName = (user.name || "").toLowerCase();
-            const userRole = (user.role || "").toLowerCase();
-            return userEmail.includes(q) || userName.includes(q) || userRole.includes(q);
-        });
+    const filteredUsers = users.filter((user) => {
+        if (!searchQuery.trim()) return true;
+        const q = searchQuery.toLowerCase();
+        const userEmail = (user.email || "").toLowerCase();
+        const userName = (user.name || "").toLowerCase();
+        const userRole = (user.role || "").toLowerCase();
+        return userEmail.includes(q) || userName.includes(q) || userRole.includes(q);
+    });
 
     return (
         <>
@@ -507,9 +447,11 @@ export default function AccessManagement() {
                                 <tbody>
                                     {filteredUsers.map((user) => {
                                         const isCurrentUser = user.uid === currentUser?.uid;
+                                        const isDisabled = disabledUids.has(user.uid);
+                                        const isToggling = togglingUid === user.uid;
 
                                         return (
-                                        <tr key={user.uid}>
+                                        <tr key={user.uid} className={isDisabled ? "am-row-disabled" : ""}>
                                             <td>
                                                 <div className="am-profile">
                                                     <span className="am-profile-icon" aria-hidden="true">
@@ -521,6 +463,9 @@ export default function AccessManagement() {
                                                             {getProfileName(user)}
                                                             {isCurrentUser && (
                                                                 <span className="am-inline-you-badge">You</span>
+                                                            )}
+                                                            {isDisabled && (
+                                                                <span className="am-inline-disabled-badge">Disabled</span>
                                                             )}
                                                         </span>
                                                         <span className="am-profile-email">
@@ -550,6 +495,7 @@ export default function AccessManagement() {
                                                     </button>
                                                 ) : (
                                                     <div className="am-actions">
+                                                        {/* Modify Role */}
                                                         <button
                                                             type="button"
                                                             className="am-action-btn"
@@ -567,6 +513,8 @@ export default function AccessManagement() {
                                                             </svg>
                                                             <span>Modify Role</span>
                                                         </button>
+
+                                                        {/* Reset Password */}
                                                         <button
                                                             type="button"
                                                             className="am-action-btn"
@@ -584,11 +532,38 @@ export default function AccessManagement() {
                                                             </svg>
                                                             <span>Reset Password</span>
                                                         </button>
+
+                                                        {/* Disable / Enable Account toggle */}
+                                                        <button
+                                                            type="button"
+                                                            className={`am-action-btn ${isDisabled ? "am-action-btn-enable" : "am-action-btn-warning"}`}
+                                                            onClick={() => handleToggleDisable(user)}
+                                                            disabled={isToggling}
+                                                            title={isDisabled ? "Enable account" : "Disable account"}
+                                                            aria-label={`${isDisabled ? "Enable" : "Disable"} account for ${user.email}`}
+                                                        >
+                                                            {isToggling ? (
+                                                                <span className="am-spinner am-spinner-sm" />
+                                                            ) : isDisabled ? (
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"></path>
+                                                                    <path d="m9 12 2 2 4-4"></path>
+                                                                </svg>
+                                                            ) : (
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                                                                </svg>
+                                                            )}
+                                                            <span>{isToggling ? "Updating…" : isDisabled ? "Enable Account" : "Disable Account"}</span>
+                                                        </button>
+
+                                                        {/* Remove User (permanent) */}
                                                         <button
                                                             type="button"
                                                             className="am-action-btn am-action-btn-danger"
                                                             onClick={() => setUserToDelete(user)}
-                                                            title="Remove users"
+                                                            title="Remove user permanently"
                                                             aria-label={`Remove user ${user.email}`}
                                                         >
                                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -631,8 +606,8 @@ export default function AccessManagement() {
                             </button>
                         </div>
                         <div className="am-modal-body">
-                            <p>Are you sure you want to remove <strong>{userToDelete.email}</strong>?</p>
-                            <p className="am-modal-warning">This will disable their account and revoke their access.</p>
+                            <p>Are you sure you want to permanently remove <strong>{userToDelete.email}</strong>?</p>
+                            <p className="am-modal-warning">This will delete their Firebase Auth account and all associated data. This action cannot be undone.</p>
                         </div>
                         <div className="am-modal-footer">
                             <button
@@ -649,7 +624,7 @@ export default function AccessManagement() {
                                 onClick={confirmDelete}
                                 disabled={loading}
                             >
-                                {loading ? "Removing..." : "Remove"}
+                                {loading ? "Removing..." : "Remove Permanently"}
                             </button>
                         </div>
                     </div>
