@@ -15,7 +15,7 @@ async function assertAdmin(request) {
     }
 }
 
-const VALID_ROLES = ["Staff", "Admin", "Attorney"];
+const VALID_ROLES = ["Staff", "Admin", "Attorney", "Legal Student"];
 
 /**
  * Updates a user's role in RTDB.

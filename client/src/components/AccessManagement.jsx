@@ -5,7 +5,7 @@ import { getDatabase, ref, onValue } from "firebase/database";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuth } from "../auth/useAuth";
 
-const ROLES = ["Staff", "Admin", "Attorney"];
+const ROLES = ["Staff", "Admin", "Attorney", "Legal Student"];
 
 export default function AccessManagement() {
     const { user: currentUser } = useAuth();
@@ -475,7 +475,7 @@ export default function AccessManagement() {
                                                 </div>
                                             </td>
                                             <td>
-                                                <span className={`am-role-badge am-role-${user.role?.toLowerCase()}`}>
+                                                <span className={`am-role-badge am-role-${user.role?.toLowerCase().replace(/\s+/g, '-')}`}>
                                                     {user.role}
                                                 </span>
                                             </td>

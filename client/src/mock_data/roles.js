@@ -17,5 +17,11 @@ export const roles = [
         permission: [
             "canAccessSchedulePage"
         ]
+    },
+    {
+        name: "legal student",
+        permission: [
+            "canAccessSchedulePage"
+        ]
     }
 ]

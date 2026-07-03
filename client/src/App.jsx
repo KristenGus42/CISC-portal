@@ -34,7 +34,7 @@ function ProtectedRoute({ element, allowedRoles, fallback }) {
 /** Returns the home path for a given role */
 function roleHome(role) {
   if (role === "Staff") return "/case-library";
-  if (role === "Attorney") return "/attorney-view";
+  if (role === "Attorney" || role === "Legal Student") return "/attorney-view";
   return "/schedule"; // Admin or unknown
 }
 
@@ -131,7 +131,7 @@ function App() {
           element={
             <ProtectedRoute
               element={<AttorneyView />}
-              allowedRoles={["Admin", "Attorney"]}
+              allowedRoles={["Admin", "Attorney", "Legal Student"]}
               fallback={roleHome(role)}
             />
           }

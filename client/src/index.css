@@ -2059,13 +2059,18 @@ body {
 }
 
 .am-role-staff {
-  background-color: #deb887;
+  background-color: var(--call-to-action-3);
   color: var(--primary-text);
 }
 
 .am-role-attorney {
   background-color: #ff9800;
   color: #fff;
+}
+
+.am-role-legal-student {
+  background-color: #deb887;
+  color: var(--primary-text);
 }
 
 .am-actions {

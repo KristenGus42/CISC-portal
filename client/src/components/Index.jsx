@@ -59,7 +59,7 @@ export default function Index() {
           navigate("/schedule");
         } else if (role === "Staff") {
           navigate("/case-library");
-        } else if (role === "Attorney") {
+        } else if (role === "Attorney" || role === "Legal Student") {
           navigate("/attorney-view");
         } else {
           navigate("/schedule");
