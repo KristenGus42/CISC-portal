@@ -74,9 +74,64 @@ exports.updateUserRole = onCall(async (request) => {
             throw new HttpsError("not-found", "User not found.");
         }
 
+        const userData = userSnapshot.val();
+        const oldRole = userData.role || "";
+
+        // If the role actually changed, perform the branch migration
+        if (oldRole !== role) {
+            const updates = {};
+            
+            // Check if there is an existing record in either branch
+            const attorneySnap = await db.ref(`attorneys/${uid}`).get();
+            const studentSnap = await db.ref(`legalStudents/${uid}`).get();
+            
+            let personnelData = null;
+            if (attorneySnap.exists()) {
+                personnelData = attorneySnap.val();
+            } else if (studentSnap.exists()) {
+                personnelData = studentSnap.val();
+            }
+            
+            // If they had a personnel record, migrate or delete it
+            if (personnelData) {
+                if (role === "Attorney") {
+                    updates[`/attorneys/${uid}`] = personnelData;
+                    if (studentSnap.exists()) {
+                        updates[`/legalStudents/${uid}`] = null;
+                    }
+                } else if (role === "Legal Student") {
+                    updates[`/legalStudents/${uid}`] = personnelData;
+                    if (attorneySnap.exists()) {
+                        updates[`/attorneys/${uid}`] = null;
+                    }
+                } else {
+                    // Changing to Admin or Staff - delete personnel record from both branches
+                    updates[`/attorneys/${uid}`] = null;
+                    updates[`/legalStudents/${uid}`] = null;
+                }
+            } else {
+                // If they did not have a personnel record, but are now Attorney or Legal Student, create a basic record
+                const baseRecord = {
+                    name: userData.name || "",
+                    email: userData.email || "",
+                    dateAdded: new Date().toLocaleString()
+                };
+                if (role === "Attorney") {
+                    updates[`/attorneys/${uid}`] = baseRecord;
+                } else if (role === "Legal Student") {
+                    updates[`/legalStudents/${uid}`] = baseRecord;
+                }
+            }
+            
+            // Apply updates to RTDB
+            if (Object.keys(updates).length > 0) {
+                await db.ref().update(updates);
+            }
+        }
+
         await db.ref(`users/${uid}/role`).set(role);
 
-        const userEmail = userSnapshot.val().email || uid;
+        const userEmail = userData.email || uid;
         return {
             success: true,
             message: `${userEmail}'s role has been updated to ${role}.`,

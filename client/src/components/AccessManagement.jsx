@@ -4,10 +4,13 @@ import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuth } from "../auth/useAuth";
+import { useNavigate } from "react-router";
 
 const ROLES = ["Staff", "Admin", "Attorney", "Legal Student"];
+const INVITE_ROLES = ["Staff", "Admin"];
 
 export default function AccessManagement() {
+    const navigate = useNavigate();
     const { user: currentUser } = useAuth();
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
@@ -309,7 +312,7 @@ export default function AccessManagement() {
                                     onChange={(e) => setRole(e.target.value)}
                                     disabled={loading}
                                 >
-                                    {ROLES.map((r) => (
+                                    {INVITE_ROLES.map((r) => (
                                         <option key={r} value={r}>
                                             {r}
                                         </option>
@@ -495,6 +498,23 @@ export default function AccessManagement() {
                                                     </button>
                                                 ) : (
                                                     <div className="am-actions">
+                                                        {/* View Profile (Attorney / Legal Student only) */}
+                                                        {(user.role === "Attorney" || user.role === "Legal Student") && (
+                                                            <button
+                                                                type="button"
+                                                                className="am-action-btn"
+                                                                onClick={() => navigate(`/personnel-library/${user.uid}`)}
+                                                                title="View Personnel Profile"
+                                                                aria-label={`View personnel profile for ${user.email}`}
+                                                            >
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                                                    <circle cx="12" cy="7" r="4" />
+                                                                </svg>
+                                                                <span>View Profile</span>
+                                                            </button>
+                                                        )}
+
                                                         {/* Modify Role */}
                                                         <button
                                                             type="button"
@@ -657,7 +677,10 @@ export default function AccessManagement() {
                                 onChange={(e) => setRoleToModify(e.target.value)}
                                 disabled={loading}
                             >
-                                {ROLES.map((roleOption) => (
+                                {(userToModifyRole?.role === "Admin" || userToModifyRole?.role === "Staff"
+                                    ? ["Staff", "Admin"]
+                                    : ["Attorney", "Legal Student"]
+                                ).map((roleOption) => (
                                     <option key={roleOption} value={roleOption}>
                                         {roleOption}
                                     </option>

@@ -114,23 +114,18 @@ export default function PersonnelEditForm() {
       }
 
       if (categoryChanged) {
-        // Move record: write to new collection, delete from old collection
-        const updates = {};
-        updates[`/${newCollectionName}/${id}`] = personnelFormData;
-        updates[`/${oldCollectionName}/${id}`] = null; // delete old
-        await firebaseUpdate(ref(db), updates);
-
-        // Update auth role to match new category
+        // Update auth role (which also handles database branch migration of the existing record)
         const functions = getFunctions();
         const updateUserRole = httpsCallable(functions, "updateUserRole");
         const newRole = personType === "Attorney" ? "Attorney" : "Legal Student";
         await updateUserRole({ uid: id, role: newRole });
-      } else {
-        // Same category – just update in place
-        const updates = {};
-        updates[`/${newCollectionName}/${id}`] = personnelFormData;
-        await firebaseUpdate(ref(db), updates);
       }
+
+      // Save the latest personnel form data to the correct branch
+      const updates = {};
+      updates[`/${newCollectionName}/${id}`] = personnelFormData;
+      await firebaseUpdate(ref(db), updates);
+
 
       setFeedback({
         type: "success",
@@ -166,8 +161,7 @@ export default function PersonnelEditForm() {
       const deleteUserAccount = httpsCallable(functions, "deleteUserAccount");
       await deleteUserAccount({ uid: id });
 
-      // Remove the RTDB personnel record
-      await firebaseRemove(ref(db, `${collectionName}/${id}`));
+
 
       setShowDeleteModal(false);
       setFeedback({

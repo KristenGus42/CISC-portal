@@ -32,15 +32,25 @@ exports.deleteUserAccount = onCall(async (request) => {
         // Delete the Firebase Auth account
         await admin.auth().deleteUser(uid);
 
-        // Remove the RTDB record entirely
-        await admin.database().ref(`users/${uid}`).remove();
+        // Remove the RTDB records entirely from all branches
+        const db = admin.database();
+        await Promise.all([
+            db.ref(`users/${uid}`).remove(),
+            db.ref(`attorneys/${uid}`).remove(),
+            db.ref(`legalStudents/${uid}`).remove()
+        ]);
 
         return { success: true, message: "User account permanently deleted." };
     } catch (err) {
         console.error("deleteUserAccount error:", err);
         if (err.code === "auth/user-not-found") {
-            // Auth account already gone — still clean up RTDB
-            await admin.database().ref(`users/${uid}`).remove();
+            // Auth account already gone — still clean up all RTDB records
+            const db = admin.database();
+            await Promise.all([
+                db.ref(`users/${uid}`).remove(),
+                db.ref(`attorneys/${uid}`).remove(),
+                db.ref(`legalStudents/${uid}`).remove()
+            ]);
             return { success: true, message: "User record removed (auth account was not found)." };
         }
         throw new HttpsError("internal", "Failed to delete user. Please try again.");
