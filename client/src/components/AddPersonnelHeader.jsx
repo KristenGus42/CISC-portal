@@ -2,8 +2,8 @@
 import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-// Import Firebase functions
-import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue } from 'firebase/database';
+import { getDatabase, ref, update as firebaseUpdate, onValue, set as firebaseSet } from 'firebase/database';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 function countFilledReqFields(personnelFormData) {
   const reqFieldNames = ["name", "email", "phoneNumber"];
@@ -34,6 +34,7 @@ export default function PersonnelForm(props) {
     dateAdded: new Date().toLocaleString()
   });
   const [isFormValid, setIsFormValid] = useState(false);
+  const [feedback, setFeedback] = useState(null); // { type: "success" | "error", message }
   const personType = props.personType;
   const setPersonType = props.setPersonType;
   
@@ -78,6 +79,7 @@ export default function PersonnelForm(props) {
   
   // 3. SUBMIT: Push or Update Firebase
   const handleSubmit = () => {
+    setFeedback(null);
     const collectionName = personType === "Attorney" ? "attorneys" : "legalStudents";
     
     if (id) {
@@ -85,14 +87,58 @@ export default function PersonnelForm(props) {
       const updates = {};
       updates[`/${collectionName}/${id}`] = personnelFormData;
       firebaseUpdate(ref(db), updates)
-        .then(() => resetForm())
-        .catch((err) => console.error(`Error updating ${personType.toLowerCase()}: `, err));
+        .then(() => {
+          setFeedback({
+            type: "success",
+            message: `Successfully updated ${personnelFormData.name || personType}.`
+          });
+          resetForm();
+        })
+        .catch((err) => {
+          console.error(`Error updating ${personType.toLowerCase()}: `, err);
+          setFeedback({
+            type: "error",
+            message: `Failed to update ${personnelFormData.name || personType}.`
+          });
+        });
     } else {
-      // Create new record
-      const listRef = ref(db, collectionName);
-      firebasePush(listRef, personnelFormData)
-        .then(() => resetForm())
-        .catch((err) => console.error(`Error saving new ${personType.toLowerCase()}: `, err));
+      // Create new record: automatically create auth account first
+      const functions = getFunctions();
+      const createUserAccount = httpsCallable(functions, "createUserAccount");
+      const role = personType === "Attorney" ? "Attorney" : "Legal Student";
+
+      createUserAccount({
+        email: personnelFormData.email,
+        name: personnelFormData.name,
+        role: role
+      })
+        .then((result) => {
+          const uid = result.data?.uid;
+          if (!uid) {
+            throw new Error("No UID returned from account creation.");
+          }
+          // Set personnel record in RTDB using the returned uid as the key
+          const userRef = ref(db, `${collectionName}/${uid}`);
+          return firebaseSet(userRef, personnelFormData);
+        })
+        .then(() => {
+          setFeedback({
+            type: "success",
+            message: `Successfully added ${personnelFormData.name} as personnel and created portal account.`
+          });
+          resetForm();
+        })
+        .catch((err) => {
+          console.error("Error creating account / saving personnel: ", err);
+          let msg = "Failed to create account. Please make sure the email is valid and not already registered.";
+          if (err.message) {
+            msg = err.message;
+          }
+          setFeedback({
+            type: "error",
+            message: msg
+          });
+        });
     }
   };
   
@@ -113,6 +159,29 @@ export default function PersonnelForm(props) {
             <button type="button" className="btn btn-submit" disabled={!isFormValid} onClick={handleSubmit}>Add</button>
           </div>
         </div>
+        
+        {feedback && (
+          <div
+            className={`am-feedback mb-4 ${
+              feedback.type === "success"
+                ? "am-feedback-success"
+                : "am-feedback-error"
+            }`}
+          >
+            {feedback.type === "success" ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            )}
+            <span>{feedback.message}</span>
+          </div>
+        )}
         
         {/* Person Type Selector */}
         <div className="row mb-3 g-3">

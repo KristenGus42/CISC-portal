@@ -93,7 +93,7 @@ exports.createUserAccount = onCall(async (request) => {
         }
 
         if (err.code === "auth/email-already-exists") {
-            throw new HttpsError("already-exists", "This email is already registered in Firebase Auth.");
+            throw new HttpsError("already-exists", "This email is already registered.");
         }
         if (err.code === "auth/invalid-email") {
             throw new HttpsError("invalid-argument", "Please provide a valid email address.");

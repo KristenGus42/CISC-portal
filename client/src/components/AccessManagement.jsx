@@ -606,8 +606,8 @@ export default function AccessManagement() {
                             </button>
                         </div>
                         <div className="am-modal-body">
-                            <p>Are you sure you want to permanently remove <strong>{userToDelete.email}</strong>?</p>
-                            <p className="am-modal-warning">This will delete their Firebase Auth account and all associated data. This action cannot be undone.</p>
+                            <p>Are you sure you want to permanently remove <strong>{userToDelete.name || userToDelete.email || "this user"}</strong>?</p>
+                            <p className="am-modal-warning">This will delete their account and all associated data. This action cannot be undone.</p>
                         </div>
                         <div className="am-modal-footer">
                             <button
