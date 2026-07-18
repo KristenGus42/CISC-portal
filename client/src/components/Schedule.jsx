@@ -2,7 +2,7 @@
 import { NavBar } from "./NavBar";
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate } from "react-router";
-import { getDatabase, ref, onValue, set } from "firebase/database";
+import { getDatabase, ref, onValue, set, update } from "firebase/database";
 import { DndContext, useDroppable, useDraggable, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
 import CasePreview from "./CasePreview";
 
@@ -57,6 +57,7 @@ export default function Schedule() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [waitlistCases, setWaitlistCases] = useState([]);
+  const [allCases, setAllCases] = useState({});
   // Local-only assignments, cleared on week change, saved to Firebase on "Save"
   const [assignments, setAssignments] = useState({});
   const [isEditMode, setIsEditMode] = useState(false);
@@ -71,7 +72,7 @@ export default function Schedule() {
 
   // Pop ups: 
   const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [contactCaseId, setContactCaseId] = useState(null);
 
   // Personnel
   const [allAttorneysArr, setAllAttorneysArr] = useState([]);
@@ -103,10 +104,10 @@ export default function Schedule() {
   // ── Load waitlisted cases ─────────────────────────────────────────────────
   useEffect(() => {
     const unsubscribe = onValue(ref(db, "cases"), (snapshot) => {
-      const obj = snapshot.val();
-      if (!obj) { setWaitlistCases([]); return; }
-      const allCases = Object.keys(obj).map((key) => ({ ...obj[key], id: key }));
-      setWaitlistCases(allCases.filter((c) => c.status === "waitlisted"));
+      const obj = snapshot.val() || {};
+      setAllCases(obj);
+      const allCasesArr = Object.keys(obj).map((key) => ({ ...obj[key], id: key }));
+      setWaitlistCases(allCasesArr.filter((c) => c.status === "waitlisted"));
     });
     return () => unsubscribe();
   }, [db]);
@@ -380,6 +381,8 @@ export default function Schedule() {
                   allAttorneysArr={allAttorneysArr}
                   allLegalStudentsArr={allLegalStudentsArr}
                   onAttorneySelect={(attorney) => handleAttorneySelect(colIdx, attorney)}
+                  allCases={allCases}
+                  onContactClick={setContactCaseId}
                 />
               ))}
             </div>
@@ -427,6 +430,7 @@ export default function Schedule() {
                       language={c.clientInfo?.primaryLanguage}
                       date={c.schedulingInfo?.date}
                       onPreview={() => setSelectedCase(c)}
+                      onContact={() => setContactCaseId(c.id)}
                       isDraggable={isEditMode}
                     />
                   ))
@@ -442,6 +446,12 @@ export default function Schedule() {
               onExpand={() => navigate(`/edit-form/${selectedCase.id}`)}
             />
           )}
+          {contactCaseId && (
+            <ContactPopUp
+              caseId={contactCaseId}
+              onClose={() => setContactCaseId(null)}
+            />
+          )}
         </div>
       </DndContext>
     </>
@@ -450,7 +460,7 @@ export default function Schedule() {
 
 // ─── Attorney Column ──────────────────────────────────────────────────────────
 
-function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignments, onRemove, isEditMode, allAttorneysArr,allLegalStudentsArr, onAttorneySelect }) {
+function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignments, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onAttorneySelect, allCases, onContactClick }) {
   const [selectedAttorney, setSelectedAttorney] = useState(null);
 
   // Populate from Firebase-loaded saved attorney
@@ -497,6 +507,8 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
             isEditMode={isEditMode}
             allAttorneysArr={allAttorneysArr}
             allLegalStudentsArr={allLegalStudentsArr}
+            allCases={allCases}
+            onContactClick={onContactClick}
           />
         );
       })}
@@ -507,15 +519,20 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
-function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr }) {
+function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, allCases, onContactClick }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey });
   const [selectedTime, setSelectedTime] = useState(time);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
   const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
 
   const assignedClient = assignedSlot?.client ?? null;
   const assignedAttorney = assignedSlot?.attorney ?? null;
+
+  const liveCase = assignedClient?.caseId ? allCases[assignedClient.caseId] : null;
+  const fname = liveCase?.clientInfo?.fname ?? assignedClient?.fname ?? "Unknown";
+  const lname = liveCase?.clientInfo?.lname ?? assignedClient?.lname ?? "Client";
+  const category = liveCase?.caseInfo?.category ?? assignedClient?.category ?? "—";
+  const language = liveCase?.clientInfo?.primaryLanguage ?? assignedClient?.language ?? "—";
 
   function handleSelectTime(nextTime) {
     setSelectedTime(nextTime);
@@ -527,7 +544,9 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
   }
 
   function handleContact() {
-    setIsContactOpen(true);
+    if (assignedClient?.caseId) {
+      onContactClick(assignedClient.caseId);
+    }
   }
 
   return (
@@ -535,12 +554,6 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
     <div className="schedule-slot-card-outer">
       {isMeetingLinkOpen && (
         <MeetingPopUp onClose={() => setIsMeetingLinkOpen(false)} />
-      )}
-      {isContactOpen && (
-        <ContactPopUp
-          client={assignedClient}
-          onClose={() => setIsContactOpen(false)}
-        />
       )}
       {isEditMode && assignedClient && (
         <div className="schedule-slot-remove-zone">
@@ -599,10 +612,10 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
                 <span className="schedule-slot-dot" />
                 <div>
                   <div className="schedule-slot-client-name">
-                    {assignedClient.fname || "Unknown"} {assignedClient.lname || "Client"}
+                    {fname} {lname}
                   </div>
                   <div className="schedule-slot-client-details">
-                    {assignedClient.category || "—"} | {assignedClient.language || "—"}
+                    {category} | {language}
                   </div>
                   {assignedAttorney && (
                     <div className="schedule-slot-attorney-details">{assignedAttorney.name}</div>
@@ -633,14 +646,14 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
                     <optgroup label="Attorneys">
                       {allAttorneysArr.map((a) => (
                         <option key={a.id} value={a.id}>
-                          {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim()}
+                           {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim()}
                         </option>
                       ))}
                     </optgroup>
                     <optgroup label="Legal Students">
                       {allLegalStudentsArr.map((s) => (
                         <option key={s.id} value={s.id}>
-                          {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim()}
+                           {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim()}
                         </option>
                       ))}
                     </optgroup>
@@ -675,7 +688,7 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
 }
 
 // ─── Waitlist Card (Draggable) ────────────────────────────────────────────────
-function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date, onPreview, isDraggable }) {
+function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date, onPreview, onContact, isDraggable }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: firebaseKey,
     disabled: !isDraggable,
@@ -722,7 +735,7 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date,
             className="btn btn-sm schedule-contact-btn"
             onClick={(e) => {
               e.stopPropagation();
-              // Future contact logic here
+              onContact();
             }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
@@ -755,9 +768,55 @@ function MeetingPopUp({ onClose }) {
 }
 
 // ─── Contact Pop Up ───────────────────────────────────────────────────────────
-function ContactPopUp({ client, onClose }) {
-  const [phone, setPhone] = useState(client?.phone || "");
-  const [email, setEmail] = useState(client?.email || "");
+function ContactPopUp({ caseId, onClose }) {
+  const db = getDatabase();
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!caseId) return;
+    const caseRef = ref(db, `cases/${caseId}`);
+    const unsubscribe = onValue(caseRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.clientInfo) {
+        setFname(data.clientInfo.fname || "");
+        setLname(data.clientInfo.lname || "");
+        setPhone(data.clientInfo.phone || "");
+        setEmail(data.clientInfo.email || "");
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [caseId, db]);
+
+  const handleSave = () => {
+    const clientInfoRef = ref(db, `cases/${caseId}/clientInfo`);
+    update(clientInfoRef, {
+      phone,
+      email,
+    })
+      .then(() => {
+        onClose();
+      })
+      .catch((err) => {
+        console.error("Error saving contact card:", err);
+      });
+  };
+
+  if (loading) {
+    return (
+      <>
+        <div className="schedule-modal-backdrop" onClick={onClose} />
+        <div className="schedule-modal-popup">
+          <button className="schedule-modal-close-btn" onClick={onClose}>✕</button>
+          <div className="text-center py-3 text-muted">Loading contact info...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -765,31 +824,31 @@ function ContactPopUp({ client, onClose }) {
       <div className="schedule-modal-popup">
         <button className="schedule-modal-close-btn" onClick={onClose}>✕</button>
         <h6 className="schedule-modal-title">Contact</h6>
-        {client ? (
-          <div className="schedule-modal-contact-info">
-            <p className="mb-2"><strong>{client.fname} {client.lname}</strong></p>
-            <div className="mb-2">
-              <label className="form-label small mb-1">Phone</label>
-              <input
-                type="tel"
-                className="form-control form-control-sm"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="form-label small mb-1">Email</label>
-              <input
-                type="email"
-                className="form-control form-control-sm"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+        <div className="schedule-modal-contact-info">
+          <p className="mb-2"><strong>{fname} {lname}</strong></p>
+          <div className="mb-2">
+            <label className="form-label small mb-1">Phone</label>
+            <input
+              type="tel"
+              className="form-control form-control-sm"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
           </div>
-        ) : (
-          <p className="text-muted small">No contact info available.</p>
-        )}
+          <div className="mb-2">
+            <label className="form-label small mb-1">Email</label>
+            <input
+              type="email"
+              className="form-control form-control-sm"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="d-flex justify-content-end gap-2 mt-3">
+            <button type="button" className="btn btn-cancel p-0 text-decoration-underline" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn btn-submit py-1 px-3" onClick={handleSave}>Save</button>
+          </div>
+        </div>
       </div>
     </>
   );
