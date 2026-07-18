@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { getAuth, signOut } from "firebase/auth";
 import { useAuth } from "../auth/useAuth";
+import { getAvatarColor, getInitials } from "../utils/avatar";
 
 export function NavBar(props) {
     const { active } = props;
@@ -71,9 +72,12 @@ export function NavBar(props) {
                     onClick={() => setMenuOpen((o) => !o)}
                     aria-expanded={menuOpen}
                 >
-                    <span className="app-navbar-user-icon" aria-hidden="true">
-                        <span className="app-navbar-user-head"></span>
-                        <span className="app-navbar-user-body"></span>
+                    <span
+                        className="app-navbar-user-icon"
+                        style={{ backgroundColor: getAvatarColor(user?.uid) }}
+                        aria-hidden="true"
+                    >
+                        {getInitials(profileName)}
                     </span>
                     <span>{profileName}</span>
                 </button>

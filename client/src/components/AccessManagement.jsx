@@ -5,6 +5,7 @@ import { getDatabase, ref, onValue } from "firebase/database";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuth } from "../auth/useAuth";
 import { useNavigate } from "react-router";
+import { getAvatarColor, getInitials } from "../utils/avatar";
 
 const ROLES = ["Staff", "Admin", "Attorney", "Legal Student"];
 const INVITE_ROLES = ["Staff", "Admin"];
@@ -25,9 +26,22 @@ export default function AccessManagement() {
     const [userToReset, setUserToReset] = useState(null);
     const [userToModifyRole, setUserToModifyRole] = useState(null);
     const [roleToModify, setRoleToModify] = useState("Staff");
-    // Track locally which uids are disabled (toggled via cloud function)
-    const [disabledUids, setDisabledUids] = useState(new Set());
+    // Firebase Auth status per uid: { disabled, lastSignInTime } — powers the Status column
+    const [authStatusMap, setAuthStatusMap] = useState({});
+    const [authStatusLoaded, setAuthStatusLoaded] = useState(false);
     const [togglingUid, setTogglingUid] = useState(null);
+    // Track which user's actions dropdown is currently open
+    const [openMenuUid, setOpenMenuUid] = useState(null);
+    // Multi-select mode for bulk actions
+    const [multiSelectMode, setMultiSelectMode] = useState(false);
+    const [selectedUids, setSelectedUids] = useState(new Set());
+    const [bulkAction, setBulkAction] = useState(null); // "reset" | "disable" | "remove"
+    const [bulkLoading, setBulkLoading] = useState(false);
+    const [bulkFeedback, setBulkFeedback] = useState(null);
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [usersPerPage, setUsersPerPage] = useState(10);
+    const PAGE_SIZE_OPTIONS = [5, 10, 25, 50];
 
     const db = getDatabase();
     const functions = getFunctions();
@@ -38,6 +52,7 @@ export default function AccessManagement() {
     const disableUserAccount = httpsCallable(functions, "disableUserAccount");
     const enableUserAccount = httpsCallable(functions, "enableUserAccount");
     const updateUserRole = httpsCallable(functions, "updateUserRole");
+    const getUserAuthStatuses = httpsCallable(functions, "getUserAuthStatuses");
 
     // Listen for the users/ node in RTDB
     useEffect(() => {
@@ -64,6 +79,42 @@ export default function AccessManagement() {
         });
         return () => unsubscribe();
     }, [db]);
+
+    // Fetch each user's Firebase Auth status (disabled / last sign-in) for the Status column
+    useEffect(() => {
+        let cancelled = false;
+        getUserAuthStatuses()
+            .then((result) => {
+                if (cancelled) return;
+                setAuthStatusMap(result.data?.statuses || {});
+                setAuthStatusLoaded(true);
+            })
+            .catch((err) => {
+                console.error("getUserAuthStatuses error:", err);
+                if (!cancelled) setAuthStatusLoaded(true);
+            });
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Reset to the first page whenever the search or page size changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, usersPerPage]);
+
+    // Close the open actions dropdown when clicking outside of it
+    useEffect(() => {
+        if (!openMenuUid) return;
+        function handleClickOutside(e) {
+            if (!e.target.closest(".am-actions-menu")) {
+                setOpenMenuUid(null);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openMenuUid]);
 
     /** Invite a new user via Cloud Function */
     async function handleInvite(e) {
@@ -137,23 +188,25 @@ export default function AccessManagement() {
 
     /** Toggle Firebase Auth disabled flag for a user (no RTDB write) */
     async function handleToggleDisable(user) {
-        const isDisabled = disabledUids.has(user.uid);
+        const isDisabled = authStatusMap[user.uid]?.disabled === true;
         setTogglingUid(user.uid);
         try {
             if (isDisabled) {
                 await enableUserAccount({ uid: user.uid });
-                setDisabledUids((prev) => {
-                    const next = new Set(prev);
-                    next.delete(user.uid);
-                    return next;
-                });
+                setAuthStatusMap((prev) => ({
+                    ...prev,
+                    [user.uid]: { ...prev[user.uid], disabled: false },
+                }));
                 setResetFeedback({
                     type: "success",
                     message: `${user.email}'s account has been re-enabled.`,
                 });
             } else {
                 await disableUserAccount({ uid: user.uid });
-                setDisabledUids((prev) => new Set([...prev, user.uid]));
+                setAuthStatusMap((prev) => ({
+                    ...prev,
+                    [user.uid]: { ...prev[user.uid], disabled: true },
+                }));
                 setResetFeedback({
                     type: "success",
                     message: `${user.email}'s account has been disabled.`,
@@ -233,6 +286,86 @@ export default function AccessManagement() {
         return user.name || user.email || "Unnamed User";
     }
 
+    /** Active / Pending / Disabled, derived from the user's Firebase Auth record */
+    function getUserStatus(uid) {
+        const info = authStatusMap[uid];
+        if (info?.disabled) return "Disabled";
+        if (!info?.lastSignInTime) return "Pending";
+        return "Active";
+    }
+
+    /** Toggle multi-select mode on/off, clearing any selection */
+    function toggleMultiSelectMode() {
+        setMultiSelectMode((prev) => !prev);
+        setSelectedUids(new Set());
+    }
+
+    /** Toggle a single user's checkbox in multi-select mode */
+    function toggleUserSelected(uid) {
+        setSelectedUids((prev) => {
+            const next = new Set(prev);
+            if (next.has(uid)) {
+                next.delete(uid);
+            } else {
+                next.add(uid);
+            }
+            return next;
+        });
+    }
+
+    /** Run the confirmed bulk action (reset password / disable / remove) across all selected users */
+    async function confirmBulkAction() {
+        if (!bulkAction) return;
+        const targetUsers = users.filter((u) => selectedUids.has(u.uid));
+        if (targetUsers.length === 0) return;
+
+        setBulkLoading(true);
+        setBulkFeedback(null);
+        const failedEmails = [];
+
+        for (const user of targetUsers) {
+            try {
+                if (bulkAction === "reset") {
+                    await sendPasswordResetEmail(getAuth(), user.email);
+                } else if (bulkAction === "disable") {
+                    await disableUserAccount({ uid: user.uid });
+                    setAuthStatusMap((prev) => ({
+                        ...prev,
+                        [user.uid]: { ...prev[user.uid], disabled: true },
+                    }));
+                } else if (bulkAction === "remove") {
+                    await deleteUserAccount({ uid: user.uid });
+                }
+            } catch (err) {
+                console.error(`Bulk ${bulkAction} error for ${user.email}:`, err);
+                failedEmails.push(user.email);
+            }
+        }
+
+        const actionLabel =
+            bulkAction === "reset" ? "sent a password reset email to"
+            : bulkAction === "disable" ? "disabled"
+            : "removed";
+        const succeededCount = targetUsers.length - failedEmails.length;
+
+        let message = "";
+        let type = "success";
+        if (failedEmails.length === 0) {
+            message = `Successfully ${actionLabel} ${succeededCount} user${succeededCount === 1 ? "" : "s"}.`;
+        } else if (succeededCount === 0) {
+            type = "error";
+            message = `Failed to ${bulkAction === "reset" ? "reset password for" : bulkAction} ${failedEmails.length === 1 ? "" : "any users: "}${failedEmails.join(", ")}.`;
+        } else {
+            type = "error";
+            message = `${actionLabel} ${succeededCount} user${succeededCount === 1 ? "" : "s"}, but failed for: ${failedEmails.join(", ")}.`;
+        }
+
+        setBulkFeedback({ type, message });
+        setBulkAction(null);
+        setSelectedUids(new Set());
+        setBulkLoading(false);
+    }
+
     const filteredUsers = users.filter((user) => {
         if (!searchQuery.trim()) return true;
         const q = searchQuery.toLowerCase();
@@ -241,6 +374,30 @@ export default function AccessManagement() {
         const userRole = (user.role || "").toLowerCase();
         return userEmail.includes(q) || userName.includes(q) || userRole.includes(q);
     });
+
+    const totalUsers = filteredUsers.length;
+    const totalPages = Math.max(1, Math.ceil(totalUsers / usersPerPage));
+    const page = Math.min(currentPage, totalPages);
+    const startIndex = (page - 1) * usersPerPage;
+    const endIndex = Math.min(startIndex + usersPerPage, totalUsers);
+    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+    /** Build a compact page-number list with "..." gaps, e.g. [1, 2, 3, "...", 6] */
+    function getPageNumbers(current, total) {
+        if (total <= 5) {
+            return Array.from({ length: total }, (_, i) => i + 1);
+        }
+        const pages = new Set([1, 2, 3, total, current, current - 1, current + 1]);
+        const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+        const result = [];
+        let prev = 0;
+        for (const p of sorted) {
+            if (prev && p - prev > 1) result.push("...");
+            result.push(p);
+            prev = p;
+        }
+        return result;
+    }
 
     return (
         <>
@@ -381,7 +538,42 @@ export default function AccessManagement() {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
+
+                        <button
+                            type="button"
+                            className={`am-multiselect-btn ${multiSelectMode ? "am-multiselect-btn-active" : ""}`}
+                            onClick={toggleMultiSelectMode}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="9 11 12 14 22 4" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                            </svg>
+                            <span>Multi Select</span>
+                        </button>
                     </div>
+
+                    {bulkFeedback && (
+                        <div
+                            className={`am-feedback am-bulk-feedback ${
+                                bulkFeedback.type === "success"
+                                    ? "am-feedback-success"
+                                    : "am-feedback-error"
+                            }`}
+                        >
+                            {bulkFeedback.type === "success" ? (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            ) : (
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="15" y1="9" x2="9" y2="15" />
+                                    <line x1="9" y1="9" x2="15" y2="15" />
+                                </svg>
+                            )}
+                            <span>{bulkFeedback.message}</span>
+                        </div>
+                    )}
 
                     {deleteFeedback && (
                         <div
@@ -438,37 +630,53 @@ export default function AccessManagement() {
                             No users found.
                         </p>
                     ) : (
+                        <>
                         <div className="am-table-wrapper">
                             <table className="am-table">
                                 <thead>
                                     <tr>
+                                        {multiSelectMode && <th className="am-checkbox-col"></th>}
                                         <th>Name</th>
                                         <th>Role</th>
-                                        <th>Actions</th>
+                                        <th>Status</th>
+                                        <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredUsers.map((user) => {
+                                    {paginatedUsers.map((user) => {
                                         const isCurrentUser = user.uid === currentUser?.uid;
-                                        const isDisabled = disabledUids.has(user.uid);
+                                        const isDisabled = authStatusMap[user.uid]?.disabled === true;
                                         const isToggling = togglingUid === user.uid;
+                                        const userStatus = getUserStatus(user.uid);
 
                                         return (
-                                        <tr key={user.uid} className={isDisabled ? "am-row-disabled" : ""}>
+                                        <tr key={user.uid}>
+                                            {multiSelectMode && (
+                                                <td className="am-checkbox-col">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="am-row-checkbox"
+                                                        checked={selectedUids.has(user.uid)}
+                                                        onChange={() => toggleUserSelected(user.uid)}
+                                                        disabled={isCurrentUser}
+                                                        aria-label={`Select ${user.email}`}
+                                                    />
+                                                </td>
+                                            )}
                                             <td>
                                                 <div className="am-profile">
-                                                    <span className="am-profile-icon" aria-hidden="true">
-                                                        <span className="am-profile-icon-head"></span>
-                                                        <span className="am-profile-icon-body"></span>
+                                                    <span
+                                                        className="am-profile-icon"
+                                                        style={{ backgroundColor: getAvatarColor(user.uid) }}
+                                                        aria-hidden="true"
+                                                    >
+                                                        {getInitials(user.name || user.email)}
                                                     </span>
                                                     <div className="am-profile-copy">
                                                         <span className="am-profile-name">
                                                             {getProfileName(user)}
                                                             {isCurrentUser && (
                                                                 <span className="am-inline-you-badge">You</span>
-                                                            )}
-                                                            {isDisabled && (
-                                                                <span className="am-inline-disabled-badge">Disabled</span>
                                                             )}
                                                         </span>
                                                         <span className="am-profile-email">
@@ -483,6 +691,16 @@ export default function AccessManagement() {
                                                 </span>
                                             </td>
                                             <td>
+                                                {authStatusLoaded ? (
+                                                    <span className={`am-status-badge am-status-${userStatus.toLowerCase()}`}>
+                                                        <span className="am-status-dot"></span>
+                                                        {userStatus}
+                                                    </span>
+                                                ) : (
+                                                    <span className="am-status-placeholder">—</span>
+                                                )}
+                                            </td>
+                                            <td className="am-actions-cell">
                                                 {isCurrentUser ? (
                                                     <button
                                                         type="button"
@@ -490,110 +708,122 @@ export default function AccessManagement() {
                                                         title="Manage in Profile"
                                                         aria-label="Manage your account in Profile"
                                                     >
-                                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                            <path d="M12 20h9"></path>
-                                                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-                                                        </svg>
                                                         <span>Manage in Profile</span>
                                                     </button>
                                                 ) : (
-                                                    <div className="am-actions">
-                                                        {/* View Profile (Attorney / Legal Student only) */}
-                                                        {(user.role === "Attorney" || user.role === "Legal Student") && (
-                                                            <button
-                                                                type="button"
-                                                                className="am-action-btn"
-                                                                onClick={() => navigate(`/personnel-library/${user.uid}`)}
-                                                                title="View Personnel Profile"
-                                                                aria-label={`View personnel profile for ${user.email}`}
-                                                            >
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                                                    <circle cx="12" cy="7" r="4" />
-                                                                </svg>
-                                                                <span>View Profile</span>
-                                                            </button>
+                                                    <div className="am-actions-menu">
+                                                        <button
+                                                            type="button"
+                                                            className="am-action-btn am-kebab-btn"
+                                                            onClick={() =>
+                                                                setOpenMenuUid((prev) => (prev === user.uid ? null : user.uid))
+                                                            }
+                                                            title="More actions"
+                                                            aria-label={`More actions for ${user.email}`}
+                                                            aria-haspopup="true"
+                                                            aria-expanded={openMenuUid === user.uid}
+                                                        >
+                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                                                <circle cx="12" cy="5" r="1.75"></circle>
+                                                                <circle cx="12" cy="12" r="1.75"></circle>
+                                                                <circle cx="12" cy="19" r="1.75"></circle>
+                                                            </svg>
+                                                        </button>
+
+                                                        {openMenuUid === user.uid && (
+                                                            <div className="am-dropdown-menu" role="menu">
+                                                                {isDisabled ? (
+                                                                    /* Disabled accounts can only be re-enabled */
+                                                                    <button
+                                                                        type="button"
+                                                                        role="menuitem"
+                                                                        className="am-dropdown-item am-dropdown-item-enable"
+                                                                        onClick={() => {
+                                                                            setOpenMenuUid(null);
+                                                                            handleToggleDisable(user);
+                                                                        }}
+                                                                        disabled={isToggling}
+                                                                    >
+                                                                        {isToggling && <span className="am-spinner am-spinner-sm" />}
+                                                                        <span>{isToggling ? "Updating…" : "Enable Account"}</span>
+                                                                    </button>
+                                                                ) : (
+                                                                    <>
+                                                                        {/* View Record (Attorney / Legal Student only) */}
+                                                                        {(user.role === "Attorney" || user.role === "Legal Student") && (
+                                                                            <button
+                                                                                type="button"
+                                                                                role="menuitem"
+                                                                                className="am-dropdown-item"
+                                                                                onClick={() => {
+                                                                                    setOpenMenuUid(null);
+                                                                                    navigate(`/personnel-library/${user.uid}`);
+                                                                                }}
+                                                                            >
+                                                                                <span>View Record</span>
+                                                                            </button>
+                                                                        )}
+
+                                                                        {/* Modify Role */}
+                                                                        <button
+                                                                            type="button"
+                                                                            role="menuitem"
+                                                                            className="am-dropdown-item"
+                                                                            onClick={() => {
+                                                                                setOpenMenuUid(null);
+                                                                                setUserToModifyRole(user);
+                                                                                setRoleToModify(user.role || "Staff");
+                                                                            }}
+                                                                        >
+                                                                            <span>Modify Role</span>
+                                                                        </button>
+
+                                                                        <div className="am-dropdown-divider" role="separator"></div>
+
+                                                                        {/* Reset Password */}
+                                                                        <button
+                                                                            type="button"
+                                                                            role="menuitem"
+                                                                            className="am-dropdown-item"
+                                                                            onClick={() => {
+                                                                                setOpenMenuUid(null);
+                                                                                setUserToReset(user);
+                                                                            }}
+                                                                        >
+                                                                            <span>Reset Password</span>
+                                                                        </button>
+
+                                                                        {/* Disable Account */}
+                                                                        <button
+                                                                            type="button"
+                                                                            role="menuitem"
+                                                                            className="am-dropdown-item am-dropdown-item-warning"
+                                                                            onClick={() => {
+                                                                                setOpenMenuUid(null);
+                                                                                handleToggleDisable(user);
+                                                                            }}
+                                                                            disabled={isToggling}
+                                                                        >
+                                                                            {isToggling && <span className="am-spinner am-spinner-sm" />}
+                                                                            <span>{isToggling ? "Updating…" : "Disable Account"}</span>
+                                                                        </button>
+
+                                                                        {/* Remove User (permanent) */}
+                                                                        <button
+                                                                            type="button"
+                                                                            role="menuitem"
+                                                                            className="am-dropdown-item am-dropdown-item-danger"
+                                                                            onClick={() => {
+                                                                                setOpenMenuUid(null);
+                                                                                setUserToDelete(user);
+                                                                            }}
+                                                                        >
+                                                                            <span>Remove User</span>
+                                                                        </button>
+                                                                    </>
+                                                                )}
+                                                            </div>
                                                         )}
-
-                                                        {/* Modify Role */}
-                                                        <button
-                                                            type="button"
-                                                            className="am-action-btn"
-                                                            onClick={() => {
-                                                                setUserToModifyRole(user);
-                                                                setRoleToModify(user.role || "Staff");
-                                                            }}
-                                                            title="Modify roles"
-                                                            aria-label={`Modify roles for ${user.email}`}
-                                                        >
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                                                <circle cx="9" cy="7" r="4"></circle>
-                                                                <path d="m16 11 2 2 4-4"></path>
-                                                            </svg>
-                                                            <span>Modify Role</span>
-                                                        </button>
-
-                                                        {/* Reset Password */}
-                                                        <button
-                                                            type="button"
-                                                            className="am-action-btn"
-                                                            onClick={() => setUserToReset(user)}
-                                                            title="Reset password"
-                                                            aria-label={`Reset password for ${user.email}`}
-                                                        >
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <rect x="5" y="11" width="10" height="8" rx="2"></rect>
-                                                                <path d="M7 11V8a3 3 0 0 1 6 0v3"></path>
-                                                                <path d="M18.5 8.5A5 5 0 0 0 10 5"></path>
-                                                                <path d="M18.5 8.5V5"></path>
-                                                                <path d="M18.5 8.5H15"></path>
-                                                                <path d="M10 15h.01"></path>
-                                                            </svg>
-                                                            <span>Reset Password</span>
-                                                        </button>
-
-                                                        {/* Disable / Enable Account toggle */}
-                                                        <button
-                                                            type="button"
-                                                            className={`am-action-btn ${isDisabled ? "am-action-btn-enable" : "am-action-btn-warning"}`}
-                                                            onClick={() => handleToggleDisable(user)}
-                                                            disabled={isToggling}
-                                                            title={isDisabled ? "Enable account" : "Disable account"}
-                                                            aria-label={`${isDisabled ? "Enable" : "Disable"} account for ${user.email}`}
-                                                        >
-                                                            {isToggling ? (
-                                                                <span className="am-spinner am-spinner-sm" />
-                                                            ) : isDisabled ? (
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"></path>
-                                                                    <path d="m9 12 2 2 4-4"></path>
-                                                                </svg>
-                                                            ) : (
-                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                                                                </svg>
-                                                            )}
-                                                            <span>{isToggling ? "Updating…" : isDisabled ? "Enable Account" : "Disable Account"}</span>
-                                                        </button>
-
-                                                        {/* Remove User (permanent) */}
-                                                        <button
-                                                            type="button"
-                                                            className="am-action-btn am-action-btn-danger"
-                                                            onClick={() => setUserToDelete(user)}
-                                                            title="Remove user permanently"
-                                                            aria-label={`Remove user ${user.email}`}
-                                                        >
-                                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                                                                <circle cx="9" cy="7" r="4"></circle>
-                                                                <line x1="17" y1="8" x2="22" y2="13"></line>
-                                                                <line x1="22" y1="8" x2="17" y2="13"></line>
-                                                            </svg>
-                                                            <span>Remove User</span>
-                                                        </button>
                                                     </div>
                                                 )}
                                             </td>
@@ -603,9 +833,109 @@ export default function AccessManagement() {
                                 </tbody>
                             </table>
                         </div>
+
+                        <div className="am-pagination-row">
+                            <span className="am-pagination-summary">
+                                Showing {startIndex + 1} to {endIndex} of {totalUsers} users
+                            </span>
+
+                            <div className="am-pagination-controls">
+                                <button
+                                    type="button"
+                                    className="am-page-nav-btn"
+                                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                    disabled={page <= 1}
+                                    aria-label="Previous page"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="15 18 9 12 15 6" />
+                                    </svg>
+                                </button>
+
+                                {getPageNumbers(page, totalPages).map((p, idx) =>
+                                    p === "..." ? (
+                                        <span key={`dots-${idx}`} className="am-page-ellipsis">…</span>
+                                    ) : (
+                                        <button
+                                            key={p}
+                                            type="button"
+                                            className={`am-page-btn ${p === page ? "am-page-btn-active" : ""}`}
+                                            onClick={() => setCurrentPage(p)}
+                                        >
+                                            {p}
+                                        </button>
+                                    )
+                                )}
+
+                                <button
+                                    type="button"
+                                    className="am-page-nav-btn"
+                                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                    disabled={page >= totalPages}
+                                    aria-label="Next page"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="9 18 15 12 9 6" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <select
+                                className="am-page-size-select"
+                                value={usersPerPage}
+                                onChange={(e) => setUsersPerPage(Number(e.target.value))}
+                                aria-label="Users per page"
+                            >
+                                {PAGE_SIZE_OPTIONS.map((n) => (
+                                    <option key={n} value={n}>
+                                        {n} per page
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        </>
                     )}
                 </div>
             </div>
+
+            {/* Floating bulk-selection bar (Discord-style) */}
+            {selectedUids.size > 0 && (
+                <div className="am-bulk-bar">
+                    <span className="am-bulk-bar-count">
+                        {selectedUids.size} user{selectedUids.size === 1 ? "" : "s"} selected
+                    </span>
+                    <button
+                        type="button"
+                        className="am-bulk-bar-clear"
+                        onClick={() => setSelectedUids(new Set())}
+                    >
+                        Clear selection
+                    </button>
+                    <div className="am-bulk-bar-actions">
+                        <button
+                            type="button"
+                            className="am-bulk-btn"
+                            onClick={() => setBulkAction("reset")}
+                        >
+                            Reset Password
+                        </button>
+                        <button
+                            type="button"
+                            className="am-bulk-btn am-bulk-btn-warning"
+                            onClick={() => setBulkAction("disable")}
+                        >
+                            Disable Account
+                        </button>
+                        <button
+                            type="button"
+                            className="am-bulk-btn am-bulk-btn-danger"
+                            onClick={() => setBulkAction("remove")}
+                        >
+                            Remove User
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Delete Confirmation Modal */}
             {userToDelete && (
@@ -746,6 +1076,58 @@ export default function AccessManagement() {
                                 disabled={loading}
                             >
                                 {loading ? "Sending..." : "Send Email"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Action Confirmation Modal */}
+            {bulkAction && (
+                <div className="am-modal-overlay">
+                    <div className="am-modal">
+                        <div className="am-modal-header">
+                            <h3 className="am-modal-title">
+                                {bulkAction === "reset" ? "Reset Password" : bulkAction === "disable" ? "Disable Accounts" : "Remove Users"}
+                            </h3>
+                            <button
+                                type="button"
+                                className="am-modal-close"
+                                onClick={() => setBulkAction(null)}
+                                disabled={bulkLoading}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="am-modal-body">
+                            <p>
+                                {bulkAction === "reset" && `Send a password reset email to ${selectedUids.size} selected user${selectedUids.size === 1 ? "" : "s"}?`}
+                                {bulkAction === "disable" && `Disable ${selectedUids.size} selected user${selectedUids.size === 1 ? "" : "s"}'s account access?`}
+                                {bulkAction === "remove" && `Permanently remove ${selectedUids.size} selected user${selectedUids.size === 1 ? "" : "s"}?`}
+                            </p>
+                            {bulkAction === "remove" && (
+                                <p className="am-modal-warning">This will delete their accounts and all associated data. This action cannot be undone.</p>
+                            )}
+                        </div>
+                        <div className="am-modal-footer">
+                            <button
+                                type="button"
+                                className="am-modal-btn am-modal-btn-cancel"
+                                onClick={() => setBulkAction(null)}
+                                disabled={bulkLoading}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="am-modal-btn am-modal-btn-confirm"
+                                onClick={confirmBulkAction}
+                                disabled={bulkLoading}
+                            >
+                                {bulkLoading ? "Working..." : "Confirm"}
                             </button>
                         </div>
                     </div>

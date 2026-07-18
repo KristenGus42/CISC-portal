@@ -11,6 +11,7 @@ setGlobalOptions({ maxInstances: 10 });
 const { createUserAccount } = require("./createAccounts");
 const { deleteUserAccount, disableUserAccount, enableUserAccount } = require("./deleteAccounts");
 const { updateUserRole, updateUserEmail } = require("./updateAccounts");
+const { getUserAuthStatuses } = require("./userStatus");
 
 exports.createUserAccount = createUserAccount;
 exports.deleteUserAccount = deleteUserAccount;
@@ -18,3 +19,4 @@ exports.disableUserAccount = disableUserAccount;
 exports.enableUserAccount = enableUserAccount;
 exports.updateUserRole = updateUserRole;
 exports.updateUserEmail = updateUserEmail;
+exports.getUserAuthStatuses = getUserAuthStatuses;
