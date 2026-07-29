@@ -106,7 +106,6 @@ export default function ContactForm(props) {
   const [schedulingFormData, setSchedulingFormData] = useState({
     date: "", timeSlot: "", meetingPlatform: "", meetingLink: "",
     attorneyName: "", attorneyEmail: "", attorneyPhone: "",
-    legalStudentName: "", legalStudentEmail: "", legalStudentPhone: "",
     interpreterName: "", interpreterEmail: "", interpreterPhone: "",
   });
 
@@ -374,18 +373,18 @@ export default function ContactForm(props) {
           </div>
 
           <div className="col-12">
-            <SectionDivider title="Legal Student" sub />
+            <SectionDivider title="Interpreter" sub />
           </div>
           <div className="col-3">
-            <FloatSelect id="legalStudentName" name="legalStudentName" label="Name" value={schedulingFormData.legalStudentName} onChange={handleSchedulingChange}>
+            <FloatSelect id="interpreterName" name="interpreterName" label="Name" value={schedulingFormData.interpreterName} onChange={handleSchedulingChange}>
               <option value="">Select name</option>
             </FloatSelect>
           </div>
           <div className="col-3">
-            <FloatInput id="legalStudentEmail" name="legalStudentEmail" label="Email" type="email" value={schedulingFormData.legalStudentEmail} onChange={handleSchedulingChange} />
+            <FloatInput id="interpreterEmail" name="interpreterEmail" label="Email" type="email" value={schedulingFormData.interpreterEmail} onChange={handleSchedulingChange} />
           </div>
           <div className="col-3">
-            <FloatInput id="legalStudentPhone" name="legalStudentPhone" label="Phone Number" type="tel" value={schedulingFormData.legalStudentPhone} onChange={handleSchedulingChange} />
+            <FloatInput id="interpreterPhone" name="interpreterPhone" label="Phone Number" type="tel" value={schedulingFormData.interpreterPhone} onChange={handleSchedulingChange} />
           </div>
         </div>
 

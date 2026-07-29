@@ -60,14 +60,6 @@ function IconExpand() {
   );
 }
 
-function IconChevronDown() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" viewBox="0 0 16 16">
-      <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-    </svg>
-  );
-}
-
 // ─── Small floating-label read-only field ──────────────────────────────────────
 
 function ReadField({ label, value, style = {} }) {
@@ -92,8 +84,8 @@ function OverviewTab({ clientInfo = {}, caseInfo = {} }) {
     <div className="cp-tab-body">
       {/* Small fields row */}
       <div className="cp-fields-row">
-        <ReadField label="Sex *" value={clientInfo.sex} />
-        <ReadField label="Age *" value={clientInfo.age} />
+        <ReadField label="Sex" value={clientInfo.sex} />
+        <ReadField label="Age" value={clientInfo.age} />
       </div>
 
       {/* Brief description */}
@@ -128,17 +120,9 @@ export default function CasePreview({ caseData, onClose, onExpand }) {
 
   if (!caseData) return null;
 
-  const { clientInfo = {}, caseInfo = {}, matchInfo = {}, status } = caseData;
+  const { clientInfo = {}, caseInfo = {}, status } = caseData;
   const fullName = `${clientInfo.fname || ""} ${clientInfo.lname || ""}`.trim() || "Unknown Client";
   const subtitle = [caseInfo.category, clientInfo.primaryLanguage].filter(Boolean).join(" | ");
-
-  // Derive assignment display values
-  const attorneyLabel  = matchInfo.attorney    || "Unassigned";
-  const studentLabel   = matchInfo.legalStudent || "Unassigned";
-  const interpreterLabel = matchInfo.interpreter || "CISC Staff";
-
-  const attorneyAssigned  = !!matchInfo.attorney;
-  const studentAssigned   = !!matchInfo.legalStudent && matchInfo.legalStudent !== "None";
 
   return (
     <div className="cp-panel">
@@ -185,42 +169,6 @@ export default function CasePreview({ caseData, onClose, onExpand }) {
             {formatPhone(clientInfo.phone)}
           </span>
         )}
-      </div>
-
-      {/* ── Assignment pills ── */}
-      <div className="cp-assignments">
-        <div className="cp-assignment-slot">
-          <span className="cp-assignment-role">Attorney</span>
-          <button
-            className={`cp-assignment-pill${attorneyAssigned ? " cp-assignment-pill--filled" : ""}`}
-            id="cp-attorney-pill"
-          >
-            {attorneyLabel}
-          </button>
-        </div>
-
-        <div className="cp-assignment-slot">
-          <span className="cp-assignment-role">Legal Student</span>
-          <button
-            className={`cp-assignment-pill${studentAssigned ? " cp-assignment-pill--filled" : ""}`}
-            id="cp-student-pill"
-          >
-            {studentLabel}
-          </button>
-        </div>
-
-        <div className="cp-assignment-slot">
-          <span className="cp-assignment-role">Interpreter</span>
-          <button className="cp-assignment-pill cp-assignment-pill--dropdown" id="cp-interpreter-pill">
-            {/* small translate icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16" style={{ flexShrink: 0 }}>
-              <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z"/>
-              <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14v-.868h-3v-.002c-.018 0-.035.002-.053.003H9.529l-.001-.001H7v.867h1.604c-.316.764-.78 1.63-1.362 2.404z"/>
-            </svg>
-            {interpreterLabel}
-            <IconChevronDown />
-          </button>
-        </div>
       </div>
 
       {/* ── Tabs ── */}

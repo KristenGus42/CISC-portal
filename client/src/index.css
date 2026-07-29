@@ -1004,6 +1004,28 @@ body {
   border-color: var(--call-to-action);
 }
 
+/* Slot cannot accept a drop until the column has an attorney assigned */
+.schedule-time-slot-card--locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.schedule-time-slot-card--locked .schedule-slot-body::before {
+  border-style: solid;
+}
+
+.schedule-slot-locked-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  color: var(--dark-gray);
+}
+
 /* Filled slot body — replaces the empty .slot-body placeholder */
 .schedule-slot-body--filled {
   position: relative;

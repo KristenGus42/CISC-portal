@@ -80,6 +80,8 @@ export default function Schedule() {
 
   // Column attorney selections (local, saved on Save)
   const [columnAttorneys, setColumnAttorneys] = useState({});
+  // Last-saved slots for the current week, used to detect case removals on Save
+  const savedAssignmentsRef = useRef({});
 
   // ── Load attorneys ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -119,10 +121,12 @@ export default function Schedule() {
       if (!weekData) {
         setAssignments({});
         setColumnAttorneys({});
+        savedAssignmentsRef.current = {};
         return;
       }
       const slots = weekData.slots ?? {};
       setAssignments(slots);
+      savedAssignmentsRef.current = slots;
 
       // Derive column attorneys from slot data (use first slot in each column that has one)
       const cols = {};
@@ -160,6 +164,7 @@ export default function Schedule() {
     if (!caseObj) return;
 
     const [colIdxStr, slotIdxStr] = over.id.split("-");
+    if (!columnAttorneys[`col${colIdxStr}`]) return; // attorney must be assigned first
     const slotIdx = parseInt(slotIdxStr, 10);
     const time = mockTimeSlots[slotIdx] ?? mockTimeSlots[0];
 
@@ -182,9 +187,18 @@ export default function Schedule() {
 
   // ── Remove a slot: local only ─────────────────────────────────────────────
   function handleRemove(slotKey) {
+    const [colIdxStr] = slotKey.split("-");
     setAssignments((prev) => {
       const next = { ...prev };
       delete next[slotKey];
+
+      // If that was the column's last slot and an attorney is still selected,
+      // keep a placeholder so the attorney selection isn't lost on Save.
+      const colHasOtherSlots = Object.keys(next).some((key) => key.startsWith(`${colIdxStr}-`));
+      const attorney = columnAttorneys[`col${colIdxStr}`];
+      if (!colHasOtherSlots && attorney) {
+        next[`${colIdxStr}-0`] = { time: mockTimeSlots[0], client: null, attorney };
+      }
       return next;
     });
   }
@@ -197,14 +211,22 @@ export default function Schedule() {
       name: attorney.value ?? attorney.name ?? "",
       specialty: attorney.specialty ?? attorney.mainPracticeAreas ?? "",
       language: attorney.language ?? attorney.languageSkills ?? attorney.primaryLanguage ?? "",
+      email: attorney.email ?? "",
+      phone: attorney.phoneNumber ?? "",
     };
     setColumnAttorneys((prev) => ({ ...prev, [colKey]: attorneyPayload }));
 
-    // Propagate attorney into all existing slot assignments for this column
+    // Propagate attorney into all existing slot assignments for this column.
+    // If the column has no slots yet (no cases placed), create a placeholder
+    // slot entry so the attorney selection survives Save/reload the same way
+    // it would if a case had already been placed on the schedule.
     setAssignments((prev) => {
       const next = { ...prev };
-      for (const key of Object.keys(next)) {
-        if (key.startsWith(`${colIdx}-`) && next[key]?.client) {
+      const colSlotKeys = Object.keys(next).filter((key) => key.startsWith(`${colIdx}-`));
+      if (colSlotKeys.length === 0) {
+        next[`${colIdx}-0`] = { time: mockTimeSlots[0], client: null, attorney: attorneyPayload };
+      } else {
+        for (const key of colSlotKeys) {
           next[key] = { ...next[key], attorney: attorneyPayload };
         }
       }
@@ -224,6 +246,12 @@ export default function Schedule() {
 
   // ── Save: write everything to Firebase ───────────────────────────────────
   async function handleSave() {
+    // Capture the pre-save slots now — the live `onValue` listener on
+    // `schedules/${weekKey}` echoes our own write back and will overwrite
+    // savedAssignmentsRef.current as soon as the set() below resolves, so
+    // reading the ref after the write would always show "new vs new".
+    const prevSlots = savedAssignmentsRef.current;
+
     const payload = {
       slots: assignments,
       weekKey,
@@ -237,21 +265,56 @@ export default function Schedule() {
       // 1) Save full schedule (including column attorney selections)
       await set(ref(db, `schedules/${weekKey}`), payload);
 
-      // 2) Write matched attorney + interpreter into each assigned case's record
+      // 2) Write matched attorney + interpreter into each assigned case's record.
+      // matchInfo holds just the display name (CasePreview renders it as text);
+      // schedulingInfo carries name + email + phone, which is what EditForm's
+      // Attorney / Legal Student sections actually display.
       const caseUpdates = {};
+      const currentCaseIds = new Set();
       for (const [slotKey, slot] of Object.entries(assignments)) {
         if (slot?.client?.caseId) {
+          currentCaseIds.add(slot.client.caseId);
+          // Flip the case out of "waitlisted" so it stops showing up as
+          // available in other weeks (and on the Cases waitlist tab) once
+          // it's actually been placed on a schedule — prevents double-booking.
+          caseUpdates[`cases/${slot.client.caseId}/status`] = "scheduled";
           if (slot?.attorney) {
-            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney;
+            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney.name ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = slot.attorney.name ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = slot.attorney.email ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = slot.attorney.phone ?? "";
           }
           if (slot?.interpreter) {
-            caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter;
+            caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter.name ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterName`] = slot.interpreter.name ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterEmail`] = slot.interpreter.email ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterPhone`] = slot.interpreter.phone ?? "";
           }
         }
       }
+
+      // 3) Clear matchInfo + schedulingInfo contact fields for cases removed from the board since last save,
+      // and put them back in the waitlist pool
+      for (const slot of Object.values(prevSlots)) {
+        const caseId = slot?.client?.caseId;
+        if (caseId && !currentCaseIds.has(caseId)) {
+          caseUpdates[`cases/${caseId}/status`] = "waitlisted";
+          caseUpdates[`cases/${caseId}/matchInfo/attorney`] = null;
+          caseUpdates[`cases/${caseId}/matchInfo/interpreter`] = null;
+          caseUpdates[`cases/${caseId}/schedulingInfo/attorneyName`] = null;
+          caseUpdates[`cases/${caseId}/schedulingInfo/attorneyEmail`] = null;
+          caseUpdates[`cases/${caseId}/schedulingInfo/attorneyPhone`] = null;
+          caseUpdates[`cases/${caseId}/schedulingInfo/interpreterName`] = null;
+          caseUpdates[`cases/${caseId}/schedulingInfo/interpreterEmail`] = null;
+          caseUpdates[`cases/${caseId}/schedulingInfo/interpreterPhone`] = null;
+        }
+      }
+
       if (Object.keys(caseUpdates).length > 0) {
         await update(ref(db), caseUpdates);
       }
+
+      savedAssignmentsRef.current = assignments;
 
       console.log("Save successful!");
       setIsEditMode(false);
@@ -572,6 +635,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
             assignedSlot={assignments[slotKey] ?? null}
             onRemove={onRemove}
             isEditMode={isEditMode}
+            hasAttorney={!!selectedAttorney}
             allAttorneysArr={allAttorneysArr}
             allLegalStudentsArr={allLegalStudentsArr}
             onInterpreterSelect={onInterpreterSelect}
@@ -587,8 +651,8 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
-function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, allCases, onContactClick }) {
-  const { setNodeRef, isOver } = useDroppable({ id: slotKey });
+function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, hasAttorney, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, allCases, onContactClick }) {
+  const { setNodeRef, isOver } = useDroppable({ id: slotKey, disabled: !hasAttorney });
   const [selectedTime, setSelectedTime] = useState(time);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
   const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
@@ -641,7 +705,8 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
         ref={setNodeRef}
         className={
           "schedule-time-slot-card" +
-          (isOver && !assignedClient && isEditMode ? " schedule-time-slot-card--over" : "")
+          (isOver && !assignedClient && isEditMode ? " schedule-time-slot-card--over" : "") +
+          (!hasAttorney && isEditMode && !assignedClient ? " schedule-time-slot-card--locked" : "")
         }
       >
         <div className="schedule-slot-header">
@@ -725,6 +790,8 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
                         id: person.id,
                         name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
                         type: fromAttorneys ? "attorney" : "legalStudent",
+                        email: person.email ?? "",
+                        phone: person.phoneNumber ?? "",
                       });
                     }}
                   >
@@ -766,7 +833,11 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
             </div>
           </div>
         ) : (
-          <div className="schedule-slot-body" />
+          <div className="schedule-slot-body">
+            {!hasAttorney && isEditMode && (
+              <span className="schedule-slot-locked-hint">Assign an attorney first</span>
+            )}
+          </div>
         )}
       </div>
     </div>
