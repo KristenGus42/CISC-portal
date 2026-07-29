@@ -121,8 +121,19 @@ export default function Schedule() {
         setColumnAttorneys({});
         return;
       }
-      setAssignments(weekData.slots ?? {});
-      setColumnAttorneys(weekData.columns ?? {});
+      const slots = weekData.slots ?? {};
+      setAssignments(slots);
+
+      // Derive column attorneys from slot data (use first slot in each column that has one)
+      const cols = {};
+      for (const [key, slot] of Object.entries(slots)) {
+        const colIdx = key.split("-")[0];
+        const colKey = `col${colIdx}`;
+        if (!cols[colKey] && slot?.attorney) {
+          cols[colKey] = slot.attorney;
+        }
+      }
+      setColumnAttorneys(cols);
     });
     return () => unsubscribe();
   }, [db, weekKey]);
@@ -155,13 +166,13 @@ export default function Schedule() {
     const slotPayload = {
       time,
       client: {
-        caseId:   caseObj.id,
-        fname:    caseObj.clientInfo?.fname    ?? "",
-        lname:    caseObj.clientInfo?.lname    ?? "",
-        category: caseObj.caseInfo?.category   ?? "",
+        caseId: caseObj.id,
+        fname: caseObj.clientInfo?.fname ?? "",
+        lname: caseObj.clientInfo?.lname ?? "",
+        category: caseObj.caseInfo?.category ?? "",
         language: caseObj.clientInfo?.primaryLanguage ?? "",
-        phone:    caseObj.clientInfo?.phone    ?? "",
-        email:    caseObj.clientInfo?.email    ?? "",
+        phone: caseObj.clientInfo?.phone ?? "",
+        email: caseObj.clientInfo?.email ?? "",
       },
       attorney: columnAttorneys[`col${colIdxStr}`] ?? null,
     };
@@ -183,18 +194,38 @@ export default function Schedule() {
     const colKey = `col${colIdx}`;
     const attorneyPayload = {
       attorneyId: attorney.id,
-      name:       attorney.value ?? attorney.name ?? "",
-      specialty:  attorney.specialty ?? attorney.mainPracticeAreas ?? "",
-      language:   attorney.language ?? attorney.languageSkills ?? attorney.primaryLanguage ?? "",
+      name: attorney.value ?? attorney.name ?? "",
+      specialty: attorney.specialty ?? attorney.mainPracticeAreas ?? "",
+      language: attorney.language ?? attorney.languageSkills ?? attorney.primaryLanguage ?? "",
     };
     setColumnAttorneys((prev) => ({ ...prev, [colKey]: attorneyPayload }));
+
+    // Propagate attorney into all existing slot assignments for this column
+    setAssignments((prev) => {
+      const next = { ...prev };
+      for (const key of Object.keys(next)) {
+        if (key.startsWith(`${colIdx}-`) && next[key]?.client) {
+          next[key] = { ...next[key], attorney: attorneyPayload };
+        }
+      }
+      return next;
+    });
   }
 
+  // ── Interpreter selected in a slot: local only ───────────────────────────
+  function handleInterpreterSelect(slotKey, interpreter) {
+    if (!isEditMode) return;
+    setAssignments((prev) => {
+      const slot = prev[slotKey];
+      if (!slot) return prev;
+      return { ...prev, [slotKey]: { ...slot, interpreter } };
+    });
+  }
 
   // ── Save: write everything to Firebase ───────────────────────────────────
   async function handleSave() {
     const payload = {
-      slots:   assignments,
+      slots: assignments,
       weekKey,
       savedAt: new Date().toISOString(),
     };
@@ -203,7 +234,25 @@ export default function Schedule() {
     console.log("Payload:", JSON.stringify(payload, null, 2));
 
     try {
+      // 1) Save full schedule (including column attorney selections)
       await set(ref(db, `schedules/${weekKey}`), payload);
+
+      // 2) Write matched attorney + interpreter into each assigned case's record
+      const caseUpdates = {};
+      for (const [slotKey, slot] of Object.entries(assignments)) {
+        if (slot?.client?.caseId) {
+          if (slot?.attorney) {
+            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney;
+          }
+          if (slot?.interpreter) {
+            caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter;
+          }
+        }
+      }
+      if (Object.keys(caseUpdates).length > 0) {
+        await update(ref(db), caseUpdates);
+      }
+
       console.log("Save successful!");
       setIsEditMode(false);
     } catch (err) {
@@ -266,13 +315,13 @@ export default function Schedule() {
         newAssignments[slot.slotKey] = {
           time,
           client: {
-            caseId:   caseObj.id,
-            fname:    caseObj.clientInfo?.fname    ?? "",
-            lname:    caseObj.clientInfo?.lname    ?? "",
-            category: caseObj.caseInfo?.category   ?? "",
+            caseId: caseObj.id,
+            fname: caseObj.clientInfo?.fname ?? "",
+            lname: caseObj.clientInfo?.lname ?? "",
+            category: caseObj.caseInfo?.category ?? "",
             language: caseObj.clientInfo?.primaryLanguage ?? "",
-            phone:    caseObj.clientInfo?.phone    ?? "",
-            email:    caseObj.clientInfo?.email    ?? "",
+            phone: caseObj.clientInfo?.phone ?? "",
+            email: caseObj.clientInfo?.email ?? "",
           },
           attorney: slot.attorney,
         };
@@ -313,7 +362,7 @@ export default function Schedule() {
     <>
       <NavBar active={"schedule"} />
 
-      <DndContext sensors={sensors} onDragEnd={isEditMode ? handleDragEnd : () => {}}>
+      <DndContext sensors={sensors} onDragEnd={isEditMode ? handleDragEnd : () => { }}>
         <div className="schedule-page">
           {/* Left Panel */}
           <div className="schedule-panel">
@@ -332,7 +381,7 @@ export default function Schedule() {
 
               {/* Action Buttons */}
               <div className="schedule-action-buttons">
-                {isEditMode && (<button 
+                {isEditMode && (<button
                   className="btn btn-sm schedule-action-btn schedule-action-btn-primary"
                   onClick={handleAutoMatch}
                 >
@@ -381,6 +430,7 @@ export default function Schedule() {
                   allAttorneysArr={allAttorneysArr}
                   allLegalStudentsArr={allLegalStudentsArr}
                   onAttorneySelect={(attorney) => handleAttorneySelect(colIdx, attorney)}
+                  onInterpreterSelect={handleInterpreterSelect}
                   allCases={allCases}
                   onContactClick={setContactCaseId}
                 />
@@ -420,20 +470,20 @@ export default function Schedule() {
             <div className="schedule-waitlist-cards">
               {filteredWaitlist.length > 0
                 ? filteredWaitlist.map((c) => (
-                    <WaitlistCard
-                      key={c.id}
-                      firebaseKey={c.id}
-                      id={c.id.slice(c.id.length - 5)}
-                      fname={c.clientInfo?.fname}
-                      lname={c.clientInfo?.lname}
-                      category={c.caseInfo?.category}
-                      language={c.clientInfo?.primaryLanguage}
-                      date={c.schedulingInfo?.date}
-                      onPreview={() => setSelectedCase(c)}
-                      onContact={() => setContactCaseId(c.id)}
-                      isDraggable={isEditMode}
-                    />
-                  ))
+                  <WaitlistCard
+                    key={c.id}
+                    firebaseKey={c.id}
+                    id={c.id.slice(c.id.length - 5)}
+                    fname={c.clientInfo?.fname}
+                    lname={c.clientInfo?.lname}
+                    category={c.caseInfo?.category}
+                    language={c.clientInfo?.primaryLanguage}
+                    date={c.schedulingInfo?.date}
+                    onPreview={() => setSelectedCase(c)}
+                    onContact={() => setContactCaseId(c.id)}
+                    isDraggable={isEditMode}
+                  />
+                ))
                 : <p className="text-muted small text-center mt-2">No waitlisted cases.</p>
               }
             </div>
@@ -460,13 +510,15 @@ export default function Schedule() {
 
 // ─── Attorney Column ──────────────────────────────────────────────────────────
 
-function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignments, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onAttorneySelect, allCases, onContactClick }) {
+function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignments, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onAttorneySelect, onInterpreterSelect, allCases, onContactClick }) {
   const [selectedAttorney, setSelectedAttorney] = useState(null);
 
   // Populate from Firebase-loaded saved attorney
   useEffect(() => {
     if (savedAttorney?.name) {
       setSelectedAttorney(savedAttorney);
+    } else {
+      setSelectedAttorney(null);
     }
   }, [savedAttorney?.attorneyId]);
 
@@ -484,14 +536,29 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
   return (
     <div className="schedule-attorney-column">
       <div className="schedule-attorney-header">
-        <DatalistInput
-          placeholder="Select attorney…"
-          label=""
-          onSelect={handleSelect}
-          items={datalistItems}
-          value={selectedAttorney?.value ?? selectedAttorney?.name ?? ""}
-          disabled={!isEditMode}
-        />
+        {isEditMode ? (
+          <DatalistInput
+            placeholder="Select attorney…"
+            label=""
+            onSelect={handleSelect}
+            items={datalistItems}
+            value={selectedAttorney?.value ?? selectedAttorney?.name ?? ""}
+          />
+        ) : (
+          <div className="schedule-attorney-display">
+            <div
+              className="schedule-attorney-display-name"
+              title={selectedAttorney?.value ?? selectedAttorney?.name ?? "No Attorney Assigned"}
+            >
+              {selectedAttorney?.value ?? selectedAttorney?.name ?? "No Attorney Assigned"}
+            </div>
+            <div className="schedule-attorney-display-details">
+              {selectedAttorney
+                ? `${selectedAttorney.specialty || "No Category"} | ${selectedAttorney.language || "No Language"}`
+                : "\u00A0"}
+            </div>
+          </div>
+        )}
       </div>
 
       {timeSlots.map((time, slotIdx) => {
@@ -507,6 +574,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
             isEditMode={isEditMode}
             allAttorneysArr={allAttorneysArr}
             allLegalStudentsArr={allLegalStudentsArr}
+            onInterpreterSelect={onInterpreterSelect}
             allCases={allCases}
             onContactClick={onContactClick}
           />
@@ -519,7 +587,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
-function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, allCases, onContactClick }) {
+function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, allCases, onContactClick }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey });
   const [selectedTime, setSelectedTime] = useState(time);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
@@ -531,8 +599,10 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
   const liveCase = assignedClient?.caseId ? allCases[assignedClient.caseId] : null;
   const fname = liveCase?.clientInfo?.fname ?? assignedClient?.fname ?? "Unknown";
   const lname = liveCase?.clientInfo?.lname ?? assignedClient?.lname ?? "Client";
-  const category = liveCase?.caseInfo?.category ?? assignedClient?.category ?? "—";
-  const language = liveCase?.clientInfo?.primaryLanguage ?? assignedClient?.language ?? "—";
+  const categoryRaw = liveCase?.caseInfo?.category || assignedClient?.category;
+  const category = (!categoryRaw || categoryRaw === "—") ? "No Category" : categoryRaw;
+  const languageRaw = liveCase?.clientInfo?.primaryLanguage || assignedClient?.language;
+  const language = (!languageRaw || languageRaw === "—") ? "No Language" : languageRaw;
 
   function handleSelectTime(nextTime) {
     setSelectedTime(nextTime);
@@ -550,7 +620,7 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
   }
 
   return (
-    
+
     <div className="schedule-slot-card-outer">
       {isMeetingLinkOpen && (
         <MeetingPopUp onClose={() => setIsMeetingLinkOpen(false)} />
@@ -617,9 +687,7 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
                   <div className="schedule-slot-client-details">
                     {category} | {language}
                   </div>
-                  {assignedAttorney && (
-                    <div className="schedule-slot-attorney-details">{assignedAttorney.name}</div>
-                  )}
+
                 </div>
               </div>
 
@@ -638,22 +706,40 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
                 </div>*/}
                 {/* DEMO CODE: Probably heavily refactor/remove */}
                 <div className="schedule-slot-assign-wrapper schedule-slot-assign-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" className="schedule-slot-translate-icon">
+                    <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" />
+                    <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14v-.868h-3v-.002c-.018 0-.035.002-.053.003H9.529l-.001-.001H7v.867h1.604c-.316.764-.78 1.63-1.362 2.404z" />
+                  </svg>
                   <select
-                    className="schedule-slot-btn schedule-slot-btn-assign"
-                    defaultValue=""
+                    className={`schedule-slot-btn schedule-slot-btn-assign ${!isEditMode ? "schedule-slot-btn-assign--no-arrow" : ""}`}
+                    defaultValue={assignedSlot?.interpreter?.id ?? ""}
+                    disabled={!isEditMode}
+                    onChange={(e) => {
+                      if (!isEditMode) return;
+                      const id = e.target.value;
+                      const fromAttorneys = allAttorneysArr.find((a) => a.id === id);
+                      const fromStudents = allLegalStudentsArr.find((s) => s.id === id);
+                      const person = fromAttorneys ?? fromStudents;
+                      if (!person) return;
+                      onInterpreterSelect(slotKey, {
+                        id: person.id,
+                        name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
+                        type: fromAttorneys ? "attorney" : "legalStudent",
+                      });
+                    }}
                   >
-                    <option value="" disabled>Assign Interpreter</option>
+                    <option value="" disabled>{isEditMode ? "Assign Interpreter" : "No Interpreter Assigned"}</option>
                     <optgroup label="Attorneys">
                       {allAttorneysArr.map((a) => (
                         <option key={a.id} value={a.id}>
-                           {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim()}
+                          {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`}
                         </option>
                       ))}
                     </optgroup>
                     <optgroup label="Legal Students">
                       {allLegalStudentsArr.map((s) => (
                         <option key={s.id} value={s.id}>
-                           {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`.trim()}
+                          {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`}
                         </option>
                       ))}
                     </optgroup>
@@ -727,7 +813,7 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date,
         </div>
 
         <p className="schedule-card-details">
-          {category} | {language}
+          {(!category || category === "—") ? "No Category" : category} | {(!language || language === "—") ? "No Language" : language}
         </p>
 
         <div className="d-flex justify-content-end mt-1">

@@ -683,7 +683,38 @@ body {
 }
 
 .schedule-attorney-header {
-  margin-bottom: 0.5rem;
+  height: 2.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.schedule-attorney-display {
+  padding: 0.1rem 0.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.schedule-attorney-display-name {
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: var(--primary-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-attorney-display-details {
+  font-size: 0.8rem;
+  line-height: 1.25;
+  color: var(--dark-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
 }
 
 .schedule-attorney-name {
@@ -1088,13 +1119,32 @@ body {
   justify-content: space-between;
 }
 
+.schedule-slot-translate-icon {
+  flex-shrink: 0;
+  margin-left: 8px;
+  color: var(--primary-text);
+  pointer-events: none;
+}
+
 .schedule-slot-assign-wrapper .schedule-slot-btn-assign {
   border: none;
   border-radius: 0;
   min-height: 28px;
   min-width: 0;
   overflow: hidden;
+  padding-left: 4px;
   padding-right: 5px;
+}
+
+.schedule-slot-btn-assign--no-arrow,
+.schedule-slot-btn-assign:disabled {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none !important;
+  cursor: default;
+  color: var(--primary-text);
+  opacity: 1;
 }
 
 .schedule-slot-assign-divider {
