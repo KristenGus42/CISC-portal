@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router";
 // Import Firebase functions
 import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue, remove as firebaseRemove} from 'firebase/database';
 import { getAuth } from 'firebase/auth';
+import { useAuth } from "../auth/useAuth";
+import resourcesData from "../data/resources.json";
 
 // ─── Reusable floating label components ───────────────────────────────────────
 
@@ -72,6 +74,206 @@ function SectionDivider({ title, sub }) {
   );
 }
 
+// ─── Documents Tab ──────────────────────────────────────────────────────────────
+
+function IconPaperclip() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+      <path d="M21.44 11.05 12.25 20.24a5.5 5.5 0 0 1-7.78-7.78l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a1.5 1.5 0 0 1-2.12-2.12l8.49-8.48" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function IconFileOutline() {
+  return (
+    <svg width="52" height="64" viewBox="0 0 52 64" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 2h26l14 14v44a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="white" stroke="var(--primary-text)" strokeWidth="2.5" />
+      <path d="M32 2v12a2 2 0 0 0 2 2h12" fill="none" stroke="var(--primary-text)" strokeWidth="2.5" />
+    </svg>
+  );
+}
+
+function DocumentCard({ name }) {
+  return (
+    <div className="ef-doc-card">
+      <div className="ef-doc-card-filename">
+        <IconPaperclip />
+        <span>{name}</span>
+      </div>
+      <div className="ef-doc-card-preview">
+        <IconFileOutline />
+        <span className="ef-doc-card-badge">PDF</span>
+      </div>
+    </div>
+  );
+}
+
+function DocumentsSection({ title, documents }) {
+  return (
+    <div className="mb-4">
+      <SectionDivider title={title} />
+      {documents.length === 0 ? (
+        <p className="text-muted small ef-documents-empty">Empty</p>
+      ) : (
+        <div className="ef-doc-grid">
+          {documents.map((doc, i) => (
+            <DocumentCard key={doc.id ?? i} name={doc.name} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DocumentsTab({ documents = {} }) {
+  return (
+    <div className="ef-tab-body">
+      <DocumentsSection title="Client Documents" documents={documents.client ?? []} />
+      <DocumentsSection title="Attorney Documents" documents={documents.attorney ?? []} />
+    </div>
+  );
+}
+
+// ─── Recommended Resources Tab ─────────────────────────────────────────────────
+
+function IconFilter() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z" />
+    </svg>
+  );
+}
+
+function IconGlobe() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.204-1.335.82-1.887 1.855A7.97 7.97 0 0 0 5.145 4H7.5V1.077zM4.09 4c.183-.53.399-1.031.647-1.492.148-.277.31-.53.492-.756A7.024 7.024 0 0 0 2.255 4H4.09zM3.13 5.5A9.94 9.94 0 0 0 2.82 8H0a7.958 7.958 0 0 1 .656-2.5H3.13zM4.847 5A12.5 12.5 0 0 0 4.51 7.5H7.5V5H4.847zM8.5 5v2.5h2.99A12.495 12.495 0 0 0 11.153 5H8.5zM4.51 8.5c.032.892.15 1.735.337 2.5H7.5V8.5H4.51zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5H8.5zM5.145 12c.138.386.295.744.468 1.068.552 1.035 1.218 1.65 1.887 1.855V12H5.145zm.182 2.472A6.696 6.696 0 0 1 4.73 13.5c-.248-.461-.464-.962-.647-1.492H2.255a7.024 7.024 0 0 0 3.072 2.464zM3.13 10.5H.656A7.958 7.958 0 0 0 0 8h2.82c.03.87.14 1.708.31 2.5zm7.542 3.972A7.024 7.024 0 0 0 13.745 12H11.91c-.183.53-.4 1.03-.648 1.492a6.688 6.688 0 0 1-.59.98zM11.153 11h2.474c.17-.792.28-1.63.31-2.5H10.51c-.032.892-.15 1.735-.337 2.5h.98zM13.745 4H11.91a10.9 10.9 0 0 0-.647-1.492 6.688 6.688 0 0 0-.59-.98A7.024 7.024 0 0 1 13.745 4zM10.855 4a8.02 8.02 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4h2.355z" />
+    </svg>
+  );
+}
+
+function IconClose() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-2.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+    </svg>
+  );
+}
+
+// Case categories use "Misc." but the resource data uses the full word.
+function toResourceCategory(caseCategory) {
+  return caseCategory === "Misc." ? "Miscellaneous" : caseCategory;
+}
+
+// The source data is just a list of URLs (no titles) — derive a readable
+// title from the last path segment.
+function titleFromUrl(url) {
+  try {
+    const { pathname, hostname } = new URL(url);
+    const segments = pathname.split("/").filter(Boolean);
+    const last = segments[segments.length - 1] || hostname;
+    return last.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  } catch {
+    return url;
+  }
+}
+
+function ResourceCard({ url }) {
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="ef-res-card">
+      <IconGlobe />
+      <span className="ef-res-card-title">{titleFromUrl(url)}</span>
+    </a>
+  );
+}
+
+function ResourcesColumn({ subcategory, urls }) {
+  return (
+    <div className="ef-res-column">
+      <span className="ef-res-column-label">{subcategory}</span>
+      {urls.map((url) => (
+        <ResourceCard key={url} url={url} />
+      ))}
+    </div>
+  );
+}
+
+function RecommendedResourcesTab({ defaultCategory }) {
+  const categories = Object.keys(resourcesData);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [pickerCategory, setPickerCategory] = useState(
+    categories.includes(defaultCategory) ? defaultCategory : categories[0]
+  );
+  const [activeFilters, setActiveFilters] = useState([]);
+
+  function toggleFilter(category, subcategory) {
+    setActiveFilters((prev) => {
+      const exists = prev.some((f) => f.category === category && f.subcategory === subcategory);
+      if (exists) return prev.filter((f) => !(f.category === category && f.subcategory === subcategory));
+      return [...prev, { category, subcategory }];
+    });
+  }
+
+  return (
+    <div className="ef-tab-body">
+      <div className="ef-res-toolbar">
+        <div className="ef-res-filter-wrapper">
+          <button type="button" className="btn btn-submit ef-res-filter-btn" onClick={() => setFilterOpen((o) => !o)}>
+            <IconFilter /> Filter
+          </button>
+          {filterOpen && (
+            <div className="ef-res-filter-panel">
+              <select
+                className="form-select form-select-sm mb-2"
+                value={pickerCategory}
+                onChange={(e) => setPickerCategory(e.target.value)}
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <div className="ef-res-filter-options">
+                {Object.keys(resourcesData[pickerCategory]).map((sub) => {
+                  const checked = activeFilters.some((f) => f.category === pickerCategory && f.subcategory === sub);
+                  return (
+                    <label key={sub} className="ef-res-filter-option">
+                      <input type="checkbox" checked={checked} onChange={() => toggleFilter(pickerCategory, sub)} />
+                      {sub}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {activeFilters.map((f) => (
+          <span key={`${f.category}-${f.subcategory}`} className="ef-res-chip">
+            {f.subcategory}
+            <button type="button" onClick={() => toggleFilter(f.category, f.subcategory)}>
+              <IconClose />
+            </button>
+          </span>
+        ))}
+      </div>
+
+      {activeFilters.length === 0 ? (
+        <p className="text-muted small ef-documents-empty">Use Filter to add resource topics.</p>
+      ) : (
+        <div className="ef-res-grid">
+          {activeFilters.map((f) => (
+            <ResourcesColumn
+              key={`${f.category}-${f.subcategory}`}
+              subcategory={f.subcategory}
+              urls={resourcesData[f.category][f.subcategory].pages}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Helper function ──────────────────────────────────────────────────────────
 
 function countFilledReqFields(clientFormData) {
@@ -91,6 +293,8 @@ export default function ContactForm(props) {
   const navigate = useNavigate();
   const { id } = useParams(); // Firebase ID if editing
   const db = getDatabase();
+  const { role } = useAuth();
+  const canDelete = role === "Admin" || role === "Staff";
 
   // State objects
   const [clientFormData, setClientFormData] = useState({
@@ -121,6 +325,8 @@ export default function ContactForm(props) {
   const [isFormValid, setIsFormValid] = useState(false);
 
   const [dateAdded, setDateAdded] = useState("");
+
+  const [activeTab, setActiveTab] = useState("overview");
 
   // 1. EFFECT: Fetch data from Firebase if an ID exists (Editing mode)
   useEffect(() => {
@@ -219,8 +425,50 @@ export default function ContactForm(props) {
       <NavBar active={"cases"} />
       {header}
 
-      <div className="container py-5">
-        <h1 className="fs-4 fw-bold mb-1">Overview</h1>
+      <div className="container py-5 ef-page">
+        <div className="ef-tabs">
+          <div className="ef-tabs-buttons">
+            <button
+              type="button"
+              className={`ef-tab-btn${activeTab === "overview" ? " ef-tab-btn--active" : ""}`}
+              onClick={() => setActiveTab("overview")}
+            >
+              Overview
+            </button>
+            <button
+              type="button"
+              className={`ef-tab-btn${activeTab === "documents" ? " ef-tab-btn--active" : ""}`}
+              onClick={() => setActiveTab("documents")}
+            >
+              Documents
+            </button>
+            <button
+              type="button"
+              className={`ef-tab-btn${activeTab === "resources" ? " ef-tab-btn--active" : ""}`}
+              onClick={() => setActiveTab("resources")}
+            >
+              Recommended Resources
+            </button>
+          </div>
+          {activeTab === "documents" && (
+            <button
+              type="button"
+              className="btn btn-submit ef-upload-btn"
+              disabled
+              title="Document upload isn't wired up yet"
+            >
+              Upload
+            </button>
+          )}
+        </div>
+
+        <div className="ef-page-body">
+        {activeTab === "documents" ? (
+          <DocumentsTab />
+        ) : activeTab === "resources" ? (
+          <RecommendedResourcesTab defaultCategory={toResourceCategory(caseFormData.category)} />
+        ) : (
+        <>
         <p className="small mb-4 err-color">* indicates required field</p>
 
         {/* ── CLIENT INFORMATION ── */}
@@ -389,12 +637,17 @@ export default function ContactForm(props) {
         </div>
 
         {attorneySection}
+        </>
+        )}
+        </div>
 
         {/* Bottom Section */}
-        <div className="d-flex justify-content-between align-items-end mb-2">
+        <div className="d-flex justify-content-between align-items-end mb-2 ef-bottom-bar">
           {/* Left side */}
           <div>
-            <button type="button" className="btn btn-submit danger" disabled={!isFormValid} onClick={handleDelete}>Delete</button>
+            {canDelete && (
+              <button type="button" className="btn btn-submit danger" disabled={!isFormValid} onClick={handleDelete}>Delete</button>
+            )}
           </div>
 
           {/* Right side */}

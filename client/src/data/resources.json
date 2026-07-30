@@ -1,0 +1,1221 @@
+{
+  "Consumer / Finance": {
+    "Bankruptcy/Debtor Relief": {
+      "code": 1,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/bankruptcy",
+        "https://www.washingtonlawhelp.org/en/divorce-and-bankruptcy",
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/respond-debt-collection-lawsuit",
+        "https://www.washingtonlawhelp.org/en/topics/debt",
+        "https://www.washingtonlawhelp.org/en/supplemental-proceedings",
+        "https://www.washingtonlawhelp.org/en/guide-payday-loans",
+        "https://www.washingtonlawhelp.org/en/avoid-or-stop-garnishment"
+      ]
+    },
+    "Collections/Repo/Garnishment": {
+      "code": 2,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/avoid-or-stop-garnishment",
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/supplemental-proceedings",
+        "https://www.washingtonlawhelp.org/en/respond-debt-collection-lawsuit",
+        "https://www.washingtonlawhelp.org/en/dealing-debt-collectors",
+        "https://www.washingtonlawhelp.org/en/topics/debt",
+        "https://www.washingtonlawhelp.org/en/topics/debt/collect-debt",
+        "https://www.washingtonlawhelp.org/en/topics/debt/getting-sued-over-debt",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first"
+      ]
+    },
+    "Contracts/Warranties": {
+      "code": 3,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/i-just-bought-used-vehicle-it-doesnt-work-properly",
+        "https://www.seattle.gov/your-rights-as-a-customer/find-a-towed-car/redeeming-your-vehicle",
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/guide-payday-loans",
+        "https://www.washingtonlawhelp.org/en/dealing-debt-collectors",
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/seller-wants-my-home-back",
+        "https://www.washingtonlawhelp.org/en/deposits-and-damages",
+        "https://www.washingtonlawhelp.org/en/respond-debt-collection-lawsuit",
+        "https://www.washingtonlawhelp.org/en/topics/housing/renters"
+      ]
+    },
+    "Collection Practices/Creditor Harass.": {
+      "code": 4,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/dealing-debt-collectors",
+        "https://www.washingtonlawhelp.org/en/respond-debt-collection-lawsuit",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/supplemental-proceedings",
+        "https://www.washingtonlawhelp.org/en/topics/debt",
+        "https://www.washingtonlawhelp.org/en/avoid-or-stop-garnishment",
+        "https://www.washingtonlawhelp.org/en/topics/debt/collect-debt",
+        "https://www.seattle.gov/your-rights-as-a-customer/find-a-towed-car/redeeming-your-vehicle"
+      ]
+    },
+    "Predatory Lending Practices": {
+      "code": 5,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/guide-payday-loans",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/labor-trafficking",
+        "https://www.washingtonlawhelp.org/en/foreclosure",
+        "https://www.washingtonlawhelp.org/en/get-small-business-administration-sba-disaster-loan",
+        "https://www.washingtonlawhelp.org/en/abusive-litigation-when-your-abuser-exploits-legal-system",
+        "https://www.washingtonlawhelp.org/en/dealing-debt-collectors",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination"
+      ]
+    },
+    "Loans/Installment Purchases": {
+      "code": 6,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/guide-payday-loans",
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/i-just-bought-used-vehicle-it-doesnt-work-properly",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/supplemental-proceedings",
+        "https://www.washingtonlawhelp.org/en/evictions-about-rent",
+        "https://www.washingtonlawhelp.org/en/get-small-business-administration-sba-disaster-loan",
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/avoid-or-stop-garnishment",
+        "https://www.washingtonlawhelp.org/en/buying-mobile-home"
+      ]
+    },
+    "Public Utilities": {
+      "code": 7,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/utilities",
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "https://www.washingtonlawhelp.org/en/dealing-debt-collectors",
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall",
+        "https://www.washingtonlawhelp.org/en/help-medical-debt",
+        "https://www.washingtonlawhelp.org/en/care-tool-assessments",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-long-term-care-services-paid-state"
+      ]
+    },
+    "Unfair Sales Practices": {
+      "code": 8,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/i-just-bought-used-vehicle-it-doesnt-work-properly",
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://www.washingtonlawhelp.org/en/topics/vehicles/buying-or-selling-vehicles",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.washingtonlawhelp.org/en/dealing-debt-collectors",
+        "https://www.washingtonlawhelp.org/en/topics/debt/dealing-debt",
+        "https://www.washingtonlawhelp.org/en/seller-wants-my-home-back",
+        "https://www.washingtonlawhelp.org/en/report-selling-or-buying-vehicle",
+        "https://www.washingtonlawhelp.org/en/abusive-litigation-when-your-abuser-exploits-legal-system",
+        "https://www.washingtonlawhelp.org/en/when-dshs-or-dcyf-thinks-you-made-intentional-program-violation-ipv"
+      ]
+    },
+    "Other Consumer / Finance": {
+      "code": 9,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/what-consumer-credit-counseling",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://www.washingtonlawhelp.org/en/guide-payday-loans",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/free-credit-reports"
+      ]
+    }
+  },
+  "Education": {
+    "Education": {
+      "code": 11,
+      "pages": [
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied"
+      ]
+    },
+    "Discipline": {
+      "code": 12,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://www.washingtonlawhelp.org/en/special-education-issues-things-parents-and-caregivers-can-do",
+        "https://www.washingtonlawhelp.org/en/file-special-education-community-complaint",
+        "https://www.washingtonlawhelp.org/en/topics/youth/school-issues",
+        "https://www.washingtonlawhelp.org/en/get-child-support-after-high-school",
+        "https://www.washingtonlawhelp.org/en/topics/youth",
+        "https://www.washingtonlawhelp.org/en/register-out-state-custody-order-washington",
+        "https://www.washingtonlawhelp.org/en/guide-emancipation",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/71",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/9"
+      ]
+    },
+    "Special Education/Learning Dis.": {
+      "code": 13,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/special-education-issues-things-parents-and-caregivers-can-do",
+        "https://www.washingtonlawhelp.org/en/topics/youth/school-issues",
+        "https://www.washingtonlawhelp.org/en/file-special-education-community-complaint",
+        "https://www.washingtonlawhelp.org/en/fight-abd-denial-or-termination-medical-reasons",
+        "https://www.washingtonlawhelp.org/en/ask-dshs-disability-accommodation",
+        "https://www.washingtonlawhelp.org/en/ask-disability-accommodation-basics",
+        "https://www.washingtonlawhelp.org/en/discharging-student-loans-due-disability",
+        "https://www.washingtonlawhelp.org/en/topics/disability-rights",
+        "https://www.washingtonlawhelp.org/en/disabled-and-leaving-prison-get-social-security-and-health-care",
+        "https://www.washingtonlawhelp.org/en/supported-decision-making"
+      ]
+    },
+    "Access": {
+      "code": 14,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://www.washingtonlawhelp.org/en/special-education-issues-things-parents-and-caregivers-can-do",
+        "https://www.washingtonlawhelp.org/en/get-child-support-after-high-school",
+        "https://www.washingtonlawhelp.org/en/topics/youth/school-issues",
+        "https://www.washingtonlawhelp.org/accessibility-statement",
+        "https://www.washingtonlawhelp.org/en/accessibility",
+        "https://www.washingtonlawhelp.org/en/topics/youth",
+        "https://www.washingtonlawhelp.org/en/guide-emancipation",
+        "https://www.washingtonlawhelp.org/en/topics/going-court/interpreters-and-accommodation",
+        "http://www.seattle.gov/transportation/projects-and-programs/safety-first/safe-routes-to-school/flashing-beacons-and-map"
+      ]
+    },
+    "Vocational Education": {
+      "code": 15,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/28C",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance"
+      ]
+    },
+    "Student Financial Aid": {
+      "code": 16,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/get-child-support-after-high-school",
+        "https://www.washingtonlawhelp.org/en/special-education-issues-things-parents-and-caregivers-can-do",
+        "https://www.washingtonlawhelp.org/en/discharging-student-loans-due-disability",
+        "https://www.washingtonlawhelp.org/en/guide-tanf",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://www.washingtonlawhelp.org/en/emergency-cash-and-food-help",
+        "https://www.washingtonlawhelp.org/en/topics/youth/school-issues",
+        "https://www.washingtonlawhelp.org/en/guide-emancipation",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall",
+        "https://www.washingtonlawhelp.org/en/apple-health-kids"
+      ]
+    },
+    "Other Education": {
+      "code": 19,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/special-education-issues-things-parents-and-caregivers-can-do",
+        "https://www.washingtonlawhelp.org/en/get-child-support-after-high-school",
+        "https://www.washingtonlawhelp.org/en/topics/youth/school-issues",
+        "https://www.uscis.gov/working-in-the-united-states/options-for-alien-stem-professionals-to-work-in-the-united-states",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-3-nonimmigrant-trainee-or-special-education-exchange-visitor",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://www.uscis.gov/working-in-the-united-states/stem-employment-pathways/immigrant-pathways-for-stem-employment-in-the-united-states",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied"
+      ]
+    }
+  },
+  "Employment": {
+    "Employment Discrimination": {
+      "code": 21,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/discrimination-work",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "https://www.washingtonlawhelp.org/en/retaliation-work",
+        "https://www.washingtonlawhelp.org/en/sexual-harassment-work",
+        "https://www.washingtonlawhelp.org/en/worker-protections",
+        "https://www.washingtonlawhelp.org/en/topics/work/workers-rights",
+        "https://www.washingtonlawhelp.org/en/i-lost-my-job-do-i-have-rights",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.washingtonlawhelp.org/en/ask-your-employer-accommodations",
+        "https://www.seattle.gov/americans-with-disabilities-act"
+      ]
+    },
+    "Wage Claims and Other FLSA": {
+      "code": 22,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/im-owed-wages-how-do-i-get-them",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/report-labor-abuses",
+        "https://www.washingtonlawhelp.org/en/labor-trafficking",
+        "https://www.washingtonlawhelp.org/en/topics/work/workers-rights",
+        "https://www.washingtonlawhelp.org/en/topics/farmworkers/farmworker-rights",
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights",
+        "https://www.washingtonlawhelp.org/en/discrimination-work",
+        "https://www.washingtonlawhelp.org/en/leave-work-survivors-domestic-violence-sexual-assault-or-stalking",
+        "https://www.washingtonlawhelp.org/en/retaliation-work",
+        "https://www.uscis.gov/humanitarian/victims-of-human-trafficking-and-other-crimes/resources-for-victims-of-human-trafficking-and-other-crimes"
+      ]
+    },
+    "Earned Income Tax Credit": {
+      "code": 23,
+      "pages": [
+        "https://www.uscis.gov/i-9-central/form-i-9-resources/employment-eligibility-webinars",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-fourth-preference-eb-4",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-second-preference-eb-2",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-first-preference-eb-1",
+        "https://www.uscis.gov/working-in-the-united-states/options-for-alien-entrepreneurs-to-work-in-the-united-states",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-third-preference-eb-3",
+        "https://www.uscis.gov/archive/automatic-employment-authorization-document-ead-extension",
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-work",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/eb-5-immigrant-investor-program"
+      ]
+    },
+    "Taxes": {
+      "code": 24,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/topics/work/unemployment",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-work",
+        "https://www.uscis.gov/about-us/equal-employment-opportunity/equal-employment-opportunity-data-posted-pursuant-to-the-no-fear-act",
+        "https://www.uscis.gov/green-card/green-card-processes-and-procedures/employment-authorization-document",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.uscis.gov/humanitarian/employment-resources-for-parolees-in-the-united-states",
+        "https://www.uscis.gov/i-9-central/form-i-9-resources/employment-eligibility-webinars",
+        "https://www.washingtonlawhelp.org/en/topics/work/workers-rights"
+      ]
+    },
+    "Employee Rights": {
+      "code": 25,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/topics/work/workers-rights",
+        "https://www.washingtonlawhelp.org/en/i-lost-my-job-do-i-have-rights",
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights",
+        "https://www.washingtonlawhelp.org/en/retaliation-work",
+        "https://www.washingtonlawhelp.org/en/worker-protections",
+        "https://www.uscis.gov/i-9-central/employee-rights-and-resources/employee-rights",
+        "https://www.washingtonlawhelp.org/en/discrimination-work",
+        "https://www.washingtonlawhelp.org/en/im-owed-wages-how-do-i-get-them",
+        "https://www.washingtonlawhelp.org/en/ask-your-employer-accommodations",
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-work"
+      ]
+    },
+    "Agricultural Workers Issues": {
+      "code": 26,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/topics/farmworkers/farmworker-rights",
+        "https://www.washingtonlawhelp.org/en/topics/farmworkers/njp-farmworker-unit",
+        "https://www.washingtonlawhelp.org/en/im-owed-wages-how-do-i-get-them",
+        "https://www.washingtonlawhelp.org/en/el-faro-legal",
+        "https://www.washingtonlawhelp.org/en/topics/farmworkers",
+        "https://www.washingtonlawhelp.org/en/labor-trafficking",
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/h-2a-temporary-agricultural-workers",
+        "https://www.washingtonlawhelp.org/en/topics/work/workers-rights",
+        "https://www.washingtonlawhelp.org/en/sitemap"
+      ]
+    },
+    "Other Employment": {
+      "code": 29,
+      "pages": [
+        "https://www.uscis.gov/archive/options-for-nonimmigrant-workers-following-termination-of-employment-0",
+        "https://www.uscis.gov/working-in-the-united-states/options-for-alien-stem-professionals-to-work-in-the-united-states",
+        "https://www.uscis.gov/working-in-the-united-states/options-for-alien-entrepreneurs-to-work-in-the-united-states",
+        "https://www.uscis.gov/working-in-the-united-states/information-for-employers-and-employees/employment-authorization-in-compelling-circumstances",
+        "https://www.uscis.gov/humanitarian/employment-resources-for-parolees-in-the-united-states",
+        "https://www.uscis.gov/working-in-the-united-states/stem-employment-pathways/nonimmigrant-pathways-for-stem-employment-in-the-united-states",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "https://www.uscis.gov/working-in-the-united-states/permanent-workers/employment-based-immigration-second-preference-eb-2",
+        "https://www.uscis.gov/archive/important-information-about-working-legally-in-the-united-states",
+        "https://www.uscis.gov/working-in-the-united-states/stem-employment-pathways/immigrant-pathways-for-stem-employment-in-the-united-states"
+      ]
+    }
+  },
+  "Family": {
+    "Adoption": {
+      "code": 30,
+      "pages": [
+        "https://www.uscis.gov/i-800a",
+        "https://www.uscis.gov/adoption/bringing-your-internationally-adopted-child-to-the-united-states",
+        "https://www.uscis.gov/adoption/adult-adoptees-and-us-citizenship",
+        "https://www.uscis.gov/adoption/after-your-child-enters-the-united-states/us-citizenship-for-an-adopted-child",
+        "https://www.uscis.gov/adoption/after-your-child-enters-the-united-states/certificate-of-citizenship-for-your-internationally-adopted-child",
+        "https://www.uscis.gov/adoption/immigration-through-adoption/if-your-adoption-service-provider-is-no-longer-accredited-or-approved",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.uscis.gov/family/bring-children-to-live-in-the-US",
+        "https://www.uscis.gov/adoption/immigration-through-adoption",
+        "https://www.uscis.gov/family/family-of-us-citizens/bringing-siblings-to-live-in-the-united-states-as-permanent-residents"
+      ]
+    },
+    "Child Custody/Visitation": {
+      "code": 31,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/non-parent-visitation-rights",
+        "https://www.washingtonlawhelp.org/en/guide-when-other-parent-has-taken-your-child",
+        "https://www.washingtonlawhelp.org/en/supervised-visits",
+        "https://www.washingtonlawhelp.org/en/child-custody-jurisdiction-which-court-can-make-custody-orders",
+        "https://www.washingtonlawhelp.org/en/relocation-guide-moving-children",
+        "https://www.washingtonlawhelp.org/en/parenting-plan-guide",
+        "https://www.washingtonlawhelp.org/en/parents-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/change-parenting-plan-or-child-custody-order",
+        "https://www.washingtonlawhelp.org/en/topics/family/custody-and-parenting"
+      ]
+    },
+    "Divorce/Separation": {
+      "code": 32,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/legal-separation-basics",
+        "https://www.uscis.gov/faq-family-reunification-parole-processes",
+        "https://www.washingtonlawhelp.org/en/divorce-and-bankruptcy",
+        "https://www.washingtonlawhelp.org/en/guide-when-other-parent-has-taken-your-child",
+        "https://www.uscis.gov/FRP",
+        "https://www.uscis.gov/keepingfamiliestogether/faq",
+        "https://www.washingtonlawhelp.org/en/divorce-guide",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.washingtonlawhelp.org/en/topics/family/divorce",
+        "https://www.uscis.gov/keepingfamiliestogether"
+      ]
+    },
+    "Adult Guardianship": {
+      "code": 33,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/adult-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/adult-guardianship-conservatorship-and-other-protective-arrangements",
+        "https://www.washingtonlawhelp.org/en/childrens-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/your-child-disabilities-turning-18",
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/parents-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/protecting-elders-and-vulnerable-adults-abuse-and-neglect",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/making-decisions-someone-else"
+      ]
+    },
+    "Name Change": {
+      "code": 34,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/name-change-guide",
+        "https://www.washingtonlawhelp.org/en/amend-change-your-petition",
+        "https://www.uscis.gov/addresschange",
+        "https://www.uscis.gov/green-card/green-card-eligibility/green-card-for-immediate-relatives-of-us-citizen",
+        "https://www.washingtonlawhelp.org/en/can-i-change-sex-my-birth-certificate",
+        "https://www.uscis.gov/adoption/bringing-your-internationally-adopted-child-to-the-united-states/before-your-child-immigrates-to-the-united-states",
+        "https://www.uscis.gov/adoption/immigration-through-adoption/family-based-petition-process",
+        "https://www.uscis.gov/family/family-of-us-citizens/bringing-siblings-to-live-in-the-united-states-as-permanent-residents",
+        "https://www.uscis.gov/i-800",
+        "https://www.uscis.gov/family/family-of-us-citizens/bringing-parents-to-live-in-the-united-states-as-permanent-residents"
+      ]
+    },
+    "Paternal Rights Termination": {
+      "code": 35,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-divorce",
+        "https://www.washingtonlawhelp.org/en/parentage-guide",
+        "https://www.washingtonlawhelp.org/en/guide-when-other-parent-has-taken-your-child",
+        "https://www.washingtonlawhelp.org/en/appeal-ssi-or-disability-termination",
+        "https://www.washingtonlawhelp.org/en/dismiss-family-law-case",
+        "https://www.washingtonlawhelp.org/en/fight-termination-or-reduction-dshs-public-assistance",
+        "https://www.washingtonlawhelp.org/en/file-writ-habeas-corpus",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant",
+        "https://www.washingtonlawhelp.org/en/parenting-plan-guide",
+        "https://www.washingtonlawhelp.org/en/registered-domestic-partnerships-basics"
+      ]
+    },
+    "Paternity": {
+      "code": 36,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/parentage-guide",
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-divorce",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.washingtonlawhelp.org/en/non-parent-visitation-rights",
+        "https://www.uscis.gov/i-800a",
+        "https://www.washingtonlawhelp.org/en/guide-when-other-parent-has-taken-your-child",
+        "https://www.washingtonlawhelp.org/en/give-financial-information-family-law-case",
+        "https://www.uscis.gov/family/family-of-us-citizens",
+        "https://www.uscis.gov/family/bring-children-to-live-in-the-US",
+        "https://www.washingtonlawhelp.org/en/how-can-i-collect-child-support"
+      ]
+    },
+    "Domestic Abuse": {
+      "code": 37,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/abusive-litigation-when-your-abuser-exploits-legal-system",
+        "https://www.washingtonlawhelp.org/en/domestic-violence-should-i-file-protection-order",
+        "https://www.washingtonlawhelp.org/en/domestic-violence-survivors-rights-cps",
+        "https://www.washingtonlawhelp.org/en/domestic-violence-and-criminal-legal-system",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-immigrant-victims-domestic-violence",
+        "https://www.washingtonlawhelp.org/en/protections-native-american-survivors-domestic-violence",
+        "https://www.washingtonlawhelp.org/en/leave-work-survivors-domestic-violence-sexual-assault-or-stalking",
+        "https://www.washingtonlawhelp.org/en/protection-orders-civil-legal-system",
+        "https://www.washingtonlawhelp.org/en/file-protection-order",
+        "https://www.washingtonlawhelp.org/en/topics/safety/protection-orders"
+      ]
+    },
+    "Child Support": {
+      "code": 38,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/do-you-owe-child-support",
+        "https://www.washingtonlawhelp.org/en/child-support-and-incarcerated-parents",
+        "https://www.washingtonlawhelp.org/en/how-can-i-collect-child-support",
+        "https://www.washingtonlawhelp.org/en/topics/family/child-support",
+        "https://www.washingtonlawhelp.org/en/how-child-support-set",
+        "https://www.washingtonlawhelp.org/en/give-financial-information-family-law-case",
+        "https://www.washingtonlawhelp.org/en/ask-dcs-review-your-child-support-case-modification",
+        "https://www.washingtonlawhelp.org/en/enforce-your-divorce-decree-money-and-property-issues",
+        "https://www.washingtonlawhelp.org/en/get-child-support-after-high-school",
+        "https://www.washingtonlawhelp.org/en/serve-papers-state"
+      ]
+    },
+    "Other Family Law": {
+      "code": 39,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/get-ready-family-law-appointment",
+        "https://www.washingtonlawhelp.org/en/give-financial-information-family-law-case",
+        "https://www.washingtonlawhelp.org/en/non-parent-visitation-rights",
+        "https://www.washingtonlawhelp.org/en/dismiss-family-law-case",
+        "https://www.washingtonlawhelp.org/en/topics/family",
+        "https://www.washingtonlawhelp.org/en/prove-your-protection-order-or-family-law-case",
+        "https://www.washingtonlawhelp.org/en/guide-when-other-parent-has-taken-your-child",
+        "https://www.washingtonlawhelp.org/en/ending-your-relationship-when-youre-not-married",
+        "https://www.washingtonlawhelp.org/en/topics/family/committed-intimate-relationships",
+        "https://www.washingtonlawhelp.org/en/parentage-guide"
+      ]
+    }
+  },
+  "Juvenile": {
+    "Juvenile Delinquent": {
+      "code": 41,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/childrens-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/seal-vacate-or-destroy-juvenile-court-records",
+        "https://www.washingtonlawhelp.org/en/topics/youth",
+        "https://www.washingtonlawhelp.org/en/parents-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/truancy-and-school-attendance",
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/child-support-and-incarcerated-parents",
+        "https://www.washingtonlawhelp.org/en/get-your-license-back-suspensions-unpaid-criminal-traffic-tickets",
+        "https://www.washingtonlawhelp.org/en/topics/criminal-history/criminal-records-and-lfos"
+      ]
+    },
+    "Dependency (Abuse/Neglect)": {
+      "code": 42,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/guide-child-protective-services-cps-and-dependency-cases",
+        "https://www.washingtonlawhelp.org/en/childrens-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/parents-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth",
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/topics/family/child-guardianship",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant",
+        "https://www.washingtonlawhelp.org/en/abusive-litigation-when-your-abuser-exploits-legal-system",
+        "https://www.washingtonlawhelp.org/en/topics/youth/healthcare-youth"
+      ]
+    },
+    "Emancipation": {
+      "code": 43,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/guide-emancipation",
+        "https://www.washingtonlawhelp.org/en/topics/youth/emancipation",
+        "https://www.washingtonlawhelp.org/en/topics/youth",
+        "https://www.washingtonlawhelp.org/en/childrens-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/parents-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/your-child-disabilities-turning-18",
+        "https://www.uscis.gov/faq-family-reunification-parole-processes",
+        "https://www.washingtonlawhelp.org/en/end-or-change-minor-guardianship-or-non-parent-custody",
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide"
+      ]
+    },
+    "Guardianship/3rd party custody": {
+      "code": 44,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/parents-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/childrens-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/your-child-disabilities-turning-18",
+        "https://www.washingtonlawhelp.org/en/end-or-change-minor-guardianship-or-non-parent-custody",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant",
+        "https://www.washingtonlawhelp.org/en/adult-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/adult-guardianship-conservatorship-and-other-protective-arrangements",
+        "https://www.washingtonlawhelp.org/en/change-parenting-plan-or-child-custody-order",
+        "https://www.washingtonlawhelp.org/en/guide-when-other-parent-has-taken-your-child"
+      ]
+    },
+    "Other Juvenile": {
+      "code": 49,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/childrens-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/minor-guardianship-guide",
+        "https://www.washingtonlawhelp.org/en/parents-rights-minor-guardianship",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/your-child-disabilities-turning-18",
+        "https://www.washingtonlawhelp.org/en/topics/youth",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied"
+      ]
+    }
+  },
+  "Health": {
+    "Medicaid": {
+      "code": 51,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/medicaid-nursing-home-care",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/apple-health-kids",
+        "https://www.washingtonlawhelp.org/en/when-apply-medicaid-long-term-care",
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/medicaid",
+        "https://www.washingtonlawhelp.org/en/help-medical-debt",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare",
+        "https://www.washingtonlawhelp.org/en/medicaid-standards-chart",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth"
+      ]
+    },
+    "Medicare": {
+      "code": 52,
+      "pages": [
+        "https://www.washingtonlawhelp.org/es/topics/salud/medicare",
+        "https://www.washingtonlawhelp.org/en/help-medical-debt",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/medicare",
+        "https://www.washingtonlawhelp.org/en/medicaid-nursing-home-care",
+        "https://www.washingtonlawhelp.org/es/topics/salud",
+        "https://www.washingtonlawhelp.org/en/medicare-savings-programs-help-paying-medicare-costs",
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "https://www.washingtonlawhelp.org/en/limits-affordable-health-care-immigrants",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare"
+      ]
+    },
+    "Govt. Child Health Ins. Programs": {
+      "code": 53,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/apple-health-kids",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth",
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "https://www.washingtonlawhelp.org/en/appeal-denial-your-health-plan",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/topics/youth/healthcare-youth",
+        "https://www.washingtonlawhelp.org/en/guide-charity-care",
+        "https://www.washingtonlawhelp.org/en/limits-affordable-health-care-immigrants",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant"
+      ]
+    },
+    "Home and Community Based Care": {
+      "code": 54,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/care-tool-assessments",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.washingtonlawhelp.org/en/medicaid-nursing-home-care",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/home-care",
+        "https://www.washingtonlawhelp.org/en/community-first-choice-program",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth",
+        "https://www.washingtonlawhelp.org/en/when-apply-medicaid-long-term-care",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/long-term-care",
+        "https://www.washingtonlawhelp.org/en/guide-charity-care"
+      ]
+    },
+    "Private Health Insurance": {
+      "code": 55,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/help-medical-debt",
+        "https://www.washingtonlawhelp.org/en/billing-and-medicaid-apple-health",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth",
+        "https://www.washingtonlawhelp.org/en/appeal-denial-your-health-plan",
+        "https://www.washingtonlawhelp.org/es/topics/salud/medicare",
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights"
+      ]
+    },
+    "Long Term Health Care Facilities": {
+      "code": 56,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/estate-recovery-long-term-care-services-paid-state",
+        "https://www.washingtonlawhelp.org/en/long-term-care-facility-eviction",
+        "https://www.washingtonlawhelp.org/en/when-apply-medicaid-long-term-care",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/long-term-care",
+        "https://www.washingtonlawhelp.org/en/estate-recovery-exemptions-native-americans-and-alaska-natives",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare",
+        "https://www.washingtonlawhelp.org/en/advance-directive-health-care-living-will",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/medicaid",
+        "https://www.washingtonlawhelp.org/es/topics/salud",
+        "https://www.washingtonlawhelp.org/en/medicare-and-hospital-discharges"
+      ]
+    },
+    "State and Local Health": {
+      "code": 57,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare",
+        "https://www.washingtonlawhelp.org/en/get-and-correct-medical-records",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/medicare",
+        "https://www.washingtonlawhelp.org/en/topics/benefits/other-benefits",
+        "https://www.washingtonlawhelp.org/en/advance-directive-health-care-living-will",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/healthcare-rights",
+        "https://www.washingtonlawhelp.org/en/care-tool-assessments",
+        "https://www.washingtonlawhelp.org/en/healthcare-coverage-former-foster-youth",
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-work"
+      ]
+    },
+    "Other Health": {
+      "code": 59,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights",
+        "https://www.washingtonlawhelp.org/en/topics/youth/healthcare-youth",
+        "https://www.washingtonlawhelp.org/en/advance-directive-mental-health",
+        "https://www.washingtonlawhelp.org/en/health-insurance-and-gender-affirming-treatment",
+        "https://www.washingtonlawhelp.org/en/topics/benefits/other-benefits",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/healthcare-rights",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare",
+        "https://www.washingtonlawhelp.org/en/topics/lgbtq/gender-affirming-treatment",
+        "https://www.washingtonlawhelp.org/en/help-medical-debt",
+        "https://www.washingtonlawhelp.org/en/mold-problems"
+      ]
+    }
+  },
+  "Housing": {
+    "Federally Subsidized Housing": {
+      "code": 61,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/subsidized-housing",
+        "https://www.washingtonlawhelp.org/en/tribal-housing-protections",
+        "https://www.washingtonlawhelp.org/en/living-transitional-housing-what-are-my-rights",
+        "https://www.washingtonlawhelp.org/en/federal-poverty-guidelines",
+        "https://www.washingtonlawhelp.org/en/guide-benefits-native-americans-and-alaska-natives",
+        "https://www.washingtonlawhelp.org/en/place-im-living-has-been-condemned",
+        "https://www.washingtonlawhelp.org/en/medicaid-nursing-home-care",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.washingtonlawhelp.org/en/section-8-housing-choice-vouchers",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program"
+      ]
+    },
+    "Real Property/Home Ownership": {
+      "code": 62,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/problems-getting-title-your-manufactured-home",
+        "https://www.washingtonlawhelp.org/en/topics/housing/renters",
+        "https://www.washingtonlawhelp.org/en/topics/housing/mobile-homes",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.washingtonlawhelp.org/en/seller-wants-my-home-back",
+        "https://www.washingtonlawhelp.org/en/buying-mobile-home",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-while-you-are-renting",
+        "https://www.washingtonlawhelp.org/en/rent-own-contracts",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-manufactured-mobile-home-landlord-tenant-act",
+        "https://www.washingtonlawhelp.org/en/problems-getting-title-my-vehicle"
+      ]
+    },
+    "Private Landlord/Tenant": {
+      "code": 63,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/topics/housing/renters",
+        "https://www.washingtonlawhelp.org/en/tenant-screening-your-rights",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-while-you-are-renting",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-living-foreclosed-property",
+        "https://www.washingtonlawhelp.org/en/tenants-if-you-need-repairs",
+        "https://www.washingtonlawhelp.org/en/tenants-name-someone-take-care-your-stuff-if-you-die",
+        "https://www.washingtonlawhelp.org/en/living-motel-or-hotel-what-are-my-rights",
+        "https://www.washingtonlawhelp.org/en/my-landlord-illegally-ended-my-tenancy-or-evicted-me",
+        "https://www.washingtonlawhelp.org/en/mold-problems",
+        "https://www.washingtonlawhelp.org/en/living-transitional-housing-what-are-my-rights"
+      ]
+    },
+    "Public Housing": {
+      "code": 64,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/living-transitional-housing-what-are-my-rights",
+        "https://www.washingtonlawhelp.org/en/subsidized-housing",
+        "https://www.washingtonlawhelp.org/en/place-im-living-has-been-condemned",
+        "https://www.washingtonlawhelp.org/en/tribal-housing-protections",
+        "https://www.washingtonlawhelp.org/en/fight-hen-denial-or-termination-medical-reasons",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.washingtonlawhelp.org/en/evictions-about-rent",
+        "https://www.washingtonlawhelp.org/en/long-term-care-facility-eviction",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans/tribal-housing"
+      ]
+    },
+    "Mobile Homes": {
+      "code": 65,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/buying-mobile-home",
+        "https://www.washingtonlawhelp.org/en/topics/housing/mobile-homes",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-manufactured-mobile-home-landlord-tenant-act",
+        "https://www.washingtonlawhelp.org/en/problems-getting-title-your-manufactured-home",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.washingtonlawhelp.org/en/living-my-vehicle-what-are-my-rights",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-while-you-are-renting",
+        "https://www.washingtonlawhelp.org/en/property-taxes",
+        "https://www.washingtonlawhelp.org/en/topics/housing/living-cars-shelters-motels-camps",
+        "https://www.washingtonlawhelp.org/en/evictions-about-rent"
+      ]
+    },
+    "Housing Discrimination": {
+      "code": 66,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.washingtonlawhelp.org/en/discrimination-work",
+        "https://www.washingtonlawhelp.org/en/living-transitional-housing-what-are-my-rights",
+        "https://www.washingtonlawhelp.org/en/place-im-living-has-been-condemned",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.seattle.gov/americans-with-disabilities-act",
+        "https://www.washingtonlawhelp.org/en/applying-work",
+        "https://www.washingtonlawhelp.org/en/subsidized-housing",
+        "https://www.washingtonlawhelp.org/en/topics/housing/renters",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-while-you-are-renting"
+      ]
+    },
+    "Mortgage Foreclosures": {
+      "code": 67,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/foreclosure",
+        "https://www.washingtonlawhelp.org/en/recover-surplus-funds-after-non-judicial-foreclosure-without-lawyer",
+        "https://www.washingtonlawhelp.org/en/seller-wants-my-home-back",
+        "https://www.washingtonlawhelp.org/en/tenants-rights-living-foreclosed-property",
+        "https://www.washingtonlawhelp.org/en/property-taxes",
+        "https://www.washingtonlawhelp.org/en/place-im-living-has-been-condemned",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.washingtonlawhelp.org/en/topics/housing/eviction",
+        "https://www.washingtonlawhelp.org/en/topics/housing/homeowners"
+      ]
+    },
+    "Mortgage Predatory Lending": {
+      "code": 68,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/foreclosure",
+        "https://www.washingtonlawhelp.org/en/seller-wants-my-home-back",
+        "https://www.washingtonlawhelp.org/en/buying-mobile-home",
+        "https://www.washingtonlawhelp.org/en/prioritizing-debt-which-bills-do-i-pay-first",
+        "https://www.washingtonlawhelp.org/en/keep-your-address-confidential-while-buying-real-property",
+        "https://www.washingtonlawhelp.org/en/move-out-or-change-my-locks-because-domestic-violence-sexual-assault-stalking-or-harassment",
+        "https://www.washingtonlawhelp.org/en/get-small-business-administration-sba-disaster-loan",
+        "https://www.washingtonlawhelp.org/en/place-im-living-has-been-condemned",
+        "https://www.washingtonlawhelp.org/en/labor-trafficking",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination"
+      ]
+    },
+    "Other Housing": {
+      "code": 69,
+      "pages": [
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://www.washingtonlawhelp.org/en/living-transitional-housing-what-are-my-rights",
+        "https://www.washingtonlawhelp.org/en/place-im-living-has-been-condemned",
+        "https://www.washingtonlawhelp.org/en/topics/housing",
+        "https://www.washingtonlawhelp.org/en/topics/housing/living-cars-shelters-motels-camps"
+      ]
+    }
+  },
+  "Income Maintenance": {
+    "TANF/Welfare": {
+      "code": 71,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/guide-tanf",
+        "https://www.washingtonlawhelp.org/en/emergency-cash-and-food-help",
+        "https://www.washingtonlawhelp.org/en/child-support-and-incarcerated-parents",
+        "https://www.washingtonlawhelp.org/en/guide-workfirst",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.uscis.gov/i-821",
+        "https://www.uscis.gov/archive/temporary-protected-status-designated-country-afghanistan",
+        "https://www.uscis.gov/humanitarian/information-for-afghan-nationals/a-quick-guide-to-support-the-afghan-workforce",
+        "https://www.uscis.gov/military/discretionary-options-for-military-members-enlistees-and-their-families",
+        "https://www.uscis.gov/family/family-of-us-citizens/bringing-siblings-to-live-in-the-united-states-as-permanent-residents"
+      ]
+    },
+    "Social Security": {
+      "code": 72,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/appeal-ssi-or-disability-termination",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall",
+        "https://www.washingtonlawhelp.org/en/ssi-and-ssd-overpayments",
+        "https://www.washingtonlawhelp.org/en/disabled-and-leaving-prison-get-social-security-and-health-care",
+        "https://www.washingtonlawhelp.org/en/fight-termination-or-reduction-dshs-public-assistance",
+        "https://www.washingtonlawhelp.org/en/prison-social-security-health-care",
+        "https://www.washingtonlawhelp.org/en/appeal-social-security-denial",
+        "https://www.washingtonlawhelp.org/en/ssi-and-felony-warrants",
+        "https://www.washingtonlawhelp.org/en/i-applied-benefits-dshs-said-no",
+        "https://www.washingtonlawhelp.org/en/guide-workfirst"
+      ]
+    },
+    "Food Stamps": {
+      "code": 73,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/emergency-cash-and-food-help",
+        "https://www.washingtonlawhelp.org/en/fight-food-stamp-overpayment",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall",
+        "https://www.washingtonlawhelp.org/en/guide-tanf",
+        "https://www.washingtonlawhelp.org/en/guide-benefits-native-americans-and-alaska-natives",
+        "https://www.washingtonlawhelp.org/en/when-dshs-or-dcyf-thinks-you-made-intentional-program-violation-ipv",
+        "https://www.washingtonlawhelp.org/en/topics/benefits/state-benefits",
+        "https://www.washingtonlawhelp.org/en/federal-poverty-guidelines",
+        "https://www.washingtonlawhelp.org/en/guide-workfirst",
+        "https://www.washingtonlawhelp.org/en/fight-termination-or-reduction-dshs-public-assistance"
+      ]
+    },
+    "SSID": {
+      "code": 74,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/disabled-and-leaving-prison-get-social-security-and-health-care",
+        "https://www.washingtonlawhelp.org/en/appeal-ssi-or-disability-termination",
+        "https://www.washingtonlawhelp.org/en/ask-dshs-disability-accommodation",
+        "https://www.washingtonlawhelp.org/en/appeal-social-security-denial",
+        "https://www.washingtonlawhelp.org/en/prison-social-security-health-care",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/fight-abd-denial-or-termination-medical-reasons",
+        "https://www.washingtonlawhelp.org/en/topics/benefits/ssi-and-ssdi",
+        "https://www.washingtonlawhelp.org/en/ask-oah-reasonable-accommodation-your-disability",
+        "https://www.washingtonlawhelp.org/en/i-applied-benefits-dshs-said-no"
+      ]
+    },
+    "SSI": {
+      "code": 75,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/disabled-and-leaving-prison-get-social-security-and-health-care",
+        "https://www.washingtonlawhelp.org/en/appeal-ssi-or-disability-termination",
+        "https://www.washingtonlawhelp.org/en/appeal-social-security-denial",
+        "https://www.washingtonlawhelp.org/en/ssi-and-felony-warrants",
+        "https://www.washingtonlawhelp.org/en/prison-social-security-health-care",
+        "https://www.uscis.gov/about-us/disability-accommodations-for-the-public",
+        "https://www.washingtonlawhelp.org/en/topics/benefits/ssi-and-ssdi",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall",
+        "https://www.washingtonlawhelp.org/en/ask-dshs-disability-accommodation",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program"
+      ]
+    },
+    "Unemployment Compensation": {
+      "code": 76,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/topics/work/unemployment",
+        "https://www.washingtonlawhelp.org/en/disaster-unemployment-assistance",
+        "https://www.washingtonlawhelp.org/en/emergency-cash-and-food-help",
+        "https://www.washingtonlawhelp.org/en/clear-cps-record-thats-keeping-you-getting-job",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.washingtonlawhelp.org/en/free-lawyers-renters-washington-state",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall",
+        "https://www.washingtonlawhelp.org/en/im-owed-wages-how-do-i-get-them",
+        "https://www.washingtonlawhelp.org/en/i-lost-my-job-do-i-have-rights",
+        "https://www.washingtonlawhelp.org/en/worker-protections"
+      ]
+    },
+    "Veterans Benefits": {
+      "code": 77,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/guide-benefits-native-americans-and-alaska-natives",
+        "https://www.washingtonlawhelp.org/en/keep-your-benefits-after-financial-windfall",
+        "https://www.uscis.gov/military/discretionary-options-for-military-members-enlistees-and-their-families",
+        "https://www.uscis.gov/policy-manual/volume-12-part-i-chapter-9",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.uscis.gov/military/family-based-survivor-benefits",
+        "https://www.washingtonlawhelp.org/en/emergency-cash-and-food-help",
+        "https://www.uscis.gov/i-134",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-immigrant-victims-domestic-violence",
+        "https://www.washingtonlawhelp.org/en/fight-termination-or-reduction-dshs-public-assistance"
+      ]
+    },
+    "State and Local Income Maintenance": {
+      "code": 78,
+      "pages": [
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.washingtonlawhelp.org/en/emergency-cash-and-food-help",
+        "https://www.washingtonlawhelp.org/en/federal-poverty-guidelines",
+        "https://www.washingtonlawhelp.org/en/some-cities-and-counties-have-stronger-protections-renters"
+      ]
+    },
+    "Other Income Maintenance": {
+      "code": 79,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://www.washingtonlawhelp.org/en/source-income-discrimination",
+        "https://www.uscis.gov/i-134",
+        "https://www.uscis.gov/newsroom/alerts/cap-reached-for-second-allocation-of-returning-worker-h-2b-visas-for-fiscal-year-2026",
+        "https://www.washingtonlawhelp.org/en/give-financial-information-family-law-case"
+      ]
+    }
+  },
+  "Individual Rights": {
+    "Immigration/Naturalization": {
+      "code": 81,
+      "pages": [
+        "https://www.uscis.gov/citizenship-resource-center/naturalization-related-data-and-statistics",
+        "https://www.uscis.gov/policy-manual/volume-12",
+        "https://www.uscis.gov/citizenship/apply-for-naturalization",
+        "https://www.uscis.gov/newsroom/news-releases/making-america-safe-again-us-citizenship-and-immigration-services-end-of-year-review-demonstrates",
+        "https://www.uscis.gov/policy-manual/volume-12-part-h-chapter-4",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/o-1-visa-individuals-with-extraordinary-ability-or-achievement",
+        "https://www.uscis.gov/adoption/adult-adoptees-and-us-citizenship",
+        "https://www.uscis.gov/military/naturalization-through-military-service",
+        "https://www.uscis.gov/n-400",
+        "https://www.uscis.gov/node/93192"
+      ]
+    },
+    "Mental Health": {
+      "code": 82,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/advance-directive-mental-health",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/mental-health-court",
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.seattle.gov/courts/about/data-and-publications/mental-health-court-and-veterans-treatment-court-data-reports",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare",
+        "https://www.washingtonlawhelp.org/en/advance-directive-health-care-living-will",
+        "https://www.washingtonlawhelp.org/en/sitemap",
+        "https://www.washingtonlawhelp.org/en/pregnancy-and-work",
+        "https://www.washingtonlawhelp.org/en/topics/work/workers-rights"
+      ]
+    },
+    "Prisoners' Rights": {
+      "code": 83,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/prison-social-security-health-care",
+        "https://www.washingtonlawhelp.org/en/disabled-and-leaving-prison-get-social-security-and-health-care",
+        "https://www.washingtonlawhelp.org/en/will-i-find-out-when-person-who-harmed-me-will-be-released-prison",
+        "https://www.washingtonlawhelp.org/en/topics/criminal-history/reentry-and-civil-rights-while-incarcerated",
+        "https://www.washingtonlawhelp.org/en/can-i-change-my-name-if-im-prison",
+        "https://www.washingtonlawhelp.org/en/topics/criminal-history/risks-benefits-housing-employment",
+        "https://www.washingtonlawhelp.org/en/topics/criminal-history",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare",
+        "https://www.washingtonlawhelp.org/en/topics/healthcare/medicare",
+        "https://www.washingtonlawhelp.org/en/accessibility"
+      ]
+    },
+    "Disability Rights": {
+      "code": 84,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/ask-disability-accommodation-basics",
+        "https://www.washingtonlawhelp.org/en/disabled-and-leaving-prison-get-social-security-and-health-care",
+        "https://www.seattle.gov/americans-with-disabilities-act",
+        "https://www.washingtonlawhelp.org/en/ask-dshs-disability-accommodation",
+        "https://www.uscis.gov/about-us/disability-accommodations-for-the-public",
+        "https://www.washingtonlawhelp.org/en/topics/disability-rights",
+        "https://www.washingtonlawhelp.org/en/ask-your-employer-accommodations",
+        "https://www.washingtonlawhelp.org/en/appeal-ssi-or-disability-termination",
+        "https://www.washingtonlawhelp.org/en/ask-your-landlord-disability-accommodation",
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights"
+      ]
+    },
+    "Civil Rights": {
+      "code": 85,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/civil-rights-indian-country",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans/indian-civil-rights",
+        "https://www.seattle.gov/americans-with-disabilities-act",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/mental-health-court"
+      ]
+    },
+    "Human Trafficking": {
+      "code": 86,
+      "pages": [
+        "https://www.uscis.gov/humanitarian/victims-of-human-trafficking-and-other-crimes/resources-for-victims-of-human-trafficking-and-other-crimes",
+        "https://www.washingtonlawhelp.org/en/labor-trafficking",
+        "https://www.uscis.gov/humanitarian/victims-of-human-trafficking-and-other-crimes",
+        "https://www.uscis.gov/humanitarian/victims-of-human-trafficking-t-nonimmigrant-status",
+        "https://www.washingtonlawhelp.org/en/health-care-minors",
+        "https://www.uscis.gov/adoption/suitability-and-home-study-information/child-abuse-registries-in-foreign-countries-and-geographic-entities",
+        "https://www.washingtonlawhelp.org/en/washington-public-assistance-immigrant-victims-domestic-violence",
+        "https://www.uscis.gov/FGMC",
+        "https://www.uscis.gov/adoption/suitability-and-home-study-information/background-checks-security-and-child-abuse-registry",
+        "https://www.uscis.gov/humanitarian/victims-of-criminal-activity-u-nonimmigrant-status"
+      ]
+    },
+    "Other Individual Rights": {
+      "code": 89,
+      "pages": [
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://www.uscis.gov/working-in-the-united-states/temporary-workers/o-1-visa-individuals-with-extraordinary-ability-or-achievement",
+        "https://www.uscis.gov/i-9-central/employee-rights-and-resources/employee-rights",
+        "https://www.uscis.gov/military/discretionary-options-for-military-members-enlistees-and-their-families",
+        "https://www.washingtonlawhelp.org/en/topics/work/workers-rights"
+      ]
+    }
+  },
+  "Miscellaneous": {
+    "Assistance to Non-Profit or Group": {
+      "code": 91,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/emergency-cash-and-food-help",
+        "https://www.uscis.gov/policy-manual/volume-9",
+        "https://www.washingtonlawhelp.org/en/topics/emergencies-and-disasters/disaster-assistance",
+        "https://www.washingtonlawhelp.org/en/get-legal-help",
+        "https://www.washingtonlawhelp.org/get-legal-help",
+        "https://www.uscis.gov/humanitarian/humanitarian/parole",
+        "https://www.washingtonlawhelp.org/en/guide-charity-care",
+        "https://www.washingtonlawhelp.org/en/get-small-business-administration-sba-disaster-loan",
+        "https://www.washingtonlawhelp.org/en/medically-needy-spenddown-program",
+        "https://www.washingtonlawhelp.org/en/guide-tanf"
+      ]
+    },
+    "Indian Law": {
+      "code": 92,
+      "pages": [
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/37",
+        "https://www.washingtonlawhelp.org/en/civil-rights-indian-country",
+        "https://www.washingtonlawhelp.org/en/notify-indian-tribe-minor-guardianship-case",
+        "https://www.washingtonlawhelp.org/en/cultural-and-legal-issues-native-families-dealing-divorce-and-parenting-plans",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/31",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans/indian-civil-rights",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans/inheriting-indian-property",
+        "https://www.washingtonlawhelp.org/en/how-does-indian-child-welfare-act-affect-me",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/35A",
+        "https://www.washingtonlawhelp.org/en/topics/native-americans/indian-child-welfare-act"
+      ]
+    },
+    "Traffic/Drivers License": {
+      "code": 93,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/my-license-might-be-suspended-what-can-i-do",
+        "https://www.washingtonlawhelp.org/en/i-just-got-traffic-ticket-what-can-i-do-avoid-license-suspension",
+        "https://www.seattle.gov/your-rights-as-a-customer/find-a-towed-car/redeeming-your-vehicle",
+        "https://www.washingtonlawhelp.org/en/topics/ids-and-licenses/license-suspension",
+        "https://www.washingtonlawhelp.org/en/get-your-license-back-suspensions-unpaid-non-criminal-traffic-fines",
+        "https://www.washingtonlawhelp.org/en/get-your-license-back-suspensions-unpaid-criminal-traffic-tickets",
+        "https://www.washingtonlawhelp.org/en/get-drivers-license-if-you-dont-have-social-security-number",
+        "https://www.washingtonlawhelp.org/en/topics/ids-and-licenses/get-id-or-license",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/81",
+        "https://www.washingtonlawhelp.org/en/topics/ids-and-licenses"
+      ]
+    },
+    "Torts": {
+      "code": 94,
+      "pages": [
+        "https://www.seattle.gov/courts/for-attorneys/civil-cases",
+        "https://www.washingtonlawhelp.org/en/exception-rule-etr-washington-apple-health",
+        "https://www.seattle.gov/courts/tickets-and-payments/my-car-got-booted/scofflaw-faq",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/formularios-disponibles-en-espa\u00f1ol-",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/tr\u00e1mites-para-responder-a-multas",
+        "https://www.washingtonlawhelp.org/en/get-exception-dshs-rules",
+        "https://www.washingtonlawhelp.org/en/work-injuries-and-your-rights",
+        "https://www.washingtonlawhelp.org/en/respond-motion-summary-judgment",
+        "https://www.seattle.gov/courts/programs-and-services/specialized-courts/mental-health-court",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/retenci\u00f3n-de-la-etiqueta-de-registro-de-la-matr\u00edcula-del-veh\u00edculo"
+      ]
+    },
+    "Estate Planning/Wills/Probate": {
+      "code": 95,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/manage-small-estate-yourself",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/when-someone-dies",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/planning-my-death",
+        "https://www.washingtonlawhelp.org/en/tenants-name-someone-take-care-your-stuff-if-you-die",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/powers-attorney-and-advance-directives",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/making-decisions-someone-else",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant",
+        "https://www.washingtonlawhelp.org/en/divorce-and-bankruptcy",
+        "https://www.washingtonlawhelp.org/en/get-ready-family-law-appointment"
+      ]
+    },
+    "Advanced Directives/Power of Attorneys": {
+      "code": 96,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/topics/life-planning/powers-attorney-and-advance-directives",
+        "https://www.washingtonlawhelp.org/en/durable-power-attorney",
+        "https://www.washingtonlawhelp.org/en/plan-someone-else-care-your-child-if-you-cant",
+        "https://www.washingtonlawhelp.org/en/advance-directive-mental-health",
+        "https://www.washingtonlawhelp.org/en/cancel-revoke-power-attorney",
+        "https://www.washingtonlawhelp.org/en/topics/life-planning",
+        "https://www.washingtonlawhelp.org/en/topics/immigrants/planning-emergencies",
+        "https://www.washingtonlawhelp.org/en/advance-directive-living-dementia",
+        "https://www.washingtonlawhelp.org/en/advance-directive-health-care-living-will",
+        "https://www.washingtonlawhelp.org/en/health-care-minors"
+      ]
+    },
+    "Vacating Record": {
+      "code": 97,
+      "pages": [
+        "https://www.washingtonlawhelp.org/en/vacate-criminal-records-basics",
+        "https://www.washingtonlawhelp.org/en/vacate-criminal-conviction-related-treaty-indian-fishing-rights",
+        "https://www.washingtonlawhelp.org/en/vacate-cannabis-marijuana-misdemeanor-conviction",
+        "https://www.washingtonlawhelp.org/en/vacate-felony-conviction",
+        "https://www.washingtonlawhelp.org/en/vacate-misdemeanor-conviction",
+        "https://www.washingtonlawhelp.org/en/seal-vacate-or-destroy-juvenile-court-records",
+        "https://www.washingtonlawhelp.org/en/topics/criminal-history/criminal-records-and-lfos",
+        "https://www.washingtonlawhelp.org/en/seal-or-redact-court-record",
+        "https://www.seattle.gov/courts/programs-and-services/vacating-a-conviction",
+        "https://www.washingtonlawhelp.org/en/file-motion-vacate"
+      ]
+    },
+    "Criminal": {
+      "code": 98,
+      "pages": [
+        "https://www.seattle.gov/courts/about/data-and-publications/general-data-reports/criminal-case-filings",
+        "https://www.seattle.gov/courts/about/data-and-publications/probation-data-reports/probation-caseload",
+        "https://www.seattle.gov/police/about-us/about-policing/parking-enforcement",
+        "http://www.seattle.gov/cityattorney",
+        "https://www.seattle.gov/courts/about/data-and-publications/probation-data-reports/probation-activity-and-compliance",
+        "https://www.washingtonlawhelp.org/en/topics/criminal-history/criminal-records-and-lfos",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/retenci\u00f3n-de-la-etiqueta-de-registro-de-la-matr\u00edcula-del-veh\u00edculo",
+        "https://www.washingtonlawhelp.org/en/vacate-cannabis-marijuana-misdemeanor-conviction",
+        "https://www.washingtonlawhelp.org/en/get-your-license-back-suspensions-unpaid-criminal-traffic-tickets",
+        "https://www.seattle.gov/courts/about/data-and-publications/general-data-reports"
+      ]
+    },
+    "Other": {
+      "code": 99,
+      "pages": [
+        "https://library.municode.com/wa/seattle/codes/municipal/code",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx",
+        "https://app.leg.wa.gov/billinfo/prefiled.aspx/year/2025",
+        "https://app.leg.wa.gov/billinfo/prefiled",
+        "https://www.washingtonlawhelp.org/en/my-rental-application-was-denied",
+        "https://app.leg.wa.gov/billinfo/initiatives",
+        "https://app.leg.wa.gov/billinfo/initiatives.aspx",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/31",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/7",
+        "https://app.leg.wa.gov/rcw/dispo.aspx/Cite/1"
+      ]
+    },
+    "Municipal Legal Needs": {
+      "code": 100,
+      "pages": [
+        "https://www.seattle.gov/courts/programs-and-services/interpreter-services/for-the-public",
+        "https://www.seattle.gov/courts/about/seattle-municipal-court-magistrates",
+        "https://www.seattle.gov/courts",
+        "https://www.seattle.gov/courts/",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/formularios-disponibles-en-espa\u00f1ol-",
+        "https://www.seattle.gov/courts/for-attorneys/local-court-rules",
+        "https://www.seattle.gov/courts/en-espa\u00f1ol/inmovilizaci\u00f3n-de-veh\u00edculos",
+        "https://www.seattle.gov/cityclerk/legislation-and-research/seattle-municipal-code-and-city-charter",
+        "https://www.seattle.gov/courts/programs-and-services/interpreter-services/for-attorneys",
+        "https://www.seattle.gov/courts/for-attorneys"
+      ]
+    }
+  }
+}

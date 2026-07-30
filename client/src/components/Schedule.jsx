@@ -266,7 +266,7 @@ export default function Schedule() {
       await set(ref(db, `schedules/${weekKey}`), payload);
 
       // 2) Write matched attorney + interpreter into each assigned case's record.
-      // matchInfo holds just the display name (CasePreview renders it as text);
+      // matchInfo holds the personnel UID (a stable reference, not a display value);
       // schedulingInfo carries name + email + phone, which is what EditForm's
       // Attorney / Legal Student sections actually display.
       const caseUpdates = {};
@@ -278,14 +278,19 @@ export default function Schedule() {
           // available in other weeks (and on the Cases waitlist tab) once
           // it's actually been placed on a schedule — prevents double-booking.
           caseUpdates[`cases/${slot.client.caseId}/status`] = "scheduled";
+          // Persist the clinic date + time slot onto the case record itself,
+          // so views like Attorney View can read a case's schedule directly
+          // instead of scanning every week's schedules/ node.
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/date`] = weekKey;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/timeSlot`] = slot.time ?? "";
           if (slot?.attorney) {
-            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney.name ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney.attorneyId ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = slot.attorney.name ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = slot.attorney.email ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = slot.attorney.phone ?? "";
           }
           if (slot?.interpreter) {
-            caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter.name ?? "";
+            caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter.id ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterName`] = slot.interpreter.name ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterEmail`] = slot.interpreter.email ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterPhone`] = slot.interpreter.phone ?? "";
@@ -299,6 +304,8 @@ export default function Schedule() {
         const caseId = slot?.client?.caseId;
         if (caseId && !currentCaseIds.has(caseId)) {
           caseUpdates[`cases/${caseId}/status`] = "waitlisted";
+          caseUpdates[`cases/${caseId}/schedulingInfo/date`] = null;
+          caseUpdates[`cases/${caseId}/schedulingInfo/timeSlot`] = null;
           caseUpdates[`cases/${caseId}/matchInfo/attorney`] = null;
           caseUpdates[`cases/${caseId}/matchInfo/interpreter`] = null;
           caseUpdates[`cases/${caseId}/schedulingInfo/attorneyName`] = null;
@@ -307,6 +314,48 @@ export default function Schedule() {
           caseUpdates[`cases/${caseId}/schedulingInfo/interpreterName`] = null;
           caseUpdates[`cases/${caseId}/schedulingInfo/interpreterEmail`] = null;
           caseUpdates[`cases/${caseId}/schedulingInfo/interpreterPhone`] = null;
+        }
+      }
+
+      // 4) Reconcile the caseAccess/{uid} index. Firebase rules only let an
+      // Attorney/Legal Student read cases/$caseId they're matched to, not the
+      // whole cases collection — this index is what Attorney View reads to
+      // find which case IDs to fetch. Covers assign, reassign, and unassign.
+      const prevMatchByCase = {};
+      for (const slot of Object.values(prevSlots)) {
+        const caseId = slot?.client?.caseId;
+        if (caseId) {
+          prevMatchByCase[caseId] = {
+            attorneyId: slot.attorney?.attorneyId ?? null,
+            interpreterId: slot.interpreter?.id ?? null,
+          };
+        }
+      }
+      const currentMatchByCase = {};
+      for (const slot of Object.values(assignments)) {
+        const caseId = slot?.client?.caseId;
+        if (caseId) {
+          currentMatchByCase[caseId] = {
+            attorneyId: slot.attorney?.attorneyId ?? null,
+            interpreterId: slot.interpreter?.id ?? null,
+          };
+        }
+      }
+      const touchedCaseIds = new Set([...Object.keys(prevMatchByCase), ...Object.keys(currentMatchByCase)]);
+      for (const caseId of touchedCaseIds) {
+        const prevMatch = prevMatchByCase[caseId] ?? {};
+        const currMatch = currentMatchByCase[caseId] ?? {};
+        if (prevMatch.attorneyId && prevMatch.attorneyId !== currMatch.attorneyId) {
+          caseUpdates[`caseAccess/${prevMatch.attorneyId}/${caseId}`] = null;
+        }
+        if (currMatch.attorneyId) {
+          caseUpdates[`caseAccess/${currMatch.attorneyId}/${caseId}`] = true;
+        }
+        if (prevMatch.interpreterId && prevMatch.interpreterId !== currMatch.interpreterId) {
+          caseUpdates[`caseAccess/${prevMatch.interpreterId}/${caseId}`] = null;
+        }
+        if (currMatch.interpreterId) {
+          caseUpdates[`caseAccess/${currMatch.interpreterId}/${caseId}`] = true;
         }
       }
 

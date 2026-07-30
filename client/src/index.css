@@ -155,6 +155,14 @@ body {
   gap: 56px;
 }
 
+.app-navbar-title {
+  grid-column: 2;
+  justify-self: center;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--primary-text);
+}
+
 .app-navbar-link {
   color: var(--primary-text);
   text-decoration: none;
@@ -2745,4 +2753,385 @@ body {
     padding: 0.6rem 0.75rem;
     font-size: 0.8rem;
   }
+}
+
+/* Attorney View */
+
+.attorney-view-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.attorney-view-empty {
+  margin-top: 8rem;
+  text-align: center;
+  color: var(--primary-text);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.attorney-view-date-group {
+  margin-bottom: 1.5rem;
+}
+
+.attorney-view-date-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  margin-bottom: 0.6rem;
+}
+
+.attorney-view-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  color: var(--background);
+}
+
+.attorney-view-badge--upcoming {
+  background-color: var(--success);
+}
+
+.attorney-view-badge--archived {
+  background-color: var(--dark-gray);
+}
+
+.attorney-view-row {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.6rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.attorney-view-row-header {
+  background-color: var(--call-to-action);
+  color: var(--background);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+}
+
+.attorney-view-row-body {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--subtle-gray);
+  padding: 0.65rem 0.9rem;
+}
+
+.attorney-view-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.attorney-view-row-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary-text);
+}
+
+.attorney-view-row-details {
+  font-size: 0.8rem;
+  color: var(--dark-gray);
+}
+
+.attorney-view-row-interpreter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--primary-text);
+  background-color: var(--background);
+  border: 1px solid var(--neutral-gray);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+}
+
+.attorney-view-row-meeting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--primary-text);
+  background-color: var(--background);
+  border: 1px solid var(--neutral-gray);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.attorney-view-row-meeting--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.attorney-view-row-details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--background);
+  background-color: var(--call-to-action);
+  border: none;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.attorney-view-row-details-btn:hover {
+  background-color: var(--dark-gray);
+}
+
+@media (max-width: 700px) {
+  .attorney-view-row-body {
+    flex-wrap: wrap;
+  }
+}
+
+/* Edit Form — tabs */
+
+.ef-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 62px);
+}
+
+.ef-page-body {
+  flex: 1;
+}
+
+.ef-tabs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--neutral-gray);
+  margin-bottom: 1.5rem;
+}
+
+.ef-tabs-buttons {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.ef-upload-btn {
+  margin-bottom: 0.5rem;
+}
+
+.ef-tab-body {
+  padding-top: 0.5rem;
+}
+
+.ef-documents-empty {
+  padding: 1.5rem 0;
+}
+
+.ef-doc-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding-top: 0.5rem;
+}
+
+.ef-doc-card {
+  width: 190px;
+  background-color: var(--subtle-gray);
+  border-radius: 10px;
+  padding: 0.75rem;
+}
+
+.ef-doc-card-filename {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--primary-text);
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ef-doc-card-filename svg {
+  flex-shrink: 0;
+}
+
+.ef-doc-card-preview {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  background-color: var(--background);
+  border-radius: 8px;
+}
+
+.ef-doc-card-badge {
+  position: absolute;
+  bottom: 32px;
+  background-color: #E8382E;
+  color: var(--background);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+}
+
+.ef-bottom-bar {
+  /* No position: sticky — this should only sit at the bottom of the
+     viewport when content is shorter than the screen (e.g. an empty
+     Documents tab); on Overview, where content usually exceeds the
+     viewport, it should scroll away normally like any other footer. */
+  margin-top: 2rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-top: 1px solid var(--neutral-gray);
+}
+
+.ef-res-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.ef-res-filter-wrapper {
+  position: relative;
+}
+
+.ef-res-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ef-res-filter-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+  width: 260px;
+  background-color: var(--background);
+  border: 1px solid var(--neutral-gray);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 0.75rem;
+}
+
+.ef-res-filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.ef-res-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--primary-text);
+  cursor: pointer;
+}
+
+.ef-res-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--call-to-action);
+  color: var(--background);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+}
+
+.ef-res-chip button {
+  display: inline-flex;
+  background: none;
+  border: none;
+  color: var(--background);
+  padding: 0;
+  cursor: pointer;
+}
+
+.ef-res-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.ef-res-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 260px;
+}
+
+.ef-res-column-label {
+  display: inline-block;
+  align-self: flex-start;
+  background-color: var(--primary-text);
+  color: var(--background);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.2rem;
+}
+
+.ef-res-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: var(--subtle-gray);
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  color: var(--primary-text);
+  text-decoration: none;
+}
+
+.ef-res-card svg {
+  flex-shrink: 0;
+}
+
+.ef-res-card:hover {
+  background-color: var(--neutral-gray);
+  color: var(--primary-text);
+}
+
+.ef-res-card-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ef-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  padding: 0.3rem 0.1rem 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.ef-tab-btn--active {
+  color: var(--primary-text);
+  border-bottom-color: var(--call-to-action);
+}
+
+.ef-tab-btn:hover:not(.ef-tab-btn--active) {
+  color: var(--primary-text);
 }

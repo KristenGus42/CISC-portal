@@ -5,7 +5,7 @@ import { useAuth } from "../auth/useAuth";
 import { getAvatarColor, getInitials } from "../utils/avatar";
 
 export function NavBar(props) {
-    const { active } = props;
+    const { active, title } = props;
     const { role, user, userProfile } = useAuth();
     const profileName = userProfile?.name || user?.displayName || userProfile?.email || user?.email || role || "User";
     const [menuOpen, setMenuOpen] = useState(false);
@@ -62,6 +62,10 @@ export function NavBar(props) {
                         Access
                     </Link>
                 </nav>
+            )}
+
+            {role !== "Admin" && title && (
+                <span className="app-navbar-title">{title}</span>
             )}
 
             {/* User button + sign-out popup */}

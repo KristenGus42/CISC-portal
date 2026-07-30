@@ -79,7 +79,7 @@ function App() {
           element={
             <ProtectedRoute
               element={<EditForm newForm={false} attorney={attorney} />}
-              allowedRoles={["Admin", "Staff"]}
+              allowedRoles={["Admin", "Staff", "Attorney", "Legal Student"]}
               fallback={roleHome(role)}
             />
           }
