@@ -25,6 +25,7 @@ dist-ssr
 .agents
 .claude
 .firebase
+.env
 
 # ML
 .venv

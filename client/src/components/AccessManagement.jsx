@@ -1,6 +1,5 @@
 import { NavBar } from "./NavBar";
 import { useState, useEffect } from "react";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuth } from "../auth/useAuth";
@@ -53,6 +52,7 @@ export default function AccessManagement() {
     const enableUserAccount = httpsCallable(functions, "enableUserAccount");
     const updateUserRole = httpsCallable(functions, "updateUserRole");
     const getUserAuthStatuses = httpsCallable(functions, "getUserAuthStatuses");
+    const requestPasswordReset = httpsCallable(functions, "requestPasswordReset");
 
     // Listen for the users/ node in RTDB
     useEffect(() => {
@@ -233,23 +233,19 @@ export default function AccessManagement() {
         setLoading(true);
 
         try {
-            const primaryAuth = getAuth();
-            await sendPasswordResetEmail(primaryAuth, user.email);
+            const result = await requestPasswordReset({ uid: user.uid });
             setUserToReset(null);
             setResetFeedback({
                 type: "success",
-                message: `Password reset email sent to ${user.email}.`,
+                message: result.data?.message || `Password reset email sent to ${user.email}.`,
             });
         } catch (err) {
             console.error("Password reset error:", err);
-            let message = `Failed to send password reset email to ${user.email}.`;
-            if (err.code === "auth/invalid-email") {
-                message = "Please enter a valid email address.";
-            } else if (err.code === "auth/user-not-found") {
-                message = `${user.email} was not found in Firebase Auth.`;
-            }
             setUserToReset(null);
-            setResetFeedback({ type: "error", message });
+            setResetFeedback({
+                type: "error",
+                message: `Failed to send password reset email to ${user.email}.`,
+            });
         } finally {
             setLoading(false);
         }
@@ -326,7 +322,7 @@ export default function AccessManagement() {
         for (const user of targetUsers) {
             try {
                 if (bulkAction === "reset") {
-                    await sendPasswordResetEmail(getAuth(), user.email);
+                    await requestPasswordReset({ uid: user.uid });
                 } else if (bulkAction === "disable") {
                     await disableUserAccount({ uid: user.uid });
                     setAuthStatusMap((prev) => ({

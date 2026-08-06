@@ -1,26 +1,6 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
-
-const FIREBASE_WEB_API_KEY = "AIzaSyADNdwf_eraJtHEz6sI5FAWq_DPW4UbfF8";
-
-async function sendPasswordResetEmail(email) {
-    const response = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_WEB_API_KEY}`,
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                requestType: "PASSWORD_RESET",
-                email,
-            }),
-        },
-    );
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to send password reset email: ${errorText}`);
-    }
-}
+const { sendPasswordResetEmail, sendgridApiKey } = require("./emailService");
 
 /**
  * Creates a new Firebase Auth user and writes their record to RTDB.
@@ -28,7 +8,7 @@ async function sendPasswordResetEmail(email) {
  *
  * Expected data: { email, name, role }
  */
-exports.createUserAccount = onCall(async (request) => {
+exports.createUserAccount = onCall({ secrets: [sendgridApiKey] }, async (request) => {
     // 1. Ensure caller is authenticated
     if (!request.auth) {
         throw new HttpsError("unauthenticated", "Must be logged in.");

@@ -1,40 +1,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
-
-const FIREBASE_WEB_API_KEY = "AIzaSyADNdwf_eraJtHEz6sI5FAWq_DPW4UbfF8";
-
-async function sendPasswordResetEmail(email) {
-    const response = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${FIREBASE_WEB_API_KEY}`,
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                requestType: "PASSWORD_RESET",
-                email,
-            }),
-        },
-    );
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to send password reset email: ${errorText}`);
-    }
-}
-
-/**
- * Helper: verify caller is authenticated and is an admin.
- */
-async function assertAdmin(request) {
-    if (!request.auth) {
-        throw new HttpsError("unauthenticated", "Must be logged in.");
-    }
-    const db = admin.database();
-    const snapshot = await db.ref(`users/${request.auth.uid}/role`).get();
-    if ((snapshot.val() || "").toLowerCase() !== "admin") {
-        throw new HttpsError("permission-denied", "Admins only.");
-    }
-}
+const { assertAdmin } = require("./authHelpers");
+const { sendPasswordResetEmail, sendgridApiKey } = require("./emailService");
 
 const VALID_ROLES = ["Staff", "Admin", "Attorney", "Legal Student"];
 
@@ -148,7 +115,7 @@ exports.updateUserRole = onCall(async (request) => {
  *
  * Expected data: { uid, newEmail }
  */
-exports.updateUserEmail = onCall(async (request) => {
+exports.updateUserEmail = onCall({ secrets: [sendgridApiKey] }, async (request) => {
     await assertAdmin(request);
 
     const { uid, newEmail } = request.data;

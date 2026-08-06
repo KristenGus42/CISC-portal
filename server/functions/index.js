@@ -12,6 +12,8 @@ const { createUserAccount } = require("./createAccounts");
 const { deleteUserAccount, disableUserAccount, enableUserAccount } = require("./deleteAccounts");
 const { updateUserRole, updateUserEmail } = require("./updateAccounts");
 const { getUserAuthStatuses } = require("./userStatus");
+const { requestPasswordReset } = require("./passwordReset");
+const { completePasswordReset } = require("./completePasswordReset");
 
 exports.createUserAccount = createUserAccount;
 exports.deleteUserAccount = deleteUserAccount;
@@ -20,3 +22,5 @@ exports.enableUserAccount = enableUserAccount;
 exports.updateUserRole = updateUserRole;
 exports.updateUserEmail = updateUserEmail;
 exports.getUserAuthStatuses = getUserAuthStatuses;
+exports.requestPasswordReset = requestPasswordReset;
+exports.completePasswordReset = completePasswordReset;

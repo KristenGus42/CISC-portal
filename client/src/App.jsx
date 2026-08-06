@@ -10,6 +10,7 @@ import PersonnelLibary from './components/PersonnelLibrary'
 import IndividualPersonnel from './components/IndividualPersonnel';
 import AttorneyView from './components/AttorneyView';
 import AccessManagement from './components/AccessManagement';
+import ResetPassword from './components/ResetPassword';
 import { useAuth } from './auth/useAuth';
 
 /**
@@ -136,6 +137,9 @@ function App() {
             />
           }
         />
+
+        {/* Public — reached via the emailed password-reset link, no login required */}
+        <Route path="reset-password" element={<ResetPassword />} />
 
         <Route path="example" element={<DndExample />} />
       </Routes>
