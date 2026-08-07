@@ -1,6 +1,6 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
-const { sendPasswordResetEmail, sendgridApiKey } = require("./emailService");
+const { sendPasswordResetEmail, resendApiKey } = require("./emailService");
 
 /**
  * Creates a new Firebase Auth user and writes their record to RTDB.
@@ -8,7 +8,7 @@ const { sendPasswordResetEmail, sendgridApiKey } = require("./emailService");
  *
  * Expected data: { email, name, role }
  */
-exports.createUserAccount = onCall({ secrets: [sendgridApiKey] }, async (request) => {
+exports.createUserAccount = onCall({ secrets: [resendApiKey] }, async (request) => {
     // 1. Ensure caller is authenticated
     if (!request.auth) {
         throw new HttpsError("unauthenticated", "Must be logged in.");

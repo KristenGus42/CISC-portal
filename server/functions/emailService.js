@@ -1,39 +1,39 @@
-const sgMail = require("@sendgrid/mail");
+const { Resend } = require("resend");
 const admin = require("firebase-admin");
 const { defineSecret } = require("firebase-functions/params");
-const { SENDGRID_FROM_EMAIL, SENDGRID_FROM_NAME, APP_LOGO_URL, APP_BASE_URL } = require("./config");
+const { EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME, APP_LOGO_URL, APP_BASE_URL } = require("./config");
 const { createPasswordResetToken } = require("./passwordResetTokens");
 
-// Backed by Google Cloud Secret Manager (set via `firebase functions:secrets:set SENDGRID_API_KEY`),
+// Backed by Google Cloud Secret Manager (set via `firebase functions:secrets:set RESEND_API_KEY`),
 // keeping the credential encrypted/access-controlled instead of sitting in plain
 // config. Any onCall function that (transitively) sends email must list this in
 // its `secrets` option so the runtime injects it into process.env.
-const sendgridApiKey = defineSecret("SENDGRID_API_KEY");
+const resendApiKey = defineSecret("RESEND_API_KEY");
 
-const FROM_EMAIL = SENDGRID_FROM_EMAIL;
-const FROM_NAME = SENDGRID_FROM_NAME;
+const FROM_EMAIL = EMAIL_FROM_ADDRESS;
+const FROM_NAME = EMAIL_FROM_NAME;
 const LOGO_URL = APP_LOGO_URL;
 
-let sendgridInitialized = false;
+let resendClient = null;
 
-function ensureSendgridInitialized() {
-    if (sendgridInitialized) return;
-    if (!process.env.SENDGRID_API_KEY) {
-        throw new Error("SENDGRID_API_KEY is not set.");
+function getResendClient() {
+    if (resendClient) return resendClient;
+    if (!process.env.RESEND_API_KEY) {
+        throw new Error("RESEND_API_KEY is not set.");
     }
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    sendgridInitialized = true;
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+    return resendClient;
 }
 
 /**
  * Generates our own time-limited password-reset link (see
  * passwordResetTokens.js - 48h validity, unlike Firebase's fixed ~1h OOB
- * codes) and sends it via SendGrid using a simple branded template.
+ * codes) and sends it via Resend using a simple branded template.
  *
  * NOTE: subject/body copy below is placeholder text - update wording as desired.
  */
 async function sendPasswordResetEmail(email) {
-    ensureSendgridInitialized();
+    const resend = getResendClient();
 
     // Look up the uid so the token can be tied to this specific account.
     // Throws auth/user-not-found if there's no matching Firebase Auth user -
@@ -78,13 +78,17 @@ async function sendPasswordResetEmail(email) {
         </div>
     `;
 
-    await sgMail.send({
+    const { error } = await resend.emails.send({
+        from: `${FROM_NAME} <${FROM_EMAIL}>`,
         to: email,
-        from: { email: FROM_EMAIL, name: FROM_NAME },
         subject,
         text,
         html,
     });
+
+    if (error) {
+        throw new Error(`Failed to send password reset email: ${error.message || JSON.stringify(error)}`);
+    }
 }
 
-module.exports = { sendPasswordResetEmail, sendgridApiKey };
+module.exports = { sendPasswordResetEmail, resendApiKey };

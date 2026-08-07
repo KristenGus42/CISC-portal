@@ -2,12 +2,12 @@
  * Shared, non-sensitive configuration for Cloud Functions.
  *
  * These are plain constants (not secrets) - safe to commit and share across
- * functions. The SendGrid API key itself is NOT here; it's a credential and
+ * functions. The Resend API key itself is NOT here; it's a credential and
  * lives in Firebase/Google Secret Manager instead (see emailService.js).
  */
 module.exports = {
-    SENDGRID_FROM_EMAIL: "noreply@cisclegalclinic.org",
-    SENDGRID_FROM_NAME: "CISC Legal Clinic",
+    EMAIL_FROM_ADDRESS: "noreply@cisclegalclinic.org",
+    EMAIL_FROM_NAME: "CISC Legal Clinic",
     APP_LOGO_URL: "https://cisclegalclinic.org/img/cisc-logo.png",
     // Base URL of the deployed client app - used to build the custom
     // password-reset link (see passwordResetTokens.js).

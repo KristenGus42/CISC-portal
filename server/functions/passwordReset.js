@@ -1,7 +1,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const { assertAdmin } = require("./authHelpers");
-const { sendPasswordResetEmail, sendgridApiKey } = require("./emailService");
+const { sendPasswordResetEmail, resendApiKey } = require("./emailService");
 
 /**
  * Admin-triggered password reset (replaces the client-side firebase/auth
@@ -10,7 +10,7 @@ const { sendPasswordResetEmail, sendgridApiKey } = require("./emailService");
  *
  * Expected data: { uid }
  */
-exports.requestPasswordReset = onCall({ secrets: [sendgridApiKey] }, async (request) => {
+exports.requestPasswordReset = onCall({ secrets: [resendApiKey] }, async (request) => {
     await assertAdmin(request);
 
     const { uid } = request.data;

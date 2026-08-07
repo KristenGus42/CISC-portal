@@ -1,7 +1,7 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const { assertAdmin } = require("./authHelpers");
-const { sendPasswordResetEmail, sendgridApiKey } = require("./emailService");
+const { sendPasswordResetEmail, resendApiKey } = require("./emailService");
 
 const VALID_ROLES = ["Staff", "Admin", "Attorney", "Legal Student"];
 
@@ -115,7 +115,7 @@ exports.updateUserRole = onCall(async (request) => {
  *
  * Expected data: { uid, newEmail }
  */
-exports.updateUserEmail = onCall({ secrets: [sendgridApiKey] }, async (request) => {
+exports.updateUserEmail = onCall({ secrets: [resendApiKey] }, async (request) => {
     await assertAdmin(request);
 
     const { uid, newEmail } = request.data;
