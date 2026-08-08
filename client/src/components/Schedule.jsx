@@ -12,14 +12,12 @@ import { calculateMatchScore } from "./matcher";
 
 // ─── Date Helpers ─────────────────────────────────────────────────────────────
 
-function getWeekStart(date) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function toYMD(date) {
   const y = date.getFullYear();
@@ -28,17 +26,41 @@ function toYMD(date) {
   return `${y}-${m}-${d}`;
 }
 
-function toMDY(date) {
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  const y = date.getFullYear();
-  return `${m}/${d}/${y}`;
+// Parses a "YYYY-MM-DD" key back into a local-midnight Date (avoids the
+// UTC-parsing footgun of `new Date("YYYY-MM-DD")`).
+function fromYMD(dateStr) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d);
 }
 
-function addDays(date, days) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d;
+function getOrdinalSuffix(day) {
+  const j = day % 10;
+  const k = day % 100;
+  if (j === 1 && k !== 11) return "st";
+  if (j === 2 && k !== 12) return "nd";
+  if (j === 3 && k !== 13) return "rd";
+  return "th";
+}
+
+// "Tuesday, February 7th"
+function formatClinicDate(date) {
+  const weekday = WEEKDAY_NAMES[date.getDay()];
+  const month = MONTH_NAMES[date.getMonth()];
+  const day = date.getDate();
+  return `${weekday}, ${month} ${day}${getOrdinalSuffix(day)}`;
+}
+
+// Cells for a month grid: null for the leading blanks before the 1st, then
+// one Date per day of the month.
+function getMonthGridCells(monthDate) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const startOffset = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < startOffset; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
+  return cells;
 }
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -74,17 +96,36 @@ export default function Schedule() {
   const [searchQuery, setSearchQuery] = useState("");
   const [waitlistCases, setWaitlistCases] = useState([]);
   const [allCases, setAllCases] = useState({});
-  // Local-only assignments, cleared on week change, saved to Firebase on "Save"
+  // Local-only assignments, cleared on date change, saved to Firebase on "Save"
   const [assignments, setAssignments] = useState({});
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedCase, setSelectedCase] = useState(null);
   const db = getDatabase();
 
-  // Week navigation
-  const [currentWeekStart, setCurrentWeekStart] = useState(() => getWeekStart(new Date()));
-  const weekKey = toYMD(currentWeekStart);
-  const weekEndDate = addDays(currentWeekStart, 6);
-  const clinicLabel = `${toMDY(currentWeekStart)} – ${toMDY(weekEndDate)}`;
+  // Date navigation — each schedule is a single clinic date, keyed by YMD
+  const [currentDate, setCurrentDate] = useState(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const dateKey = toYMD(currentDate);
+
+  // All dates that already have a saved schedule (for arrow graying, "+"
+  // calendar disabling, and prev/next stepping between existing schedules).
+  const [scheduleDates, setScheduleDates] = useState([]);
+  // Nothing scheduled anywhere yet, and not in the middle of building one —
+  // "today" (the default currentDate) isn't a meaningful schedule to show,
+  // and there's nothing to render attorney columns for either.
+  const hasNoSchedules = scheduleDates.length === 0 && !isEditMode;
+  const clinicLabel = hasNoSchedules ? "No Schedule" : formatClinicDate(currentDate);
+  const [isAddScheduleOpen, setIsAddScheduleOpen] = useState(false);
+  const [isDeleteScheduleOpen, setIsDeleteScheduleOpen] = useState(false);
+  const [isJumpCalendarOpen, setIsJumpCalendarOpen] = useState(false);
+  const [isChangeDateOpen, setIsChangeDateOpen] = useState(false);
+  const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(
+    () => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
+  );
 
   // Pop ups: 
   const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
@@ -96,8 +137,20 @@ export default function Schedule() {
 
   // Column attorney selections (local, saved on Save)
   const [columnAttorneys, setColumnAttorneys] = useState({});
-  // Last-saved slots for the current week, used to detect case removals on Save
+  // Last-saved slots for the current date, used to detect case removals on Save
   const savedAssignmentsRef = useRef({});
+
+  // ── Close the "more actions" menu when clicking outside of it ────────────
+  const actionsMenuRef = useRef(null);
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (actionsMenuRef.current && !actionsMenuRef.current.contains(e.target)) {
+        setIsActionsMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // ── Load attorneys ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -130,17 +183,26 @@ export default function Schedule() {
     return () => unsubscribe();
   }, [db]);
 
-  // ── Load saved schedule for the current week ──────────────────────────────
+  // ── Load the set of dates that already have a saved schedule ─────────────
   useEffect(() => {
-    const unsubscribe = onValue(ref(db, `schedules/${weekKey}`), (snapshot) => {
-      const weekData = snapshot.val();
-      if (!weekData) {
+    const unsubscribe = onValue(ref(db, "schedules"), (snapshot) => {
+      const obj = snapshot.val();
+      setScheduleDates(obj ? Object.keys(obj).sort() : []);
+    });
+    return () => unsubscribe();
+  }, [db]);
+
+  // ── Load saved schedule for the current date ──────────────────────────────
+  useEffect(() => {
+    const unsubscribe = onValue(ref(db, `schedules/${dateKey}`), (snapshot) => {
+      const dayData = snapshot.val();
+      if (!dayData) {
         setAssignments({});
         setColumnAttorneys({});
         savedAssignmentsRef.current = {};
         return;
       }
-      const slots = weekData.slots ?? {};
+      const slots = dayData.slots ?? {};
       setAssignments(slots);
       savedAssignmentsRef.current = slots;
 
@@ -156,14 +218,113 @@ export default function Schedule() {
       setColumnAttorneys(cols);
     });
     return () => unsubscribe();
-  }, [db, weekKey]);
+  }, [db, dateKey]);
 
-  // ── Week navigation ───────────────────────────────────────────────────────
-  function goToPrevWeek() { setCurrentWeekStart((prev) => addDays(prev, -7)); }
-  function goToNextWeek() { setCurrentWeekStart((prev) => addDays(prev, 7)); }
-  function goToWeek(dateStr) {
-    if (!dateStr) return;
-    setCurrentWeekStart(getWeekStart(new Date(dateStr)));
+  // ── Prev/next navigation: steps between existing schedules only ──────────
+  const priorScheduleDates = scheduleDates.filter((d) => d < dateKey);
+  const laterScheduleDates = scheduleDates.filter((d) => d > dateKey);
+  const hasPrevSchedule = priorScheduleDates.length > 0;
+  const hasNextSchedule = laterScheduleDates.length > 0;
+
+  function goToPrevSchedule() {
+    if (priorScheduleDates.length === 0) return;
+    setCurrentDate(fromYMD(priorScheduleDates[priorScheduleDates.length - 1]));
+  }
+  function goToNextSchedule() {
+    if (laterScheduleDates.length === 0) return;
+    setCurrentDate(fromYMD(laterScheduleDates[0]));
+  }
+
+  // ── Jump to schedule: pick any existing schedule date from the calendar ──
+  function handleJumpToSchedule(dateStr) {
+    setCurrentDate(fromYMD(dateStr));
+    setIsJumpCalendarOpen(false);
+  }
+
+  // ── Add schedule: create it in Firebase immediately (empty), then open it
+  // for editing. Persisting right away — instead of only holding it in local
+  // state until Save — means an accidental prev/next/jump click can't quietly
+  // discard the new schedule; it's already real and will reload correctly.
+  async function handleAddSchedule(dateStr) {
+    setCurrentDate(fromYMD(dateStr));
+    setAssignments({});
+    setColumnAttorneys({});
+    savedAssignmentsRef.current = {};
+    setIsEditMode(true);
+    setIsAddScheduleOpen(false);
+
+    try {
+      await set(ref(db, `schedules/${dateStr}`), {
+        slots: {},
+        dateKey: dateStr,
+        savedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("Failed to create schedule:", err);
+    }
+  }
+
+  // ── Delete schedule: remove this date's saved schedule + unwind its cases ─
+  async function handleDeleteSchedule() {
+    // Unwind based on what's actually SAVED for this date (savedAssignmentsRef),
+    // not the in-progress local edits — those never hit Firebase in the first place.
+    const savedSlots = savedAssignmentsRef.current;
+    const caseUpdates = {};
+
+    for (const slot of Object.values(savedSlots)) {
+      const caseId = slot?.client?.caseId;
+      if (caseId) {
+        caseUpdates[`cases/${caseId}/status`] = "waitlisted";
+        caseUpdates[`cases/${caseId}/schedulingInfo/date`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/timeSlot`] = null;
+        caseUpdates[`cases/${caseId}/matchInfo/attorney`] = null;
+        caseUpdates[`cases/${caseId}/matchInfo/interpreter`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/attorneyName`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/attorneyEmail`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/attorneyPhone`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/interpreterName`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/interpreterEmail`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/interpreterPhone`] = null;
+      }
+      if (caseId && slot?.attorney?.attorneyId) {
+        caseUpdates[`caseAccess/${slot.attorney.attorneyId}/${caseId}`] = null;
+      }
+      if (caseId && slot?.interpreter?.id) {
+        caseUpdates[`caseAccess/${slot.interpreter.id}/${caseId}`] = null;
+      }
+    }
+
+    // Remove the schedule node itself
+    caseUpdates[`schedules/${dateKey}`] = null;
+
+    try {
+      await update(ref(db), caseUpdates);
+
+      // Land somewhere real instead of staying parked on the date we just
+      // deleted: prefer the nearest earlier schedule, then the nearest
+      // later one, else fall back to today. Changing currentDate re-triggers
+      // the "load schedule for current date" effect, which is what actually
+      // repopulates (or clears) the grid — more reliable than hand-clearing
+      // state here and hoping nothing re-hydrates it from a stale render.
+      const remainingDates = scheduleDates.filter((d) => d !== dateKey);
+      const prior = remainingDates.filter((d) => d < dateKey);
+      const later = remainingDates.filter((d) => d > dateKey);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const nextDate =
+        prior.length > 0 ? fromYMD(prior[prior.length - 1]) :
+        later.length > 0 ? fromYMD(later[0]) :
+        today;
+
+      setCurrentDate(nextDate);
+      setAssignments({});
+      setColumnAttorneys({});
+      savedAssignmentsRef.current = {};
+      setIsEditMode(false);
+      setIsDeleteScheduleOpen(false);
+    } catch (err) {
+      console.error("Failed to delete schedule:", err);
+    }
   }
 
   // ── DnD sensors ───────────────────────────────────────────────────────────
@@ -298,139 +459,166 @@ export default function Schedule() {
     });
   }
 
-  // ── Save: write everything to Firebase ───────────────────────────────────
-  async function handleSave() {
+  // ── Save (or move) the schedule to `targetDateKey` ────────────────────────
+  // Shared by handleSave (targetDateKey === dateKey) and handleChangeDate
+  // (targetDateKey is a different date — moves the schedule + deletes the
+  // old node in the same pass).
+  async function saveScheduleTo(targetDateKey) {
     // Capture the pre-save slots now — the live `onValue` listener on
-    // `schedules/${weekKey}` echoes our own write back and will overwrite
+    // `schedules/${dateKey}` echoes our own write back and will overwrite
     // savedAssignmentsRef.current as soon as the set() below resolves, so
     // reading the ref after the write would always show "new vs new".
     const prevSlots = savedAssignmentsRef.current;
+    const isMove = targetDateKey !== dateKey;
 
     const payload = {
       slots: assignments,
-      weekKey,
+      dateKey: targetDateKey,
       savedAt: new Date().toISOString(),
     };
 
-    console.log("Saving to Firebase path:", `schedules/${weekKey}`);
+    console.log("Saving to Firebase path:", `schedules/${targetDateKey}`);
     console.log("Payload:", JSON.stringify(payload, null, 2));
 
+    // 1) Save full schedule (including column attorney selections) at the target date
+    await set(ref(db, `schedules/${targetDateKey}`), payload);
+
+    // 2) Write matched attorney + interpreter into each assigned case's record.
+    // matchInfo holds the personnel UID (a stable reference, not a display value);
+    // schedulingInfo carries name + email + phone, which is what EditForm's
+    // Attorney / Legal Student sections actually display.
+    const caseUpdates = {};
+    const currentCaseIds = new Set();
+    for (const [slotKey, slot] of Object.entries(assignments)) {
+      if (slot?.client?.caseId) {
+        currentCaseIds.add(slot.client.caseId);
+        // Flip the case out of "waitlisted" so it stops showing up as
+        // available on other dates (and on the Cases waitlist tab) once
+        // it's actually been placed on a schedule — prevents double-booking.
+        caseUpdates[`cases/${slot.client.caseId}/status`] = "scheduled";
+        // Persist the clinic date + time slot onto the case record itself,
+        // so views like Attorney View can read a case's schedule directly
+        // instead of scanning every schedules/ node.
+        caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/date`] = targetDateKey;
+        caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/timeSlot`] = slot.time ?? "";
+        if (slot?.attorney) {
+          caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney.attorneyId ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = slot.attorney.name ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = slot.attorney.email ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = slot.attorney.phone ?? "";
+        } else {
+          // Attorney was unassigned from this slot's column — the case stays
+          // on the schedule, but drop the stale attorney reference instead of
+          // leaving it pointed at whoever was cleared.
+          caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = null;
+        }
+        if (slot?.interpreter) {
+          caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter.id ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterName`] = slot.interpreter.name ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterEmail`] = slot.interpreter.email ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterPhone`] = slot.interpreter.phone ?? "";
+        }
+      }
+    }
+
+    // 3) Clear matchInfo + schedulingInfo contact fields for cases removed from the board since last save,
+    // and put them back in the waitlist pool
+    for (const slot of Object.values(prevSlots)) {
+      const caseId = slot?.client?.caseId;
+      if (caseId && !currentCaseIds.has(caseId)) {
+        caseUpdates[`cases/${caseId}/status`] = "waitlisted";
+        caseUpdates[`cases/${caseId}/schedulingInfo/date`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/timeSlot`] = null;
+        caseUpdates[`cases/${caseId}/matchInfo/attorney`] = null;
+        caseUpdates[`cases/${caseId}/matchInfo/interpreter`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/attorneyName`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/attorneyEmail`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/attorneyPhone`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/interpreterName`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/interpreterEmail`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/interpreterPhone`] = null;
+      }
+    }
+
+    // 4) Reconcile the caseAccess/{uid} index. Firebase rules only let an
+    // Attorney/Legal Student read cases/$caseId they're matched to, not the
+    // whole cases collection — this index is what Attorney View reads to
+    // find which case IDs to fetch. Covers assign, reassign, and unassign.
+    const prevMatchByCase = {};
+    for (const slot of Object.values(prevSlots)) {
+      const caseId = slot?.client?.caseId;
+      if (caseId) {
+        prevMatchByCase[caseId] = {
+          attorneyId: slot.attorney?.attorneyId ?? null,
+          interpreterId: slot.interpreter?.id ?? null,
+        };
+      }
+    }
+    const currentMatchByCase = {};
+    for (const slot of Object.values(assignments)) {
+      const caseId = slot?.client?.caseId;
+      if (caseId) {
+        currentMatchByCase[caseId] = {
+          attorneyId: slot.attorney?.attorneyId ?? null,
+          interpreterId: slot.interpreter?.id ?? null,
+        };
+      }
+    }
+    const touchedCaseIds = new Set([...Object.keys(prevMatchByCase), ...Object.keys(currentMatchByCase)]);
+    for (const caseId of touchedCaseIds) {
+      const prevMatch = prevMatchByCase[caseId] ?? {};
+      const currMatch = currentMatchByCase[caseId] ?? {};
+      if (prevMatch.attorneyId && prevMatch.attorneyId !== currMatch.attorneyId) {
+        caseUpdates[`caseAccess/${prevMatch.attorneyId}/${caseId}`] = null;
+      }
+      if (currMatch.attorneyId) {
+        caseUpdates[`caseAccess/${currMatch.attorneyId}/${caseId}`] = true;
+      }
+      if (prevMatch.interpreterId && prevMatch.interpreterId !== currMatch.interpreterId) {
+        caseUpdates[`caseAccess/${prevMatch.interpreterId}/${caseId}`] = null;
+      }
+      if (currMatch.interpreterId) {
+        caseUpdates[`caseAccess/${currMatch.interpreterId}/${caseId}`] = true;
+      }
+    }
+
+    // 5) Moving to a different date — drop the old schedule node in the same pass
+    if (isMove) {
+      caseUpdates[`schedules/${dateKey}`] = null;
+    }
+
+    if (Object.keys(caseUpdates).length > 0) {
+      await update(ref(db), caseUpdates);
+    }
+
+    savedAssignmentsRef.current = assignments;
+    if (isMove) {
+      setCurrentDate(fromYMD(targetDateKey));
+    }
+    setIsEditMode(false);
+  }
+
+  // ── Save: write the current board to Firebase under the current date ─────
+  async function handleSave() {
     try {
-      // 1) Save full schedule (including column attorney selections)
-      await set(ref(db, `schedules/${weekKey}`), payload);
-
-      // 2) Write matched attorney + interpreter into each assigned case's record.
-      // matchInfo holds the personnel UID (a stable reference, not a display value);
-      // schedulingInfo carries name + email + phone, which is what EditForm's
-      // Attorney / Legal Student sections actually display.
-      const caseUpdates = {};
-      const currentCaseIds = new Set();
-      for (const [slotKey, slot] of Object.entries(assignments)) {
-        if (slot?.client?.caseId) {
-          currentCaseIds.add(slot.client.caseId);
-          // Flip the case out of "waitlisted" so it stops showing up as
-          // available in other weeks (and on the Cases waitlist tab) once
-          // it's actually been placed on a schedule — prevents double-booking.
-          caseUpdates[`cases/${slot.client.caseId}/status`] = "scheduled";
-          // Persist the clinic date + time slot onto the case record itself,
-          // so views like Attorney View can read a case's schedule directly
-          // instead of scanning every week's schedules/ node.
-          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/date`] = weekKey;
-          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/timeSlot`] = slot.time ?? "";
-          if (slot?.attorney) {
-            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney.attorneyId ?? "";
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = slot.attorney.name ?? "";
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = slot.attorney.email ?? "";
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = slot.attorney.phone ?? "";
-          } else {
-            // Attorney was unassigned from this slot's column — the case stays
-            // on the schedule, but drop the stale attorney reference instead of
-            // leaving it pointed at whoever was cleared.
-            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = null;
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = null;
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = null;
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = null;
-          }
-          if (slot?.interpreter) {
-            caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter.id ?? "";
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterName`] = slot.interpreter.name ?? "";
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterEmail`] = slot.interpreter.email ?? "";
-            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterPhone`] = slot.interpreter.phone ?? "";
-          }
-        }
-      }
-
-      // 3) Clear matchInfo + schedulingInfo contact fields for cases removed from the board since last save,
-      // and put them back in the waitlist pool
-      for (const slot of Object.values(prevSlots)) {
-        const caseId = slot?.client?.caseId;
-        if (caseId && !currentCaseIds.has(caseId)) {
-          caseUpdates[`cases/${caseId}/status`] = "waitlisted";
-          caseUpdates[`cases/${caseId}/schedulingInfo/date`] = null;
-          caseUpdates[`cases/${caseId}/schedulingInfo/timeSlot`] = null;
-          caseUpdates[`cases/${caseId}/matchInfo/attorney`] = null;
-          caseUpdates[`cases/${caseId}/matchInfo/interpreter`] = null;
-          caseUpdates[`cases/${caseId}/schedulingInfo/attorneyName`] = null;
-          caseUpdates[`cases/${caseId}/schedulingInfo/attorneyEmail`] = null;
-          caseUpdates[`cases/${caseId}/schedulingInfo/attorneyPhone`] = null;
-          caseUpdates[`cases/${caseId}/schedulingInfo/interpreterName`] = null;
-          caseUpdates[`cases/${caseId}/schedulingInfo/interpreterEmail`] = null;
-          caseUpdates[`cases/${caseId}/schedulingInfo/interpreterPhone`] = null;
-        }
-      }
-
-      // 4) Reconcile the caseAccess/{uid} index. Firebase rules only let an
-      // Attorney/Legal Student read cases/$caseId they're matched to, not the
-      // whole cases collection — this index is what Attorney View reads to
-      // find which case IDs to fetch. Covers assign, reassign, and unassign.
-      const prevMatchByCase = {};
-      for (const slot of Object.values(prevSlots)) {
-        const caseId = slot?.client?.caseId;
-        if (caseId) {
-          prevMatchByCase[caseId] = {
-            attorneyId: slot.attorney?.attorneyId ?? null,
-            interpreterId: slot.interpreter?.id ?? null,
-          };
-        }
-      }
-      const currentMatchByCase = {};
-      for (const slot of Object.values(assignments)) {
-        const caseId = slot?.client?.caseId;
-        if (caseId) {
-          currentMatchByCase[caseId] = {
-            attorneyId: slot.attorney?.attorneyId ?? null,
-            interpreterId: slot.interpreter?.id ?? null,
-          };
-        }
-      }
-      const touchedCaseIds = new Set([...Object.keys(prevMatchByCase), ...Object.keys(currentMatchByCase)]);
-      for (const caseId of touchedCaseIds) {
-        const prevMatch = prevMatchByCase[caseId] ?? {};
-        const currMatch = currentMatchByCase[caseId] ?? {};
-        if (prevMatch.attorneyId && prevMatch.attorneyId !== currMatch.attorneyId) {
-          caseUpdates[`caseAccess/${prevMatch.attorneyId}/${caseId}`] = null;
-        }
-        if (currMatch.attorneyId) {
-          caseUpdates[`caseAccess/${currMatch.attorneyId}/${caseId}`] = true;
-        }
-        if (prevMatch.interpreterId && prevMatch.interpreterId !== currMatch.interpreterId) {
-          caseUpdates[`caseAccess/${prevMatch.interpreterId}/${caseId}`] = null;
-        }
-        if (currMatch.interpreterId) {
-          caseUpdates[`caseAccess/${currMatch.interpreterId}/${caseId}`] = true;
-        }
-      }
-
-      if (Object.keys(caseUpdates).length > 0) {
-        await update(ref(db), caseUpdates);
-      }
-
-      savedAssignmentsRef.current = assignments;
-
+      await saveScheduleTo(dateKey);
       console.log("Save successful!");
-      setIsEditMode(false);
     } catch (err) {
       console.error("Failed to save schedule:", err);
+    }
+  }
+
+  // ── Change date: move this schedule (and its cases) to a different date ──
+  async function handleChangeDate(newDateStr) {
+    try {
+      await saveScheduleTo(newDateStr);
+      setIsChangeDateOpen(false);
+      console.log("Schedule moved to", newDateStr);
+    } catch (err) {
+      console.error("Failed to change schedule date:", err);
     }
   }
 
@@ -512,7 +700,7 @@ export default function Schedule() {
     setAssignments(newAssignments);
   }
 
-  // ── Cases already placed this week — hide from waitlist ───────────────────
+  // ── Cases already placed on this date — hide from waitlist ────────────────
   const assignedCaseIds = new Set(
     Object.values(assignments)
       .map((s) => s?.client?.caseId)
@@ -532,6 +720,7 @@ export default function Schedule() {
     });
 
   const colArray = mockAttorneys.map((_, i) => i);
+  const hasAnyAttorneyAssigned = Object.keys(columnAttorneys).length > 0;
 
   return (
     <>
@@ -542,57 +731,214 @@ export default function Schedule() {
           {/* Left Panel */}
           <div className="schedule-panel">
             <div className="schedule-header">
-              {/* Week Navigation */}
+              {/* Date Navigation — nothing to navigate between until a schedule exists */}
               <div className="schedule-date-nav">
-                <button className="btn btn-sm schedule-nav-arrow" onClick={goToPrevWeek}>‹</button>
-                <span className="schedule-clinic-label">{clinicLabel}</span>
-                <button className="btn btn-sm schedule-nav-arrow" onClick={goToNextWeek}>›</button>
-                <input
-                  type="date"
-                  className="schedule-date-jump-input"
-                  onChange={(e) => goToWeek(e.target.value)}
-                />
+                {!hasNoSchedules && (
+                  <>
+                    <button
+                      className="btn btn-sm schedule-nav-arrow"
+                      onClick={goToPrevSchedule}
+                      disabled={!hasPrevSchedule}
+                      aria-label="Previous schedule"
+                    >
+                      ‹
+                    </button>
+                    <div className="schedule-add-wrapper schedule-date-label-wrapper">
+                      <button
+                        type="button"
+                        className="btn btn-sm schedule-clinic-label"
+                        onClick={() => {
+                          setCalendarMonth(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+                          setIsJumpCalendarOpen((o) => !o);
+                        }}
+                        aria-label="Jump to another schedule"
+                        aria-expanded={isJumpCalendarOpen}
+                      >
+                        <span className="schedule-clinic-label-corner schedule-clinic-label-corner--tl" aria-hidden="true" />
+                        <span className="schedule-clinic-label-corner schedule-clinic-label-corner--tr" aria-hidden="true" />
+                        <span className="schedule-clinic-label-corner schedule-clinic-label-corner--bl" aria-hidden="true" />
+                        <span className="schedule-clinic-label-corner schedule-clinic-label-corner--br" aria-hidden="true" />
+                        {clinicLabel}
+                      </button>
+                      {isJumpCalendarOpen && (
+                        <ScheduleDateCalendar
+                          mode="jump"
+                          hint="Pick a date to go to another existing schedule."
+                          month={calendarMonth}
+                          onMonthChange={setCalendarMonth}
+                          scheduleDates={scheduleDates}
+                          onSelect={handleJumpToSchedule}
+                          onClose={() => setIsJumpCalendarOpen(false)}
+                        />
+                      )}
+                    </div>
+                    <button
+                      className="btn btn-sm schedule-nav-arrow"
+                      onClick={goToNextSchedule}
+                      disabled={!hasNextSchedule}
+                      aria-label="Next schedule"
+                    >
+                      ›
+                    </button>
+                  </>
+                )}
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons — nothing to act on until a schedule exists */}
               <div className="schedule-action-buttons">
-                {isEditMode && (<button
-                  className="btn btn-sm schedule-action-btn schedule-action-btn-primary"
-                  onClick={handleAutoMatch}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                  </svg>
-                  Auto-match
-                </button>)}
+                {!hasNoSchedules && (isEditMode ? (
+                  <div className="schedule-actions-menu" ref={actionsMenuRef}>
+                    <button
+                      type="button"
+                      className="btn btn-sm schedule-kebab-btn"
+                      onClick={() => setIsActionsMenuOpen((o) => !o)}
+                      title="More actions"
+                      aria-label="More actions for this schedule"
+                      aria-haspopup="true"
+                      aria-expanded={isActionsMenuOpen}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="1.75"></circle>
+                        <circle cx="12" cy="12" r="1.75"></circle>
+                        <circle cx="12" cy="19" r="1.75"></circle>
+                      </svg>
+                    </button>
 
-                {isEditMode ? (
-                  <button
-                    className="btn btn-sm schedule-action-btn schedule-action-btn-save"
-                    onClick={handleSave}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
-                      <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4.207a2 2 0 0 0-.586-1.414l-2.793-2.793A2 2 0 0 0 11.207 1H2zm6 11.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm.5-9v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V3h5.5z" />
-                    </svg>
-                    Save
-                  </button>
+                    {isActionsMenuOpen && (
+                      <div className="schedule-dropdown-menu" role="menu">
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="schedule-dropdown-item schedule-dropdown-item-primary"
+                          onClick={() => {
+                            setIsActionsMenuOpen(false);
+                            handleAutoMatch();
+                          }}
+                          disabled={!hasAnyAttorneyAssigned}
+                          title={!hasAnyAttorneyAssigned ? "Assign at least one attorney to a column first" : undefined}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
+                          </svg>
+                          <span>Auto-match</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="schedule-dropdown-item"
+                          onClick={() => {
+                            setIsActionsMenuOpen(false);
+                            setCalendarMonth(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+                            setIsChangeDateOpen(true);
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                          </svg>
+                          <span>Move Date</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="schedule-dropdown-item schedule-dropdown-item-success"
+                          onClick={() => {
+                            setIsActionsMenuOpen(false);
+                            handleSave();
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4.207a2 2 0 0 0-.586-1.414l-2.793-2.793A2 2 0 0 0 11.207 1H2zm6 11.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm.5-9v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V3h5.5z" />
+                          </svg>
+                          <span>Save</span>
+                        </button>
+
+                        <div className="schedule-dropdown-divider" role="separator"></div>
+
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className="schedule-dropdown-item schedule-dropdown-item-danger"
+                          onClick={() => {
+                            setIsActionsMenuOpen(false);
+                            setIsDeleteScheduleOpen(true);
+                          }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                            <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L13.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                          </svg>
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
-                  <button
-                    className="btn btn-sm schedule-action-btn schedule-action-btn-secondary"
-                    onClick={() => setIsEditMode(true)}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
-                      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                    </svg>
-                    Edit
-                  </button>
-                )}
+                  <>
+                    <div className="schedule-add-wrapper">
+                      <button
+                        type="button"
+                        className="btn btn-sm schedule-action-btn schedule-action-btn-primary"
+                        onClick={() => {
+                          setCalendarMonth(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+                          setIsAddScheduleOpen((o) => !o);
+                        }}
+                        title="Add new schedule"
+                        aria-label="Add new schedule"
+                        aria-expanded={isAddScheduleOpen}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                          <path d="M8 7a.5.5 0 0 1 .5.5V9H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V10H6a.5.5 0 0 1 0-1h1.5V7.5A.5.5 0 0 1 8 7z" />
+                          <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                        </svg>
+                        Add
+                      </button>
+                      {isAddScheduleOpen && (
+                        <ScheduleDateCalendar
+                          mode="add"
+                          hint="Pick a date to create a new schedule."
+                          month={calendarMonth}
+                          onMonthChange={setCalendarMonth}
+                          scheduleDates={scheduleDates}
+                          onSelect={handleAddSchedule}
+                          onClose={() => setIsAddScheduleOpen(false)}
+                        />
+                      )}
+                    </div>
+
+                    <button
+                      className="btn btn-sm schedule-action-btn schedule-action-btn-secondary"
+                      onClick={() => setIsEditMode(true)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                      </svg>
+                      Edit
+                    </button>
+                  </>
+                ))}
               </div>
             </div>
 
             {/* Schedule Grid */}
-            <div className="schedule-grid">
-              {colArray.map((colIdx) => (
+            <div className={`schedule-grid${hasNoSchedules ? " schedule-grid--empty" : ""}`}>
+              {hasNoSchedules ? (
+                <div className="schedule-grid-empty-cta">
+                  <p className="schedule-grid-empty-title">Create your first schedule</p>
+                  <p className="schedule-grid-empty-subtitle">Pick a date below to get started.</p>
+                  <ScheduleDateCalendar
+                    mode="add"
+                    embedded
+                    large
+                    month={calendarMonth}
+                    onMonthChange={setCalendarMonth}
+                    scheduleDates={scheduleDates}
+                    onSelect={handleAddSchedule}
+                    onClose={() => { }}
+                  />
+                </div>
+              ) : colArray.map((colIdx) => (
                 <AttorneyColumn
                   key={colIdx}
                   colIdx={colIdx}
@@ -614,56 +960,58 @@ export default function Schedule() {
             </div>
           </div>
 
-          {/* Right Panel: Waitlist */}
-          <div className="schedule-waitlist-panel">
-            <h5 className="schedule-waitlist-title">Waitlist</h5>
+          {/* Right Panel: Waitlist — nothing to place on a schedule until one exists */}
+          {!hasNoSchedules && (
+            <div className="schedule-waitlist-panel">
+              <h5 className="schedule-waitlist-title">Waitlist</h5>
 
-            <div className="schedule-search-container">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" className="schedule-search-icon">
-                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z" />
-              </svg>
-              <input
-                type="text"
-                className="form-control form-control-sm schedule-search-input"
-                placeholder="Search by Name or Case ID"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
+              <div className="schedule-search-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" className="schedule-search-icon">
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z" />
+                </svg>
+                <input
+                  type="text"
+                  className="form-control form-control-sm schedule-search-input"
+                  placeholder="Search by Name or Case ID"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
 
-            <div className="schedule-legend">
-              <span className="schedule-legend-item">
-                <span className="schedule-legend-dot schedule-legend-dot-old" />Old
-              </span>
-              <span className="schedule-legend-item">
-                <span className="schedule-legend-dot schedule-legend-dot-medium" />Medium
-              </span>
-              <span className="schedule-legend-item">
-                <span className="schedule-legend-dot schedule-legend-dot-new" />New
-              </span>
-            </div>
+              <div className="schedule-legend">
+                <span className="schedule-legend-item">
+                  <span className="schedule-legend-dot schedule-legend-dot-old" />Old
+                </span>
+                <span className="schedule-legend-item">
+                  <span className="schedule-legend-dot schedule-legend-dot-medium" />Medium
+                </span>
+                <span className="schedule-legend-item">
+                  <span className="schedule-legend-dot schedule-legend-dot-new" />New
+                </span>
+              </div>
 
-            <div className="schedule-waitlist-cards">
-              {filteredWaitlist.length > 0
-                ? filteredWaitlist.map((c) => (
-                  <WaitlistCard
-                    key={c.id}
-                    firebaseKey={c.id}
-                    id={c.id.slice(c.id.length - 5)}
-                    fname={c.clientInfo?.fname}
-                    lname={c.clientInfo?.lname}
-                    category={c.caseInfo?.category}
-                    language={c.clientInfo?.primaryLanguage}
-                    date={c.schedulingInfo?.date}
-                    onPreview={() => setSelectedCase(c)}
-                    onContact={() => setContactCaseId(c.id)}
-                    isDraggable={isEditMode}
-                  />
-                ))
-                : <p className="text-muted small text-center mt-2">No waitlisted cases.</p>
-              }
+              <div className="schedule-waitlist-cards">
+                {filteredWaitlist.length > 0
+                  ? filteredWaitlist.map((c) => (
+                    <WaitlistCard
+                      key={c.id}
+                      firebaseKey={c.id}
+                      id={c.id.slice(c.id.length - 5)}
+                      fname={c.clientInfo?.fname}
+                      lname={c.clientInfo?.lname}
+                      category={c.caseInfo?.category}
+                      language={c.clientInfo?.primaryLanguage}
+                      date={c.schedulingInfo?.date}
+                      onPreview={() => setSelectedCase(c)}
+                      onContact={() => setContactCaseId(c.id)}
+                      isDraggable={isEditMode}
+                    />
+                  ))
+                  : <p className="text-muted small text-center mt-2">No waitlisted cases.</p>
+                }
+              </div>
             </div>
-          </div>
+          )}
 
           {selectedCase && (
             <CasePreview
@@ -676,6 +1024,23 @@ export default function Schedule() {
             <ContactPopUp
               caseId={contactCaseId}
               onClose={() => setContactCaseId(null)}
+            />
+          )}
+          {isDeleteScheduleOpen && (
+            <DeleteScheduleConfirm
+              clinicLabel={clinicLabel}
+              onCancel={() => setIsDeleteScheduleOpen(false)}
+              onConfirm={handleDeleteSchedule}
+            />
+          )}
+          {isChangeDateOpen && (
+            <ChangeScheduleDateModal
+              clinicLabel={clinicLabel}
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
+              scheduleDates={scheduleDates}
+              onSelect={handleChangeDate}
+              onCancel={() => setIsChangeDateOpen(false)}
             />
           )}
         </div>
@@ -1037,6 +1402,146 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date,
         </div>
       </div>
     </div>
+  );
+}
+
+// ─── Schedule Date Calendar Dropdown ──────────────────────────────────────────
+// Two modes, sharing the same month-grid UI:
+//  - "add":  picking a date to create a new schedule — dates that already
+//            have one are disabled (can't create a duplicate).
+//  - "jump": picking a date to view an existing schedule — dates that don't
+//            have one are disabled (nothing to jump to).
+// `embedded`: renders inline (no absolute positioning/shadow, no outside-click
+// self-close) for use inside a modal that already owns its own close behavior,
+// instead of as a dropdown anchored to a trigger button.
+function ScheduleDateCalendar({ month, onMonthChange, scheduleDates, mode, onSelect, onClose, embedded = false, large = false, hint }) {
+  const panelRef = useRef(null);
+
+  // Close on outside click — only relevant when acting as a standalone dropdown
+  useEffect(() => {
+    if (embedded) return;
+    function handleClickOutside(e) {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        onClose();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [embedded, onClose]);
+
+  const scheduleDateSet = new Set(scheduleDates);
+  const cells = getMonthGridCells(month);
+  const monthLabel = `${MONTH_NAMES[month.getMonth()]} ${month.getFullYear()}`;
+
+  function isDisabled(ymd) {
+    return mode === "jump" ? !scheduleDateSet.has(ymd) : scheduleDateSet.has(ymd);
+  }
+  function disabledTitle() {
+    return mode === "jump" ? "No schedule exists for this date" : "A schedule already exists for this date";
+  }
+
+  function goPrevMonth() {
+    onMonthChange(new Date(month.getFullYear(), month.getMonth() - 1, 1));
+  }
+  function goNextMonth() {
+    onMonthChange(new Date(month.getFullYear(), month.getMonth() + 1, 1));
+  }
+
+  return (
+    <div
+      className={`schedule-add-calendar${embedded ? " schedule-add-calendar--embedded" : ""}${large ? " schedule-add-calendar--large" : ""}`}
+      ref={panelRef}
+    >
+      {hint && <p className="schedule-add-calendar-hint">{hint}</p>}
+      <div className="schedule-add-calendar-header">
+        <button type="button" className="schedule-add-calendar-nav" onClick={goPrevMonth} aria-label="Previous month">
+          ‹
+        </button>
+        <span className="schedule-add-calendar-month">{monthLabel}</span>
+        <button type="button" className="schedule-add-calendar-nav" onClick={goNextMonth} aria-label="Next month">
+          ›
+        </button>
+      </div>
+
+      <div className="schedule-add-calendar-weekdays">
+        {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+          <span key={i}>{d}</span>
+        ))}
+      </div>
+
+      <div className="schedule-add-calendar-grid">
+        {cells.map((cellDate, i) => {
+          if (!cellDate) {
+            return <span key={i} className="schedule-add-calendar-cell schedule-add-calendar-cell--empty" />;
+          }
+          const ymd = toYMD(cellDate);
+          const disabled = isDisabled(ymd);
+          return (
+            <button
+              key={i}
+              type="button"
+              className={`schedule-add-calendar-cell${disabled ? " schedule-add-calendar-cell--disabled" : ""}`}
+              disabled={disabled}
+              title={disabled ? disabledTitle() : undefined}
+              onClick={() => onSelect(ymd)}
+            >
+              {cellDate.getDate()}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Delete Schedule Confirmation ─────────────────────────────────────────────
+function DeleteScheduleConfirm({ clinicLabel, onCancel, onConfirm }) {
+  return (
+    <>
+      <div className="schedule-modal-backdrop" onClick={onCancel} />
+      <div className="schedule-modal-popup">
+        <button className="schedule-modal-close-btn" onClick={onCancel}>✕</button>
+        <h6 className="schedule-modal-title">Delete Schedule</h6>
+        <p className="mb-3">
+          This will remove the schedule for <strong>{clinicLabel}</strong>, along with
+          any attorneys and cases assigned to it. This can't be undone.
+        </p>
+        <div className="d-flex justify-content-end gap-2">
+          <button type="button" className="btn btn-cancel p-0 text-decoration-underline" onClick={onCancel}>
+            Cancel
+          </button>
+          <button type="button" className="schedule-delete-confirm-btn" onClick={onConfirm}>
+            Delete
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─── Change Schedule Date Modal ────────────────────────────────────────────────
+function ChangeScheduleDateModal({ clinicLabel, month, onMonthChange, scheduleDates, onSelect, onCancel }) {
+  return (
+    <>
+      <div className="schedule-modal-backdrop" onClick={onCancel} />
+      <div className="schedule-modal-popup">
+        <button className="schedule-modal-close-btn" onClick={onCancel}>✕</button>
+        <h6 className="schedule-modal-title">Move Schedule Date</h6>
+        <p className="mb-3">
+          Currently <strong>{clinicLabel}</strong>. Pick a new date to move this schedule
+          (and its assigned attorneys and cases) to.
+        </p>
+        <ScheduleDateCalendar
+          mode="add"
+          embedded
+          month={month}
+          onMonthChange={onMonthChange}
+          scheduleDates={scheduleDates}
+          onSelect={onSelect}
+          onClose={onCancel}
+        />
+      </div>
+    </>
   );
 }
 

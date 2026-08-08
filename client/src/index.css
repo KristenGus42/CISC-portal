@@ -581,19 +581,6 @@ body {
   margin-bottom: 1rem;
 }
 
-.schedule-date-jump-input {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  width: 24px;
-  color: transparent;
-}
-
-.schedule-date-jump-input::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  opacity: 0.6;
-}
-
 /* Page Layout */
 .schedule-page {
   display: flex;
@@ -613,13 +600,15 @@ body {
 }
 
 .schedule-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 1rem;
 }
 
 .schedule-date-nav {
+  grid-column: 2;
+  justify-self: center;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -631,15 +620,195 @@ body {
   line-height: 1;
 }
 
+.schedule-nav-arrow:disabled {
+  color: var(--neutral-gray);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .schedule-clinic-label {
+  position: relative;
   font-weight: 700;
   font-size: 1.15rem;
   color: var(--primary-text);
+  min-width: 15ch;
+  text-align: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 0.35rem 0.9rem;
+}
+
+.schedule-clinic-label:hover {
+  background-color: var(--subtle-gray);
+}
+
+/* Corner-bracket outline (viewfinder style) instead of a full border —
+   four small L-shaped marks at the corners. */
+.schedule-clinic-label-corner {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--neutral-gray);
+  pointer-events: none;
+  transition: border-color 0.15s;
+}
+
+.schedule-clinic-label:hover .schedule-clinic-label-corner {
+  border-color: var(--call-to-action-3);
+}
+
+.schedule-clinic-label-corner--tl {
+  top: 2px;
+  left: 2px;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 3px;
+}
+
+.schedule-clinic-label-corner--tr {
+  top: 2px;
+  right: 2px;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 3px;
+}
+
+.schedule-clinic-label-corner--bl {
+  bottom: 2px;
+  left: 2px;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 3px;
+}
+
+.schedule-clinic-label-corner--br {
+  bottom: 2px;
+  right: 2px;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 3px;
+}
+
+/* Center the jump-to-schedule calendar under the date label instead of
+   right-aligning it like the "+ Add Schedule" dropdown. */
+.schedule-date-label-wrapper .schedule-add-calendar {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .schedule-action-buttons {
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   gap: 0.5rem;
+}
+
+.schedule-add-wrapper {
+  position: relative;
+}
+
+.schedule-add-calendar {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 30;
+  width: 240px;
+  padding: 0.75rem;
+  border: 1px solid var(--neutral-gray);
+  border-radius: 8px;
+  background-color: var(--background);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Embedded inside a modal (e.g. Change Date) instead of a dropdown anchored
+   to a trigger button — the modal already provides its own frame/backdrop. */
+.schedule-add-calendar--embedded {
+  position: static;
+  width: 100%;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
+.schedule-add-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.schedule-add-calendar-nav {
+  border: none;
+  background: none;
+  color: var(--dark-gray);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.schedule-add-calendar-nav:hover {
+  background-color: var(--subtle-gray);
+}
+
+.schedule-add-calendar-month {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--primary-text);
+}
+
+.schedule-add-calendar-hint {
+  margin: 0 0 0.6rem;
+  font-size: 0.74rem;
+  color: var(--dark-gray);
+  text-align: center;
+}
+
+.schedule-add-calendar-weekdays,
+.schedule-add-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.schedule-add-calendar-weekdays span {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  padding-bottom: 0.25rem;
+}
+
+.schedule-add-calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 5px;
+  background: none;
+  font-size: 0.78rem;
+  color: var(--primary-text);
+  cursor: pointer;
+}
+
+.schedule-add-calendar-cell:not(.schedule-add-calendar-cell--empty):not(.schedule-add-calendar-cell--disabled):hover {
+  background-color: var(--call-to-action);
+  color: var(--background);
+}
+
+.schedule-add-calendar-cell--empty {
+  cursor: default;
+}
+
+.schedule-add-calendar-cell--disabled {
+  color: var(--neutral-gray);
+  cursor: not-allowed;
+  text-decoration: line-through;
 }
 
 .schedule-action-btn {
@@ -669,8 +838,133 @@ body {
   color: var(--background);
 }
 
+.schedule-action-btn-danger {
+  background-color: var(--error);
+  border-color: var(--error);
+  color: var(--background);
+}
+
+/* "More actions" kebab menu — styled to match Access Management's row-actions menu */
+.schedule-actions-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.schedule-kebab-btn {
+  background-color: var(--background);
+  border: 1px solid var(--neutral-gray);
+  color: var(--dark-gray);
+  cursor: pointer;
+  min-height: 30px;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+}
+
+.schedule-kebab-btn:hover {
+  color: var(--call-to-action);
+  background-color: rgba(109, 47, 62, 0.1);
+  border-color: var(--call-to-action-3);
+}
+
+.schedule-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 30;
+  min-width: 190px;
+  padding: 0.3rem;
+  background-color: var(--background);
+  border: 1px solid var(--neutral-gray);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.schedule-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: none;
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--primary-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.schedule-dropdown-item svg {
+  flex-shrink: 0;
+}
+
+.schedule-dropdown-item:hover {
+  color: var(--call-to-action);
+  background-color: rgba(109, 47, 62, 0.1);
+}
+
+.schedule-dropdown-item-danger {
+  color: var(--error);
+}
+
+.schedule-dropdown-item-danger:hover {
+  color: var(--error);
+  background-color: #fde8e8;
+}
+
+.schedule-dropdown-item-primary {
+  color: var(--call-to-action);
+}
+
+.schedule-dropdown-item-primary:hover:not(:disabled) {
+  color: var(--call-to-action);
+  background-color: rgba(109, 47, 62, 0.1);
+}
+
+.schedule-dropdown-item-success {
+  color: #28a745;
+}
+
+.schedule-dropdown-item-success:hover {
+  color: #1e7e34;
+  background-color: #e6f4ea;
+}
+
+.schedule-dropdown-item:disabled {
+  color: var(--neutral-gray);
+  cursor: not-allowed;
+  background-color: transparent;
+}
+
+.schedule-dropdown-divider {
+  height: 1px;
+  margin: 0.3rem 0.2rem;
+  background-color: var(--neutral-gray);
+}
+
+.schedule-delete-confirm-btn {
+  border: none;
+  border-radius: 4px;
+  background-color: var(--error);
+  color: var(--background);
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+}
+
 /* Schedule Grid */
 .schedule-grid {
+  position: relative;
   display: flex;
   align-items: stretch;
   gap: 1rem;
@@ -679,6 +973,62 @@ body {
   flex: 1;
   min-height: 620px;
   background-color: #F3EEEF;
+}
+
+/* No schedule has ever been created — the grid goes white and is taken over
+   by a large embedded calendar prompting the user to pick a first date. */
+.schedule-grid--empty {
+  background-color: var(--background);
+}
+
+.schedule-grid-empty-cta {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.schedule-grid-empty-title {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-text);
+}
+
+.schedule-grid-empty-subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  color: var(--dark-gray);
+}
+
+/* Large variant of the embedded calendar, used to fill the empty grid */
+.schedule-add-calendar--large {
+  width: 100%;
+  max-width: 420px;
+}
+
+.schedule-add-calendar--large .schedule-add-calendar-month {
+  font-size: 1.1rem;
+}
+
+.schedule-add-calendar--large .schedule-add-calendar-nav {
+  font-size: 1.4rem;
+  padding: 0.25rem 0.6rem;
+}
+
+.schedule-add-calendar--large .schedule-add-calendar-weekdays span {
+  font-size: 0.85rem;
+}
+
+.schedule-add-calendar--large .schedule-add-calendar-cell {
+  font-size: 1rem;
+}
+
+.schedule-add-calendar--large .schedule-add-calendar-hint {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
 }
 
 .schedule-attorney-column {
