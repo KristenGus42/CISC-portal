@@ -19,6 +19,11 @@ const MONTH_NAMES = [
 
 const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+// Remembers which schedule date the admin was last viewing, so leaving the
+// page (a different tab/route, or a browser refresh) and coming back lands
+// them where they left off instead of always resetting to today.
+const LAST_VIEWED_DATE_KEY = "schedule:lastViewedDate";
+
 function toYMD(date) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -102,21 +107,38 @@ export default function Schedule() {
   const [selectedCase, setSelectedCase] = useState(null);
   const db = getDatabase();
 
-  // Date navigation — each schedule is a single clinic date, keyed by YMD
+  // Date navigation — each schedule is a single clinic date, keyed by YMD.
+  // Restore wherever the admin last left off, if we remember it; otherwise
+  // fall back to today until the "nearest upcoming schedule" effect below
+  // can pick a better default once schedule dates have loaded.
+  const hadStoredDateRef = useRef(typeof window !== "undefined" && !!localStorage.getItem(LAST_VIEWED_DATE_KEY));
+  const appliedSmartDefaultRef = useRef(false);
   const [currentDate, setCurrentDate] = useState(() => {
+    const stored = typeof window !== "undefined" ? localStorage.getItem(LAST_VIEWED_DATE_KEY) : null;
+    if (stored) return fromYMD(stored);
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   });
   const dateKey = toYMD(currentDate);
 
+  // Remember the currently-viewed date for next time the page is opened.
+  useEffect(() => {
+    localStorage.setItem(LAST_VIEWED_DATE_KEY, dateKey);
+  }, [dateKey]);
+
   // All dates that already have a saved schedule (for arrow graying, "+"
   // calendar disabling, and prev/next stepping between existing schedules).
   const [scheduleDates, setScheduleDates] = useState([]);
+  // Distinguishes "we don't know yet" from "confirmed empty" — scheduleDates
+  // starts as [] before Firebase responds, same shape as the genuine empty
+  // state, so without this the big "No Schedule" calendar takes over for a
+  // moment on every load/refresh even when schedules exist.
+  const [scheduleDatesLoaded, setScheduleDatesLoaded] = useState(false);
   // Nothing scheduled anywhere yet, and not in the middle of building one —
   // "today" (the default currentDate) isn't a meaningful schedule to show,
   // and there's nothing to render attorney columns for either.
-  const hasNoSchedules = scheduleDates.length === 0 && !isEditMode;
+  const hasNoSchedules = scheduleDatesLoaded && scheduleDates.length === 0 && !isEditMode;
   const clinicLabel = hasNoSchedules ? "No Schedule" : formatClinicDate(currentDate);
   const [isAddScheduleOpen, setIsAddScheduleOpen] = useState(false);
   const [isDeleteScheduleOpen, setIsDeleteScheduleOpen] = useState(false);
@@ -217,9 +239,29 @@ export default function Schedule() {
     const unsubscribe = onValue(ref(db, "schedules"), (snapshot) => {
       const obj = snapshot.val();
       setScheduleDates(obj ? Object.keys(obj).sort() : []);
+      setScheduleDatesLoaded(true);
     });
     return () => unsubscribe();
   }, [db]);
+
+  // ── First-ever visit (nothing remembered in localStorage): once schedule
+  // dates have loaded, jump to the nearest upcoming one instead of sitting
+  // on "today", which may not have anything scheduled on it. Runs at most
+  // once per mount — if the admin has already navigated elsewhere by the
+  // time this fires, it backs off rather than yanking them back.
+  useEffect(() => {
+    if (appliedSmartDefaultRef.current) return;
+    if (hadStoredDateRef.current) { appliedSmartDefaultRef.current = true; return; }
+    if (scheduleDates.length === 0) return; // still loading (or genuinely empty — nothing to jump to either way)
+
+    appliedSmartDefaultRef.current = true;
+    const todayKey = toYMD(new Date());
+    const upcoming = scheduleDates.filter((d) => d >= todayKey);
+    const target = upcoming.length > 0
+      ? upcoming[0] // nearest in the future (scheduleDates is sorted ascending)
+      : scheduleDates[scheduleDates.length - 1]; // otherwise nearest in the past
+    setCurrentDate(fromYMD(target));
+  }, [scheduleDates]);
 
   // ── Load saved schedule for the current date ──────────────────────────────
   useEffect(() => {
