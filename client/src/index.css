@@ -859,6 +859,25 @@ body {
   pointer-events: none;
 }
 
+/* View mode (not editing): solid, bolder, black outline instead of the edit-mode
+   dashed one — only on empty slots. */
+.schedule-time-slot-card--view .schedule-slot-body::before {
+  inset: 0;
+  border-style: solid;
+  border-width: 2px;
+  border-color: rgba(0, 0, 0, 0.65);
+  /* Match the outer card's 8px radius so the border hugs its bottom
+     corners flush instead of leaving a sliver of the card background
+     showing through next to the time bar. */
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
+/* Once a slot is assigned (--filled), drop the outline entirely in view mode. */
+.schedule-time-slot-card--view .schedule-slot-body--filled::before {
+  content: none;
+}
+
 /* Right Panel - Waitlist */
 .schedule-waitlist-panel {
   display: flex;

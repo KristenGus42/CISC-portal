@@ -251,7 +251,7 @@ export default function Schedule() {
     });
   }
 
-  // ── Attorney cleared in a column: back to "unassigned" ───────────────────
+  // ── Attorney cleared in a column: same as hitting "-" on every slot ───────
   function handleAttorneyClear(colIdx) {
     const colKey = `col${colIdx}`;
     setColumnAttorneys((prev) => {
@@ -264,14 +264,10 @@ export default function Schedule() {
       const next = { ...prev };
       for (const key of Object.keys(next)) {
         if (!key.startsWith(`${colIdx}-`)) continue;
-        const slot = next[key];
-        if (slot?.client) {
-          // Keep the placed case, just drop the attorney link
-          next[key] = { ...slot, attorney: null };
-        } else {
-          // Placeholder-only slot (no case) — nothing left to keep
-          delete next[key];
-        }
+        // Drop the assignment entirely — any placed case falls back out of
+        // assignedCaseIds and reappears in the waitlist, same as clicking
+        // the red "-" remove button on that slot.
+        delete next[key];
       }
       return next;
     });
@@ -346,6 +342,14 @@ export default function Schedule() {
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = slot.attorney.name ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = slot.attorney.email ?? "";
             caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = slot.attorney.phone ?? "";
+          } else {
+            // Attorney was unassigned from this slot's column — the case stays
+            // on the schedule, but drop the stale attorney reference instead of
+            // leaving it pointed at whoever was cleared.
+            caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = null;
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = null;
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyEmail`] = null;
+            caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyPhone`] = null;
           }
           if (slot?.interpreter) {
             caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = slot.interpreter.id ?? "";
@@ -738,14 +742,14 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemov
           <div className="schedule-attorney-display">
             <div
               className="schedule-attorney-display-name"
-              title={selectedAttorney?.value ?? selectedAttorney?.name ?? "No Attorney Assigned"}
+              title={selectedAttorney?.value ?? selectedAttorney?.name ?? "Karia Wong"}
             >
-              {selectedAttorney?.value ?? selectedAttorney?.name ?? "No Attorney Assigned"}
+              {selectedAttorney?.value ?? selectedAttorney?.name ?? "Karia Wong"}
             </div>
             <div className="schedule-attorney-display-details">
               {selectedAttorney
                 ? `${selectedAttorney.specialty || "No Category"} | ${selectedAttorney.language || "No Language"}`
-                : "\u00A0"}
+                : "Select Attorney in Edit Mode..."}
             </div>
           </div>
         )}
@@ -836,7 +840,8 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
         className={
           "schedule-time-slot-card" +
           (isOver && !assignedClient && isEditMode ? " schedule-time-slot-card--over" : "") +
-          (!hasAttorney && isEditMode && !assignedClient ? " schedule-time-slot-card--locked" : "")
+          (!hasAttorney && isEditMode && !assignedClient ? " schedule-time-slot-card--locked" : "") +
+          (!isEditMode ? " schedule-time-slot-card--view" : "")
         }
       >
         <div className="schedule-slot-header">
@@ -960,9 +965,11 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
           </div>
         ) : (
           <div className="schedule-slot-body">
-            {!hasAttorney && isEditMode && (
-              <span className="schedule-slot-locked-hint">Assign an attorney first</span>
-            )}
+            <span className="schedule-slot-locked-hint">
+              {isEditMode
+                ? (hasAttorney ? "Drag and drop cases from waitlist" : "Assign an attorney first")
+                : "Select Case in Edit Mode"}
+            </span>
           </div>
         )}
       </div>
