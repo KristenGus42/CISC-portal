@@ -51,6 +51,22 @@ const mockAttorneys = [
 
 const mockTimeSlots = ["5:30pm", "6:30pm", "7:30pm"];
 
+// Splits a stored time string like "5:30pm" into its editable pieces.
+// Storage format never changes ("<digits><am|pm>", no space, lowercase) —
+// this is only for feeding the split textbox + AM/PM dropdown UI.
+function parseTimeString(t) {
+  const match = /^(\d{1,2}:\d{2})\s*(am|pm)$/i.exec((t ?? "").trim());
+  if (match) {
+    return { digits: match[1], period: match[2].toLowerCase() };
+  }
+  const trimmed = (t ?? "").trim();
+  const lower = trimmed.toLowerCase();
+  if (lower.endsWith("am") || lower.endsWith("pm")) {
+    return { digits: trimmed.slice(0, -2).trim(), period: lower.slice(-2) };
+  }
+  return { digits: trimmed, period: "pm" };
+}
+
 // ─── Schedule ─────────────────────────────────────────────────────────────────
 
 export default function Schedule() {
@@ -166,7 +182,8 @@ export default function Schedule() {
     const [colIdxStr, slotIdxStr] = over.id.split("-");
     if (!columnAttorneys[`col${colIdxStr}`]) return; // attorney must be assigned first
     const slotIdx = parseInt(slotIdxStr, 10);
-    const time = mockTimeSlots[slotIdx] ?? mockTimeSlots[0];
+    // Preserve a time the user already customized for this (still empty) slot.
+    const time = assignments[over.id]?.time ?? mockTimeSlots[slotIdx] ?? mockTimeSlots[0];
 
     const slotPayload = {
       time,
@@ -231,6 +248,47 @@ export default function Schedule() {
         }
       }
       return next;
+    });
+  }
+
+  // ── Attorney cleared in a column: back to "unassigned" ───────────────────
+  function handleAttorneyClear(colIdx) {
+    const colKey = `col${colIdx}`;
+    setColumnAttorneys((prev) => {
+      const next = { ...prev };
+      delete next[colKey];
+      return next;
+    });
+
+    setAssignments((prev) => {
+      const next = { ...prev };
+      for (const key of Object.keys(next)) {
+        if (!key.startsWith(`${colIdx}-`)) continue;
+        const slot = next[key];
+        if (slot?.client) {
+          // Keep the placed case, just drop the attorney link
+          next[key] = { ...slot, attorney: null };
+        } else {
+          // Placeholder-only slot (no case) — nothing left to keep
+          delete next[key];
+        }
+      }
+      return next;
+    });
+  }
+
+  // ── Time changed for a slot: local only ──────────────────────────────────
+  function handleTimeChange(slotKey, newTime) {
+    const [colIdxStr] = slotKey.split("-");
+    setAssignments((prev) => {
+      const existing = prev[slotKey];
+      if (existing) {
+        return { ...prev, [slotKey]: { ...existing, time: newTime } };
+      }
+      // No occupant yet — still remember the custom time (and keep any
+      // attorney already selected for this column) so it survives Save.
+      const attorney = columnAttorneys[`col${colIdxStr}`] ?? null;
+      return { ...prev, [slotKey]: { time: newTime, client: null, attorney } };
     });
   }
 
@@ -422,7 +480,8 @@ export default function Schedule() {
 
       if (bestMatch) {
         const { slot, caseObj } = bestMatch;
-        const time = mockTimeSlots[slot.slotIdx] ?? mockTimeSlots[0];
+        // Preserve a time the user already customized for this (still empty) slot.
+        const time = assignments[slot.slotKey]?.time ?? mockTimeSlots[slot.slotIdx] ?? mockTimeSlots[0];
 
         newAssignments[slot.slotKey] = {
           time,
@@ -535,14 +594,15 @@ export default function Schedule() {
                   colIdx={colIdx}
                   savedAttorney={columnAttorneys[`col${colIdx}`] ?? null}
                   timeSlots={mockTimeSlots}
-                  timeOptions={mockTimeSlots}
                   assignments={assignments}
                   onRemove={handleRemove}
                   isEditMode={isEditMode}
                   allAttorneysArr={allAttorneysArr}
                   allLegalStudentsArr={allLegalStudentsArr}
                   onAttorneySelect={(attorney) => handleAttorneySelect(colIdx, attorney)}
+                  onAttorneyClear={() => handleAttorneyClear(colIdx)}
                   onInterpreterSelect={handleInterpreterSelect}
+                  onTimeChange={handleTimeChange}
                   allCases={allCases}
                   onContactClick={setContactCaseId}
                 />
@@ -622,7 +682,7 @@ export default function Schedule() {
 
 // ─── Attorney Column ──────────────────────────────────────────────────────────
 
-function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignments, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onAttorneySelect, onInterpreterSelect, allCases, onContactClick }) {
+function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onAttorneySelect, onAttorneyClear, onInterpreterSelect, onTimeChange, allCases, onContactClick }) {
   const [selectedAttorney, setSelectedAttorney] = useState(null);
 
   // Populate from Firebase-loaded saved attorney
@@ -645,17 +705,35 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
     onAttorneySelect(item);
   }
 
+  function handleClear() {
+    setSelectedAttorney(null);
+    onAttorneyClear();
+  }
+
   return (
     <div className="schedule-attorney-column">
       <div className="schedule-attorney-header">
         {isEditMode ? (
-          <DatalistInput
-            placeholder="Select attorney…"
-            label=""
-            onSelect={handleSelect}
-            items={datalistItems}
-            value={selectedAttorney?.value ?? selectedAttorney?.name ?? ""}
-          />
+          <div className="schedule-attorney-select-wrapper">
+            <DatalistInput
+              placeholder="Select attorney…"
+              label=""
+              onSelect={handleSelect}
+              items={datalistItems}
+              value={selectedAttorney?.value ?? selectedAttorney?.name ?? ""}
+            />
+            {selectedAttorney && (
+              <button
+                type="button"
+                className="schedule-attorney-clear-btn"
+                onClick={handleClear}
+                title="Unassign attorney"
+                aria-label="Unassign attorney"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         ) : (
           <div className="schedule-attorney-display">
             <div
@@ -673,14 +751,14 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
         )}
       </div>
 
-      {timeSlots.map((time, slotIdx) => {
+      {timeSlots.map((defaultTime, slotIdx) => {
         const slotKey = `${colIdx}-${slotIdx}`;
+        const time = assignments[slotKey]?.time ?? defaultTime;
         return (
           <TimeSlotCard
             key={slotKey}
             slotKey={slotKey}
             time={time}
-            timeOptions={timeOptions}
             assignedSlot={assignments[slotKey] ?? null}
             onRemove={onRemove}
             isEditMode={isEditMode}
@@ -688,6 +766,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
             allAttorneysArr={allAttorneysArr}
             allLegalStudentsArr={allLegalStudentsArr}
             onInterpreterSelect={onInterpreterSelect}
+            onTimeChange={onTimeChange}
             allCases={allCases}
             onContactClick={onContactClick}
           />
@@ -700,11 +779,18 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, timeOptions, assignm
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
-function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEditMode, hasAttorney, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, allCases, onContactClick }) {
+function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAttorney, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, onTimeChange, allCases, onContactClick }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey, disabled: !hasAttorney });
-  const [selectedTime, setSelectedTime] = useState(time);
-  const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
   const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
+  const { digits: timeDigits, period: timePeriod } = parseTimeString(time);
+
+  function handleTimeDigitsChange(e) {
+    onTimeChange(slotKey, `${e.target.value}${timePeriod}`);
+  }
+
+  function handleTimePeriodChange(e) {
+    onTimeChange(slotKey, `${timeDigits}${e.target.value}`);
+  }
 
   const assignedClient = assignedSlot?.client ?? null;
   const assignedAttorney = assignedSlot?.attorney ?? null;
@@ -716,11 +802,6 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
   const category = (!categoryRaw || categoryRaw === "—") ? "No Category" : categoryRaw;
   const languageRaw = liveCase?.clientInfo?.primaryLanguage || assignedClient?.language;
   const language = (!languageRaw || languageRaw === "—") ? "No Language" : languageRaw;
-
-  function handleSelectTime(nextTime) {
-    setSelectedTime(nextTime);
-    setIsTimeMenuOpen(false);
-  }
 
   function handleMeetingLink() {
     setIsMeetingLinkOpen(true);
@@ -759,33 +840,29 @@ function TimeSlotCard({ slotKey, time, timeOptions, assignedSlot, onRemove, isEd
         }
       >
         <div className="schedule-slot-header">
-          <span>{selectedTime}</span>
-          {isEditMode && (
-            <button
-              type="button"
-              className="schedule-slot-time-toggle"
-              aria-label="Change time"
-              aria-expanded={isTimeMenuOpen}
-              onClick={() => setIsTimeMenuOpen((o) => !o)}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
-                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
-              </svg>
-            </button>
-          )}
-          {isTimeMenuOpen && isEditMode && (
-            <div className="schedule-slot-time-menu">
-              {timeOptions.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  className={`schedule-slot-time-option${option === selectedTime ? " schedule-slot-time-option--active" : ""}`}
-                  onClick={() => handleSelectTime(option)}
-                >
-                  {option}
-                </button>
-              ))}
+          {isEditMode ? (
+            <div className="schedule-slot-time-edit">
+              <input
+                type="text"
+                className="schedule-slot-time-input"
+                value={timeDigits}
+                onChange={handleTimeDigitsChange}
+                placeholder="5:30"
+                aria-label="Time"
+                inputMode="numeric"
+              />
+              <select
+                className="schedule-slot-time-period-select"
+                value={timePeriod}
+                onChange={handleTimePeriodChange}
+                aria-label="AM or PM"
+              >
+                <option value="am">AM</option>
+                <option value="pm">PM</option>
+              </select>
             </div>
+          ) : (
+            <span>{time}</span>
           )}
         </div>
 

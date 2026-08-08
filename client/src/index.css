@@ -698,6 +698,38 @@ body {
   margin-bottom: 0;
 }
 
+.schedule-attorney-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.schedule-attorney-select-wrapper > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.schedule-attorney-clear-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--subtle-gray);
+  color: var(--dark-gray);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.schedule-attorney-clear-btn:hover {
+  background-color: var(--neutral-gray);
+  color: var(--primary-text);
+}
+
 .schedule-attorney-display {
   padding: 0.1rem 0.25rem;
   display: flex;
@@ -764,47 +796,50 @@ body {
   flex-shrink: 0;
 }
 
-.schedule-slot-time-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.schedule-slot-time-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  z-index: 20;
+.schedule-slot-time-edit {
   display: flex;
-  min-width: 88px;
-  transform: translateX(-50%);
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--neutral-gray);
-  border-radius: 5px;
-  background-color: var(--background);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.schedule-slot-time-option {
-  border: none;
-  background: none;
-  padding: 0.35rem 0.65rem;
-  color: var(--primary-text);
+.schedule-slot-time-input {
+  width: 3.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  background-color: transparent;
+  color: inherit;
   font-size: 0.78rem;
-  text-align: left;
+  font-weight: 600;
+  padding: 0.1rem 0.35rem;
+  line-height: 1.4;
+}
+
+.schedule-slot-time-period-select {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  background-color: transparent;
+  color: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.1rem 0.25rem;
+  line-height: 1.4;
   cursor: pointer;
 }
 
-.schedule-slot-time-option:hover,
-.schedule-slot-time-option--active {
-  background-color: var(--subtle-gray);
+.schedule-slot-time-input:focus,
+.schedule-slot-time-period-select:focus {
+  outline: none;
+  border-color: var(--background);
+}
+
+.schedule-slot-time-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.schedule-slot-time-period-select option {
+  color: var(--primary-text);
+  background-color: var(--background);
+  font-weight: 400;
 }
 
 .schedule-slot-body {
