@@ -365,18 +365,25 @@ export default function Schedule() {
         caseUpdates[`cases/${caseId}/schedulingInfo/timeSlot`] = null;
         caseUpdates[`cases/${caseId}/matchInfo/attorney`] = null;
         caseUpdates[`cases/${caseId}/matchInfo/interpreter`] = null;
+        caseUpdates[`cases/${caseId}/matchInfo/legalStudent`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/attorneyName`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/attorneyEmail`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/attorneyPhone`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/interpreterName`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/interpreterEmail`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/interpreterPhone`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/legalStudentName`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/legalStudentEmail`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/legalStudentPhone`] = null;
       }
       if (caseId && slot?.attorney?.attorneyId) {
         caseUpdates[`caseAccess/${slot.attorney.attorneyId}/${caseId}`] = null;
       }
       if (caseId && slot?.interpreter?.id) {
         caseUpdates[`caseAccess/${slot.interpreter.id}/${caseId}`] = null;
+      }
+      if (caseId && slot?.legalStudent?.id) {
+        caseUpdates[`caseAccess/${slot.legalStudent.id}/${caseId}`] = null;
       }
     }
 
@@ -546,6 +553,16 @@ export default function Schedule() {
     });
   }
 
+  // ── Legal student selected in a slot: local only ─────────────────────────
+  function handleLegalStudentSelect(slotKey, legalStudent) {
+    if (!isEditMode) return;
+    setAssignments((prev) => {
+      const slot = prev[slotKey];
+      if (!slot) return prev;
+      return { ...prev, [slotKey]: { ...slot, legalStudent } };
+    });
+  }
+
   // ── Persist one date's schedule + case side-effects to Firebase ──────────
   // `assignmentsToSave`/`prevSlots` are passed explicitly rather than closing
   // over the live `assignments`/`savedAssignmentsRef` state, so this can
@@ -600,6 +617,26 @@ export default function Schedule() {
           caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterName`] = slot.interpreter.name ?? "";
           caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterEmail`] = slot.interpreter.email ?? "";
           caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterPhone`] = slot.interpreter.phone ?? "";
+        } else {
+          // Set back to "No Interpreter" — drop the stale reference instead
+          // of leaving it pointed at whoever was cleared.
+          caseUpdates[`cases/${slot.client.caseId}/matchInfo/interpreter`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterName`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterEmail`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/interpreterPhone`] = null;
+        }
+        if (slot?.legalStudent) {
+          caseUpdates[`cases/${slot.client.caseId}/matchInfo/legalStudent`] = slot.legalStudent.id ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/legalStudentName`] = slot.legalStudent.name ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/legalStudentEmail`] = slot.legalStudent.email ?? "";
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/legalStudentPhone`] = slot.legalStudent.phone ?? "";
+        } else {
+          // Set back to "No Legal Student" — drop the stale reference instead
+          // of leaving it pointed at whoever was cleared.
+          caseUpdates[`cases/${slot.client.caseId}/matchInfo/legalStudent`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/legalStudentName`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/legalStudentEmail`] = null;
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/legalStudentPhone`] = null;
         }
       }
     }
@@ -614,12 +651,16 @@ export default function Schedule() {
         caseUpdates[`cases/${caseId}/schedulingInfo/timeSlot`] = null;
         caseUpdates[`cases/${caseId}/matchInfo/attorney`] = null;
         caseUpdates[`cases/${caseId}/matchInfo/interpreter`] = null;
+        caseUpdates[`cases/${caseId}/matchInfo/legalStudent`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/attorneyName`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/attorneyEmail`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/attorneyPhone`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/interpreterName`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/interpreterEmail`] = null;
         caseUpdates[`cases/${caseId}/schedulingInfo/interpreterPhone`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/legalStudentName`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/legalStudentEmail`] = null;
+        caseUpdates[`cases/${caseId}/schedulingInfo/legalStudentPhone`] = null;
       }
     }
 
@@ -634,6 +675,7 @@ export default function Schedule() {
         prevMatchByCase[caseId] = {
           attorneyId: slot.attorney?.attorneyId ?? null,
           interpreterId: slot.interpreter?.id ?? null,
+          legalStudentId: slot.legalStudent?.id ?? null,
         };
       }
     }
@@ -644,6 +686,7 @@ export default function Schedule() {
         currentMatchByCase[caseId] = {
           attorneyId: slot.attorney?.attorneyId ?? null,
           interpreterId: slot.interpreter?.id ?? null,
+          legalStudentId: slot.legalStudent?.id ?? null,
         };
       }
     }
@@ -662,6 +705,12 @@ export default function Schedule() {
       }
       if (currMatch.interpreterId) {
         caseUpdates[`caseAccess/${currMatch.interpreterId}/${caseId}`] = true;
+      }
+      if (prevMatch.legalStudentId && prevMatch.legalStudentId !== currMatch.legalStudentId) {
+        caseUpdates[`caseAccess/${prevMatch.legalStudentId}/${caseId}`] = null;
+      }
+      if (currMatch.legalStudentId) {
+        caseUpdates[`caseAccess/${currMatch.legalStudentId}/${caseId}`] = true;
       }
     }
 
@@ -1043,6 +1092,7 @@ export default function Schedule() {
                   onAttorneySelect={(attorney) => handleAttorneySelect(colIdx, attorney)}
                   onAttorneyClear={() => handleAttorneyClear(colIdx)}
                   onInterpreterSelect={handleInterpreterSelect}
+                  onLegalStudentSelect={handleLegalStudentSelect}
                   onTimeChange={handleTimeChange}
                   allCases={allCases}
                   onContactClick={setContactCaseId}
@@ -1142,7 +1192,7 @@ export default function Schedule() {
 
 // ─── Attorney Column ──────────────────────────────────────────────────────────
 
-function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onAttorneySelect, onAttorneyClear, onInterpreterSelect, onTimeChange, allCases, onContactClick }) {
+function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemove, isEditMode, allAttorneysArr, allLegalStudentsArr, onAttorneySelect, onAttorneyClear, onInterpreterSelect, onLegalStudentSelect, onTimeChange, allCases, onContactClick }) {
   const [selectedAttorney, setSelectedAttorney] = useState(null);
 
   // Populate from Firebase-loaded saved attorney
@@ -1226,6 +1276,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemov
             allAttorneysArr={allAttorneysArr}
             allLegalStudentsArr={allLegalStudentsArr}
             onInterpreterSelect={onInterpreterSelect}
+            onLegalStudentSelect={onLegalStudentSelect}
             onTimeChange={onTimeChange}
             allCases={allCases}
             onContactClick={onContactClick}
@@ -1239,7 +1290,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemov
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
-function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAttorney, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, onTimeChange, allCases, onContactClick }) {
+function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAttorney, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, onLegalStudentSelect, onTimeChange, allCases, onContactClick }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey, disabled: !hasAttorney });
   const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
   const { digits: timeDigits, period: timePeriod } = parseTimeString(time);
@@ -1357,47 +1408,94 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
                   </svg>
                 </div>*/}
                 {/* DEMO CODE: Probably heavily refactor/remove */}
-                <div className="schedule-slot-assign-wrapper schedule-slot-assign-full">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" className="schedule-slot-translate-icon">
-                    <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" />
-                    <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14v-.868h-3v-.002c-.018 0-.035.002-.053.003H9.529l-.001-.001H7v.867h1.604c-.316.764-.78 1.63-1.362 2.404z" />
-                  </svg>
-                  <select
-                    className={`schedule-slot-btn schedule-slot-btn-assign ${!isEditMode ? "schedule-slot-btn-assign--no-arrow" : ""}`}
-                    defaultValue={assignedSlot?.interpreter?.id ?? ""}
-                    disabled={!isEditMode}
-                    onChange={(e) => {
-                      if (!isEditMode) return;
-                      const id = e.target.value;
-                      const fromAttorneys = allAttorneysArr.find((a) => a.id === id);
-                      const fromStudents = allLegalStudentsArr.find((s) => s.id === id);
-                      const person = fromAttorneys ?? fromStudents;
-                      if (!person) return;
-                      onInterpreterSelect(slotKey, {
-                        id: person.id,
-                        name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
-                        type: fromAttorneys ? "attorney" : "legalStudent",
-                        email: person.email ?? "",
-                        phone: person.phoneNumber ?? "",
-                      });
-                    }}
-                  >
-                    <option value="" disabled>{isEditMode ? "Assign Interpreter" : "No Interpreter Assigned"}</option>
-                    <optgroup label="Attorneys">
-                      {allAttorneysArr.map((a) => (
-                        <option key={a.id} value={a.id}>
-                          {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Legal Students">
+                <div className="schedule-slot-assign-row">
+                  <div className="schedule-slot-assign-wrapper schedule-slot-assign-half">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" className="schedule-slot-translate-icon">
+                      <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .017.912l7.5 3a.5.5 0 0 0 .388 0l7.5-3a.5.5 0 0 0 .022-.912l-7.5-3.5Z" />
+                      <path d="M4 10.176V13.5a.5.5 0 0 0 .276.447l3.5 1.75a.5.5 0 0 0 .448 0l3.5-1.75A.5.5 0 0 0 12 13.5v-3.324l-3.402 1.36a1.5 1.5 0 0 1-1.196 0L4 10.176Z" />
+                      <path d="M14.5 8.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 1 0Z" />
+                    </svg>
+                    <select
+                      className={`schedule-slot-btn schedule-slot-btn-assign ${!isEditMode ? "schedule-slot-btn-assign--no-arrow" : ""}`}
+                      value={assignedSlot?.legalStudent?.id ?? ""}
+                      disabled={!isEditMode}
+                      onChange={(e) => {
+                        if (!isEditMode) return;
+                        const id = e.target.value;
+                        if (!id) {
+                          onLegalStudentSelect(slotKey, null);
+                          return;
+                        }
+                        const person = allLegalStudentsArr.find((s) => s.id === id);
+                        if (!person) return;
+                        onLegalStudentSelect(slotKey, {
+                          id: person.id,
+                          name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
+                          email: person.email ?? "",
+                          phone: person.phoneNumber ?? "",
+                        });
+                      }}
+                    >
+                      <option value="">No Legal Student</option>
                       {allLegalStudentsArr.map((s) => (
                         <option key={s.id} value={s.id}>
                           {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`}
                         </option>
                       ))}
-                    </optgroup>
-                  </select>
+                    </select>
+                  </div>
+
+                  <div className="schedule-slot-assign-wrapper schedule-slot-assign-half">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" className="schedule-slot-translate-icon">
+                      <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" />
+                      <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14v-.868h-3v-.002c-.018 0-.035.002-.053.003H9.529l-.001-.001H7v.867h1.604c-.316.764-.78 1.63-1.362 2.404z" />
+                    </svg>
+                    <select
+                      className={`schedule-slot-btn schedule-slot-btn-assign ${!isEditMode ? "schedule-slot-btn-assign--no-arrow" : ""}`}
+                      value={assignedSlot?.interpreter?.id ?? ""}
+                      disabled={!isEditMode}
+                      onChange={(e) => {
+                        if (!isEditMode) return;
+                        const id = e.target.value;
+                        if (!id) {
+                          onInterpreterSelect(slotKey, null);
+                          return;
+                        }
+                        if (id === "cisc-staff") {
+                          onInterpreterSelect(slotKey, { id: "cisc-staff", name: "CISC Staff", type: "staff", email: "", phone: "" });
+                          return;
+                        }
+                        const fromAttorneys = allAttorneysArr.find((a) => a.id === id);
+                        const fromStudents = allLegalStudentsArr.find((s) => s.id === id);
+                        const person = fromAttorneys ?? fromStudents;
+                        if (!person) return;
+                        onInterpreterSelect(slotKey, {
+                          id: person.id,
+                          name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
+                          type: fromAttorneys ? "attorney" : "legalStudent",
+                          email: person.email ?? "",
+                          phone: person.phoneNumber ?? "",
+                        });
+                      }}
+                    >
+                      <option value="">No Interpreter</option>
+                      <option value="cisc-staff">CISC Staff</option>
+                      <optgroup label="Attorneys">
+                        {allAttorneysArr.map((a) => (
+                          <option key={a.id} value={a.id}>
+                            {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Legal Students">
+                        {allLegalStudentsArr.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="schedule-slot-bottom-row">

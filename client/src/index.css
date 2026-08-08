@@ -1626,6 +1626,25 @@ body {
   padding-left: 12px;
 }
 
+/* Legal Student + Interpreter side by side */
+.schedule-slot-assign-row {
+  display: flex;
+  width: 100%;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.schedule-slot-assign-half {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.schedule-slot-assign-half .schedule-slot-btn-assign {
+  flex: 1 1 0;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
 /* Meeting link + Contact side by side */
 .schedule-slot-bottom-row {
   display: flex;
