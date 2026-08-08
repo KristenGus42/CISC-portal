@@ -140,6 +140,35 @@ export default function Schedule() {
   // Last-saved slots for the current date, used to detect case removals on Save
   const savedAssignmentsRef = useRef({});
 
+  // Per-date unsaved edits made during this edit-mode session, so hopping
+  // between dates via prev/next/jump doesn't discard in-progress work.
+  // Keyed by dateKey → { assignments, columnAttorneys, savedSlots }.
+  // Cleared per-date once that date is actually pushed to Firebase.
+  const draftsRef = useRef({});
+
+  // Snapshot the currently-displayed date's in-progress state into drafts
+  // before navigating away from it. No-op outside edit mode — nothing
+  // unsaved to lose when just browsing.
+  function stashCurrentDraft() {
+    if (!isEditMode) return;
+    draftsRef.current[dateKey] = {
+      assignments,
+      columnAttorneys,
+      savedSlots: savedAssignmentsRef.current,
+    };
+  }
+
+  // Restore a date's draft if we stashed one earlier this session. When there
+  // isn't one, this is a no-op and the Firebase loader effect below populates
+  // it fresh, same as always.
+  function restoreDraftFor(targetDateKey) {
+    const draft = draftsRef.current[targetDateKey];
+    if (!draft) return;
+    setAssignments(draft.assignments);
+    setColumnAttorneys(draft.columnAttorneys);
+    savedAssignmentsRef.current = draft.savedSlots;
+  }
+
   // ── Close the "more actions" menu when clicking outside of it ────────────
   const actionsMenuRef = useRef(null);
   useEffect(() => {
@@ -195,6 +224,11 @@ export default function Schedule() {
   // ── Load saved schedule for the current date ──────────────────────────────
   useEffect(() => {
     const unsubscribe = onValue(ref(db, `schedules/${dateKey}`), (snapshot) => {
+      // Unsaved local edits already exist for this date (built up earlier in
+      // this edit session, restored when navigating back to it) — keep them;
+      // don't let Firebase's echo of the last save clobber in-progress work.
+      if (draftsRef.current[dateKey]) return;
+
       const dayData = snapshot.val();
       if (!dayData) {
         setAssignments({});
@@ -228,16 +262,24 @@ export default function Schedule() {
 
   function goToPrevSchedule() {
     if (priorScheduleDates.length === 0) return;
-    setCurrentDate(fromYMD(priorScheduleDates[priorScheduleDates.length - 1]));
+    const target = priorScheduleDates[priorScheduleDates.length - 1];
+    stashCurrentDraft();
+    setCurrentDate(fromYMD(target));
+    restoreDraftFor(target);
   }
   function goToNextSchedule() {
     if (laterScheduleDates.length === 0) return;
-    setCurrentDate(fromYMD(laterScheduleDates[0]));
+    const target = laterScheduleDates[0];
+    stashCurrentDraft();
+    setCurrentDate(fromYMD(target));
+    restoreDraftFor(target);
   }
 
   // ── Jump to schedule: pick any existing schedule date from the calendar ──
   function handleJumpToSchedule(dateStr) {
+    stashCurrentDraft();
     setCurrentDate(fromYMD(dateStr));
+    restoreDraftFor(dateStr);
     setIsJumpCalendarOpen(false);
   }
 
@@ -246,6 +288,8 @@ export default function Schedule() {
   // state until Save — means an accidental prev/next/jump click can't quietly
   // discard the new schedule; it's already real and will reload correctly.
   async function handleAddSchedule(dateStr) {
+    stashCurrentDraft();
+    delete draftsRef.current[dateStr]; // starting fresh even if this date had a stale draft
     setCurrentDate(fromYMD(dateStr));
     setAssignments({});
     setColumnAttorneys({});
@@ -299,6 +343,7 @@ export default function Schedule() {
 
     try {
       await update(ref(db), caseUpdates);
+      delete draftsRef.current[dateKey]; // this date's unsaved edits (if any) are moot now
 
       // Land somewhere real instead of staying parked on the date we just
       // deleted: prefer the nearest earlier schedule, then the nearest
@@ -459,26 +504,19 @@ export default function Schedule() {
     });
   }
 
-  // ── Save (or move) the schedule to `targetDateKey` ────────────────────────
-  // Shared by handleSave (targetDateKey === dateKey) and handleChangeDate
-  // (targetDateKey is a different date — moves the schedule + deletes the
-  // old node in the same pass).
-  async function saveScheduleTo(targetDateKey) {
-    // Capture the pre-save slots now — the live `onValue` listener on
-    // `schedules/${dateKey}` echoes our own write back and will overwrite
-    // savedAssignmentsRef.current as soon as the set() below resolves, so
-    // reading the ref after the write would always show "new vs new".
-    const prevSlots = savedAssignmentsRef.current;
-    const isMove = targetDateKey !== dateKey;
-
+  // ── Persist one date's schedule + case side-effects to Firebase ──────────
+  // `assignmentsToSave`/`prevSlots` are passed explicitly rather than closing
+  // over the live `assignments`/`savedAssignmentsRef` state, so this can
+  // persist ANY date's draft — not just whichever one is on screen right now.
+  // That's what lets Save flush every date touched during an edit session in
+  // one pass. `moveFromDateKey` (Change Date only) additionally deletes the
+  // old node in the same multi-path update.
+  async function persistScheduleDate(targetDateKey, assignmentsToSave, prevSlots, moveFromDateKey = null) {
     const payload = {
-      slots: assignments,
+      slots: assignmentsToSave,
       dateKey: targetDateKey,
       savedAt: new Date().toISOString(),
     };
-
-    console.log("Saving to Firebase path:", `schedules/${targetDateKey}`);
-    console.log("Payload:", JSON.stringify(payload, null, 2));
 
     // 1) Save full schedule (including column attorney selections) at the target date
     await set(ref(db, `schedules/${targetDateKey}`), payload);
@@ -489,7 +527,7 @@ export default function Schedule() {
     // Attorney / Legal Student sections actually display.
     const caseUpdates = {};
     const currentCaseIds = new Set();
-    for (const [slotKey, slot] of Object.entries(assignments)) {
+    for (const [slotKey, slot] of Object.entries(assignmentsToSave)) {
       if (slot?.client?.caseId) {
         currentCaseIds.add(slot.client.caseId);
         // Flip the case out of "waitlisted" so it stops showing up as
@@ -558,7 +596,7 @@ export default function Schedule() {
       }
     }
     const currentMatchByCase = {};
-    for (const slot of Object.values(assignments)) {
+    for (const slot of Object.values(assignmentsToSave)) {
       const caseId = slot?.client?.caseId;
       if (caseId) {
         currentMatchByCase[caseId] = {
@@ -585,27 +623,34 @@ export default function Schedule() {
       }
     }
 
-    // 5) Moving to a different date — drop the old schedule node in the same pass
-    if (isMove) {
-      caseUpdates[`schedules/${dateKey}`] = null;
+    // 5) Moving to a different date (Change Date only) — drop the old schedule node
+    if (moveFromDateKey && moveFromDateKey !== targetDateKey) {
+      caseUpdates[`schedules/${moveFromDateKey}`] = null;
     }
 
     if (Object.keys(caseUpdates).length > 0) {
       await update(ref(db), caseUpdates);
     }
-
-    savedAssignmentsRef.current = assignments;
-    if (isMove) {
-      setCurrentDate(fromYMD(targetDateKey));
-    }
-    setIsEditMode(false);
   }
 
-  // ── Save: write the current board to Firebase under the current date ─────
+  // ── Save: flush every date touched during this edit session ──────────────
+  // Not just the one on screen — any others stashed while hopping around via
+  // prev/next/jump get saved too, in the same click.
   async function handleSave() {
     try {
-      await saveScheduleTo(dateKey);
-      console.log("Save successful!");
+      const draftsToSave = {
+        ...draftsRef.current,
+        [dateKey]: { assignments, columnAttorneys, savedSlots: savedAssignmentsRef.current },
+      };
+
+      for (const [targetDateKey, draft] of Object.entries(draftsToSave)) {
+        await persistScheduleDate(targetDateKey, draft.assignments, draft.savedSlots);
+      }
+
+      draftsRef.current = {};
+      savedAssignmentsRef.current = assignments;
+      setIsEditMode(false);
+      console.log(`Save successful — saved ${Object.keys(draftsToSave).length} schedule(s).`);
     } catch (err) {
       console.error("Failed to save schedule:", err);
     }
@@ -614,8 +659,12 @@ export default function Schedule() {
   // ── Change date: move this schedule (and its cases) to a different date ──
   async function handleChangeDate(newDateStr) {
     try {
-      await saveScheduleTo(newDateStr);
+      await persistScheduleDate(newDateStr, assignments, savedAssignmentsRef.current, dateKey);
+      delete draftsRef.current[dateKey];
+      savedAssignmentsRef.current = assignments;
+      setCurrentDate(fromYMD(newDateStr));
       setIsChangeDateOpen(false);
+      setIsEditMode(false);
       console.log("Schedule moved to", newDateStr);
     } catch (err) {
       console.error("Failed to change schedule date:", err);
