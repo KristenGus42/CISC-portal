@@ -63,9 +63,64 @@ function IconChevronRight() {
   );
 }
 
+// ─── Meeting Details Popup ─────────────────────────────────────────────────────
+// Read-only view of the meeting platform/link — attorneys can see (and open) the
+// meeting details here, but only the scheduler can change them. Reuses
+// Schedule.jsx's modal styling.
+function MeetingModal({ schedulingInfo, clientInfo, onClose }) {
+  const platform = schedulingInfo.meetingPlatform || "";
+  const link = schedulingInfo.meetingLink || "";
+  const phone = clientInfo.phone || "";
+  return (
+    <>
+      <div className="schedule-modal-backdrop" onClick={onClose} />
+      <div className="schedule-modal-popup">
+        <button className="schedule-modal-close-btn" onClick={onClose}>✕</button>
+        <h6 className="schedule-modal-title">Meeting</h6>
+        <div className="attorney-view-meeting-field">
+          <span className="attorney-view-meeting-label">Platform</span>
+          <span className="attorney-view-meeting-value">{platform || "Not set"}</span>
+        </div>
+        {/* A link is only meaningful for a Virtual meeting. */}
+        {platform === "Virtual" && (
+          <div className="attorney-view-meeting-field">
+            <span className="attorney-view-meeting-label">Link</span>
+            {link ? (
+              <a
+                className="attorney-view-meeting-value attorney-view-meeting-link"
+                href={link}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {link}
+              </a>
+            ) : (
+              <span className="attorney-view-meeting-value">Not set</span>
+            )}
+          </div>
+        )}
+        {/* A phone consultation is placed to the client's own number. */}
+        {platform === "Phone Call" && (
+          <div className="attorney-view-meeting-field">
+            <span className="attorney-view-meeting-label">Client Phone Number</span>
+            {phone ? (
+              <a className="attorney-view-meeting-value attorney-view-meeting-link" href={`tel:${phone}`}>
+                {phone}
+              </a>
+            ) : (
+              <span className="attorney-view-meeting-value">Not set</span>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 // ─── Consultation Row ──────────────────────────────────────────────────────────
 
 function ConsultationRow({ caseData, onViewDetails }) {
+  const [showMeeting, setShowMeeting] = useState(false);
   const { clientInfo = {}, caseInfo = {}, schedulingInfo = {} } = caseData;
   const name = `${clientInfo.fname || ""} ${clientInfo.lname || ""}`.trim() || "Unknown Client";
   const details = [caseInfo.category, clientInfo.primaryLanguage].filter(Boolean).join(" | ") || "No Category | No Language";
@@ -88,24 +143,30 @@ function ConsultationRow({ caseData, onViewDetails }) {
         <span className={`attorney-view-row-pill${!interpreterName ? " attorney-view-row-pill--empty" : ""}`}>
           <IconTranslate /> {interpreterName || "Unassigned"}
         </span>
-        {schedulingInfo.meetingLink ? (
-          <a
+        {schedulingInfo.meetingPlatform || schedulingInfo.meetingLink ? (
+          <button
+            type="button"
             className="attorney-view-row-meeting"
-            href={schedulingInfo.meetingLink}
-            target="_blank"
-            rel="noreferrer"
+            onClick={() => setShowMeeting(true)}
           >
-            <IconMeeting /> Meeting Link
-          </a>
+            <IconMeeting /> Meeting
+          </button>
         ) : (
           <span className="attorney-view-row-meeting attorney-view-row-meeting--disabled">
-            <IconMeeting /> Meeting Link
+            <IconMeeting /> Meeting
           </span>
         )}
         <button className="attorney-view-row-details-btn" onClick={onViewDetails}>
           View details <IconChevronRight />
         </button>
       </div>
+      {showMeeting && (
+        <MeetingModal
+          schedulingInfo={schedulingInfo}
+          clientInfo={clientInfo}
+          onClose={() => setShowMeeting(false)}
+        />
+      )}
     </div>
   );
 }
@@ -168,7 +229,7 @@ export default function AttorneyView() {
 
   return (
     <>
-      <NavBar active={"attorney-view"} title="Attorney View" />
+      <NavBar active={"attorney-view"} title="Legal Clinic" />
       <div className="attorney-view-page">
         {myCases.length === 0 ? (
           <p className="attorney-view-empty">

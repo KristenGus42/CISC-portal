@@ -9,6 +9,16 @@ import CasePreview from "./CasePreview";
 import DatalistInput from 'react-datalist-input';
 import 'react-datalist-input/dist/styles.css';
 import { calculateMatchScore } from "./matcher";
+import { generateMeetLink } from "../utils/meetLink";
+
+// ─── Meeting Constants ────────────────────────────────────────────────────────
+
+// Only a virtual meeting takes a link — the others are either dialled or in person.
+const MEETING_PLATFORMS = ["Virtual", "Phone Call", "In Person"];
+const LINK_PLATFORM = "Virtual";
+// Clinic meetings are virtual unless someone says otherwise, so a case that
+// lands on the schedule starts out as one (and gets a Meet link for free).
+const DEFAULT_MEETING_PLATFORM = "Virtual";
 
 // ─── Date Helpers ─────────────────────────────────────────────────────────────
 
@@ -636,6 +646,17 @@ export default function Schedule() {
         // instead of scanning every schedules/ node.
         caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/date`] = targetDateKey;
         caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/timeSlot`] = slot.time ?? "";
+        // Seed the meeting: a scheduled case is virtual by default, and a
+        // virtual one gets its Meet link minted here so nobody has to open
+        // every slot to create them by hand. Both are seeded ONCE and never
+        // overwritten — a platform the admin changed, or a link already sent
+        // to the client, survives every later save of this schedule.
+        const meetingInfo = allCases[slot.client.caseId]?.schedulingInfo ?? {};
+        const meetingPlatform = meetingInfo.meetingPlatform || DEFAULT_MEETING_PLATFORM;
+        caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/meetingPlatform`] = meetingPlatform;
+        if (meetingPlatform === LINK_PLATFORM && !meetingInfo.meetingLink) {
+          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/meetingLink`] = generateMeetLink();
+        }
         if (slot?.attorney) {
           caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney.attorneyId ?? "";
           caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/attorneyName`] = slot.attorney.name ?? "";
@@ -1359,6 +1380,7 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemov
 // ─── Time Slot Card (Droppable) ───────────────────────────────────────────────
 function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAttorney, allAttorneysArr, allLegalStudentsArr, onInterpreterSelect, onLegalStudentSelect, onTimeChange, allCases, onContactClick }) {
   const { setNodeRef, isOver } = useDroppable({ id: slotKey, disabled: !hasAttorney });
+  const navigate = useNavigate();
   const [isMeetingLinkOpen, setIsMeetingLinkOpen] = useState(false);
   const { digits: timeDigits, period: timePeriod } = parseTimeString(time);
 
@@ -1391,11 +1413,21 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
     }
   }
 
+  // In view mode a filled slot is a shortcut into that case's form. Edit mode
+  // keeps its clicks for dragging and the inline controls, and leaving the
+  // route there would drop unsaved assignments (they only live in memory).
+  function handleCardClick(e) {
+    if (isEditMode || !assignedClient?.caseId) return;
+    // The buttons and dropdowns inside the card do their own thing.
+    if (e.target.closest("button, select, input, a")) return;
+    navigate(`/edit-form/${assignedClient.caseId}`);
+  }
+
   return (
 
     <div className="schedule-slot-card-outer">
       {isMeetingLinkOpen && (
-        <MeetingPopUp onClose={() => setIsMeetingLinkOpen(false)} />
+        <MeetingPopUp caseId={assignedClient?.caseId} onClose={() => setIsMeetingLinkOpen(false)} />
       )}
       {isEditMode && assignedClient && (
         <div className="schedule-slot-remove-zone">
@@ -1446,7 +1478,7 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
         </div>
 
         {assignedClient ? (
-          <div className="schedule-slot-body--filled">
+          <div className="schedule-slot-body--filled" onClick={handleCardClick}>
             <div className="schedule-slot-content">
               <div className="schedule-slot-client-row">
                 <span className="schedule-slot-dot" />
@@ -1570,7 +1602,7 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
                     <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" viewBox="0 0 16 16">
                       <path d="M0 5a2 2 0 0 1 2-2h7.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 4.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 13H2a2 2 0 0 1-2-2V5z" />
                     </svg>
-                    Meeting link
+                    Meeting
                   </button>
 
                   <button className="schedule-slot-btn schedule-slot-btn-contact" onClick={handleContact}>
@@ -1805,18 +1837,132 @@ function ChangeScheduleDateModal({ clinicLabel, month, onMonthChange, scheduleDa
   );
 }
 
-function MeetingPopUp({ onClose }) {
+// ─── Meeting Pop Up ───────────────────────────────────────────────────────────
+
+// Same floppy-disk icon EditForm puts on its Save button.
+function IconSave() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4.207a2 2 0 0 0-.586-1.414l-2.793-2.793A2 2 0 0 0 11.207 1H2zm6 11.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm.5-9v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V3h5.5z" />
+    </svg>
+  );
+}
+
+// Two arrows chasing each other round a circle — the Regenerate control.
+function IconRegenerate() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+      <path fillRule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
+    </svg>
+  );
+}
+
+function MeetingPopUp({ caseId, onClose }) {
+  const db = getDatabase();
+  const [platform, setPlatform] = useState(DEFAULT_MEETING_PLATFORM);
+  const [link, setLink] = useState("");
+  // Nothing to fetch without a case, so start settled rather than flipping
+  // `loading` from inside the effect.
+  const [loading, setLoading] = useState(!!caseId);
+
+  useEffect(() => {
+    if (!caseId) return;
+    const schedulingRef = ref(db, `cases/${caseId}/schedulingInfo`);
+    const unsubscribe = onValue(schedulingRef, (snapshot) => {
+      const data = snapshot.val();
+      setPlatform(data?.meetingPlatform || DEFAULT_MEETING_PLATFORM);
+      setLink(data?.meetingLink || "");
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [caseId, db]);
+
+  const showsLink = platform === LINK_PLATFORM;
+
+  // Switching to the platform that uses a link with nothing there yet mints
+  // one straight away, matching what Save Schedule already does — the admin
+  // only reaches for Regenerate when they want to replace a working link.
+  function handlePlatformChange(e) {
+    const next = e.target.value;
+    setPlatform(next);
+    if (next === LINK_PLATFORM && !link.trim()) setLink(generateMeetLink());
+  }
+
+  function handleRegenerate() {
+    setLink(generateMeetLink());
+  }
+
+  function handleSave() {
+    if (!caseId) return;
+    update(ref(db, `cases/${caseId}/schedulingInfo`), {
+      meetingPlatform: platform,
+      // A link only belongs to the platform that uses one — switching away
+      // from Google Meet drops the stale link rather than leaving it orphaned.
+      meetingLink: showsLink ? link.trim() : "",
+    })
+      .then(() => onClose())
+      .catch((err) => console.error("Error saving meeting info:", err));
+  }
+
   return (
     <>
       <div className="schedule-modal-backdrop" onClick={onClose} />
       <div className="schedule-modal-popup">
         <button className="schedule-modal-close-btn" onClick={onClose}>✕</button>
-        <h6 className="schedule-modal-title">Meeting Link</h6>
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Paste meeting link here…"
-        />
+        <h6 className="schedule-modal-title">Meeting</h6>
+
+        {loading ? (
+          <div className="text-center py-3 text-muted">Loading meeting info...</div>
+        ) : (
+          <>
+            <div className="mb-2">
+              <label className="form-label small mb-1" htmlFor="meeting-platform">Platform</label>
+              <select
+                id="meeting-platform"
+                className="form-select form-select-sm"
+                value={platform}
+                onChange={handlePlatformChange}
+              >
+                {MEETING_PLATFORMS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+
+            {showsLink && (
+              <div className="mb-2">
+                <label className="form-label small mb-1" htmlFor="meeting-link">Meeting Link</label>
+                <div className="input-group input-group-sm">
+                  <input
+                    id="meeting-link"
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="Paste meeting link here…"
+                    value={link}
+                    onChange={(e) => setLink(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary d-inline-flex align-items-center"
+                    onClick={handleRegenerate}
+                    title="Generate a new Google Meet link"
+                    aria-label="Generate a new Google Meet link"
+                  >
+                    <IconRegenerate />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="d-flex justify-content-end gap-2 mt-3">
+              <button type="button" className="btn btn-cancel p-0 text-decoration-underline" onClick={onClose}>Cancel</button>
+              <button type="button" className="btn btn-submit btn-save py-1 px-3 d-inline-flex align-items-center gap-2" onClick={handleSave} disabled={!caseId}>
+                <IconSave /> Save
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
@@ -1901,7 +2047,9 @@ function ContactPopUp({ caseId, onClose }) {
           </div>
           <div className="d-flex justify-content-end gap-2 mt-3">
             <button type="button" className="btn btn-cancel p-0 text-decoration-underline" onClick={onClose}>Cancel</button>
-            <button type="button" className="btn btn-submit py-1 px-3" onClick={handleSave}>Save</button>
+            <button type="button" className="btn btn-submit btn-save py-1 px-3 d-inline-flex align-items-center gap-2" onClick={handleSave}>
+              <IconSave /> Save
+            </button>
           </div>
         </div>
       </div>

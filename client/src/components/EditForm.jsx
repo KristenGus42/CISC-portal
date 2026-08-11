@@ -627,6 +627,9 @@ export default function ContactForm(props) {
   // (Case Information is editable by every role, so it needs no flag.)
   const canEditClientInfo = role === "Admin" || role === "Staff";
   const canEditAttorneyNotes = role === "Attorney" || role === "Legal Student";
+  // Only the meeting platform/link are editable in Scheduling — the rest of
+  // that section is set by the matching flow on the Schedule page.
+  const canEditMeeting = role === "Admin" || role === "Staff";
 
   // State objects
   const [clientFormData, setClientFormData] = useState({
@@ -864,6 +867,17 @@ export default function ContactForm(props) {
 
   const handleClientChange = makeChangeHandler(setClientFormData);
   const handleCaseChange = makeChangeHandler(setCaseFormData);
+  // Meeting link only applies to a Virtual meeting, so switching to another
+  // platform drops it rather than saving a link the meeting doesn't use.
+  const handleSchedulingChange = (e) => {
+    const { name, value } = e.target;
+    markDirty();
+    setSchedulingFormData((prev) => {
+      const next = { ...prev, [name]: value };
+      if (name === "meetingPlatform" && value !== "Virtual") next.meetingLink = "";
+      return next;
+    });
+  };
   // Same as makeChangeHandler, but also resets any sub-fields that only
   // applied under the previously-selected answer (see
   // ATTORNEY_NOTES_DEPENDENTS) so hidden inputs never save stale values.
@@ -1408,15 +1422,18 @@ export default function ContactForm(props) {
             <FloatInput id="timeSlot" name="timeSlot" label="Time Slot" value={schedulingFormData.timeSlot} readOnly />
           </div>
           <div className="col-12 col-md-6 col-xl-3">
-            <FloatSelect id="meetingPlatform" name="meetingPlatform" label="Meeting Platform" value={schedulingFormData.meetingPlatform} readOnly>
+            <FloatSelect id="meetingPlatform" name="meetingPlatform" label="Meeting Platform" value={schedulingFormData.meetingPlatform} onChange={handleSchedulingChange} readOnly={!canEditMeeting}>
               <option value="Virtual">Virtual</option>
               <option value="Phone Call">Phone Call</option>
               <option value="In Person">In Person</option>
             </FloatSelect>
           </div>
-          <div className="col-12 col-md-6 col-xl-3">
-            <FloatInput id="meetingLink" name="meetingLink" label="Meeting Link" value={schedulingFormData.meetingLink} readOnly />
-          </div>
+          {/* A link is only meaningful for a Virtual meeting. */}
+          {schedulingFormData.meetingPlatform === "Virtual" && (
+            <div className="col-12 col-md-6 col-xl-3">
+              <FloatInput id="meetingLink" name="meetingLink" label="Meeting Link" value={schedulingFormData.meetingLink} onChange={handleSchedulingChange} readOnly={!canEditMeeting} />
+            </div>
+          )}
 
           <div className="col-12">
             <SectionDivider title="Attorney" sub />

@@ -4,10 +4,29 @@ import { Link } from "react-router";
 // Import Firebase database functions
 import { getDatabase, ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 import { useAuth } from "../auth/useAuth";
+import { downloadCaseAnalytics } from "../utils/caseAnalytics";
+
+function toYMD(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
+
+// A case whose clinic date has already passed reads as "archived", regardless of
+// the stored status — nothing writes that status, it's derived from the date.
+// Scheduling dates are "YYYY-MM-DD", so they compare correctly as strings.
+// Today still counts as upcoming, matching AttorneyView's Archived/Upcoming badge.
+function displayStatus(caseData, todayYMD) {
+    const date = caseData.schedulingInfo?.date;
+    if (date && date < todayYMD) return "archived";
+    return caseData.status;
+}
 
 export default function CaseLibrary() {
     const [allCasesArr, setAllCasesArr] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
+    const [isExporting, setIsExporting] = useState(false);
     const db = getDatabase();
     const { role, user } = useAuth();
 
@@ -67,11 +86,28 @@ export default function CaseLibrary() {
             // Use: return dateA - dateB; for ascending order (oldest first)
     });;
 
+    const todayYMD = toYMD(new Date());
+
+    // Exports whatever the search currently shows, so the spreadsheet always
+    // matches the list on screen (and the role-scoped cases the user can read).
+    const handleExportAnalytics = async () => {
+        if (isExporting || filteredCases.length === 0) return;
+        setIsExporting(true);
+        try {
+            await downloadCaseAnalytics(filteredCases);
+        } catch (error) {
+            console.error("Error exporting case analytics:", error);
+            alert("Could not generate the analytics spreadsheet. Please try again.");
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     const caseCards = filteredCases.map((client) => (
         <CaseCard
             key={client.id}
             id={client.id}
-            status={client.status} // Defaulting to active if status isn't set
+            status={displayStatus(client, todayYMD)}
             fname={client.clientInfo?.fname}
             lname={client.clientInfo?.lname}
             category={client.caseInfo?.category}
@@ -94,7 +130,7 @@ export default function CaseLibrary() {
                     <p className="cl-page-subtitle text-muted small">All active cases</p>
                 </div>
 
-                {/* Search, Filter & Add Case toolbar */}
+                {/* Search, Filter, Analyze & Add toolbar */}
                 <div className="cl-toolbar">
                     <div className="cl-toolbar-left">
                         <div className="cl-search-container">
@@ -121,17 +157,37 @@ export default function CaseLibrary() {
                         </button>
                     </div>
 
-                    <Link to="/new-form" className="text-decoration-none">
-                        <button type="button" className="cl-add-case-btn">
-                            {/* Plus-circle icon */}
+                    <div className="cl-toolbar-right">
+                        <Link to="/new-form" className="text-decoration-none">
+                            <button type="button" className="cl-add-case-btn">
+                                {/* Plus-circle icon */}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="12" y1="8" x2="12" y2="16"/>
+                                    <line x1="8" y1="12" x2="16" y2="12"/>
+                                </svg>
+                                Add
+                            </button>
+                        </Link>
+
+                        <button
+                            type="button"
+                            className="cl-analytics-btn"
+                            onClick={handleExportAnalytics}
+                            disabled={isExporting || filteredCases.length === 0}
+                            title={filteredCases.length === 0
+                                ? "No cases to export"
+                                : `Download stats for ${filteredCases.length} case${filteredCases.length === 1 ? "" : "s"} as an Excel spreadsheet`}
+                        >
+                            {/* Download icon */}
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="16"/>
-                                <line x1="8" y1="12" x2="16" y2="12"/>
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
-                            Add case
+                            {isExporting ? "Generating…" : "Analyze"}
                         </button>
-                    </Link>
+                    </div>
                 </div>
 
                 {/* Color-coded case age legend */}
@@ -144,6 +200,10 @@ export default function CaseLibrary() {
                     <div className="cl-legend-item">
                         <span className="cl-legend-dot cl-legend-dot--new"></span>
                         Scheduled
+                    </div>
+                    <div className="cl-legend-item">
+                        <span className="cl-legend-dot cl-legend-dot--archived"></span>
+                        Archived
                     </div>
                 </div>
             </div>
@@ -177,7 +237,9 @@ function CaseCard({ id, status, fname, lname, category, language, date, briefDes
                             </div>
                         </div>
                         <div className="cl-case-card-right">
-                            <p>{date || "No Date Set"}</p>
+                            {/* A waitlisted case has no clinic date yet by definition —
+                                say so, rather than reporting a missing field. */}
+                            <p>{date || (status === "waitlisted" ? "Not Scheduled" : "No Date Set")}</p>
                         </div>
                     </div>
 

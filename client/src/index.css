@@ -9,6 +9,7 @@
   --error: #D11313;
   --success: #3AC420;
   --pending: #FE9705;
+  --archived: #1A73C4;
   --neutral-gray: #D0CBCC;
   --background: #FEFDFD;
   --subtle-gray: #F2F2F2;
@@ -49,6 +50,18 @@ body {
 }
 
 .ef-page .btn-submit:hover:not(:disabled) {
+  background-color: #2faa18;
+  border-color: #2faa18;
+}
+
+/* Same green Save treatment for save buttons outside the edit form
+   (the Schedule pop-ups), which aren't under .ef-page. */
+.btn-submit.btn-save {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.btn-submit.btn-save:hover:not(:disabled) {
   background-color: #2faa18;
   border-color: #2faa18;
 }
@@ -182,12 +195,15 @@ body {
   gap: 56px;
 }
 
+/* Page identity for non-Admin roles, which have no nav links — sits where the
+   links would be, so it reads as a title rather than another link. */
 .app-navbar-title {
   grid-column: 2;
   justify-self: center;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--primary-text);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--call-to-action);
 }
 
 .app-navbar-link {
@@ -326,6 +342,40 @@ body {
   font-size: 2rem;
 }
 
+/* Add + Analyze, kept together at the toolbar's trailing edge. */
+.cl-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.cl-analytics-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 6px 16px;
+  border-radius: 5px;
+  border: 1px solid var(--primary-text);
+  background-color: var(--primary-text);
+  color: var(--background);
+  font-size: 1rem; /* matches the Add button it sits beside */
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  height: 36px;
+  transition: opacity 0.15s;
+}
+
+.cl-analytics-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.cl-analytics-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .cl-page-subtitle {
   margin-bottom: 3rem;
 }
@@ -458,6 +508,10 @@ body {
   background-color: var(--success);
 }
 
+.cl-legend-dot--archived {
+  background-color: var(--archived);
+}
+
 /* Case Cards*/
 .cl-case-list {
   display: flex;
@@ -478,6 +532,10 @@ body {
 
 .cl-status-scheduled {
   border-color: var(--success);
+}
+
+.cl-status-archived {
+  border-color: var(--archived);
 }
 
 .cl-case-card,
@@ -1487,6 +1545,20 @@ body {
 /* Once a slot is assigned (--filled), drop the outline entirely in view mode. */
 .schedule-time-slot-card--view .schedule-slot-body--filled::before {
   content: none;
+}
+
+/* View mode only — the filled slot opens that case's form. Scoped to exactly
+   the state where the click is wired up, so nothing looks clickable when it
+   isn't. */
+.schedule-time-slot-card--view .schedule-slot-body--filled {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+/* Same black outline the empty slots carry in view mode. Inset so it isn't
+   clipped by the card's overflow: hidden. */
+.schedule-time-slot-card--view .schedule-slot-body--filled:hover {
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.65);
 }
 
 /* Right Panel - Waitlist */
@@ -3599,7 +3671,7 @@ body {
 }
 
 .attorney-view-badge--archived {
-  background-color: var(--dark-gray);
+  background-color: var(--archived);
 }
 
 .attorney-view-row {
@@ -3659,23 +3731,56 @@ body {
   color: var(--dark-gray);
 }
 
+/* Same blue as Schedule.jsx's Meeting button (.schedule-slot-btn-meeting). */
 .attorney-view-row-meeting {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   font-size: 0.8rem;
-  color: var(--primary-text);
-  background-color: var(--background);
-  border: 1px solid var(--neutral-gray);
+  color: #fff;
+  background-color: #1a73e8;
+  border: 1px solid #1a73e8;
   border-radius: 6px;
   padding: 0.3rem 0.6rem;
   white-space: nowrap;
   text-decoration: none;
+  cursor: pointer;
+}
+
+.attorney-view-row-meeting:hover {
+  background-color: #1558b0;
 }
 
 .attorney-view-row-meeting--disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* Read-only meeting details inside the popup */
+.attorney-view-meeting-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-bottom: 0.9rem;
+}
+
+.attorney-view-meeting-field:last-child {
+  margin-bottom: 0;
+}
+
+.attorney-view-meeting-label {
+  font-size: 0.75rem;
+  color: var(--dark-gray);
+}
+
+.attorney-view-meeting-value {
+  font-size: 0.9rem;
+  color: var(--primary-text);
+  word-break: break-all;
+}
+
+.attorney-view-meeting-link {
+  color: var(--call-to-action);
 }
 
 .attorney-view-row-details-btn {
