@@ -42,6 +42,28 @@ body {
   padding-bottom: 0.4rem;
 }
 
+/* Save buttons inside the edit form are green */
+.ef-page .btn-submit {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.ef-page .btn-submit:hover:not(:disabled) {
+  background-color: #2faa18;
+  border-color: #2faa18;
+}
+
+/* Resources Filter button uses CISC brand color, not the green Save color */
+.ef-res-filter-btn.btn-submit {
+  background-color: var(--call-to-action);
+  border-color: var(--call-to-action);
+}
+
+.ef-page .ef-res-filter-btn.btn-submit:hover:not(:disabled) {
+  background-color: #5a2633;
+  border-color: #5a2633;
+}
+
 .btn-cancel {
   color: var(--primary-text);
   text-decoration: underline;
@@ -532,16 +554,240 @@ body {
   color: gray;
 }
 
+/* ── Header quick-info row (email, phone, attorney, legal student, interpreter) ── */
+.ef-header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+}
+
+/* Email / phone: identical to .cp-contact-chip */
+.ef-header-contact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 4px 10px;
+  border: 1px solid #ece7e8;
+  border-radius: 6px;
+  background-color: #f4f1f1;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: var(--primary-text);
+}
+
+/* Attorney / Legal Student / Interpreter: same column layout as
+   .cp-assignment-slot but read-only (no pointer, no hover effect) */
+.ef-header-assignments {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.ef-header-assign-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ef-header-assign-role {
+  font-size: 0.68rem;
+  color: var(--dark-gray);
+}
+
+.ef-header-assign-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--neutral-gray);
+  background-color: var(--background);
+  color: var(--primary-text);
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+}
+
+.ef-header-assign-pill--empty {
+  font-weight: 400;
+  color: var(--dark-gray);
+}
+
 .form-section-bar {
   border-left: 10px solid var(--call-to-action);
   padding-left: 0.75rem;
   border-radius: 3px;
 }
 
-.form-label.required::after,
-.form-floating label.required::after {
+/* Top-level form categories (Client Information, Case Information,
+   Scheduling, Attorney Notes): name in a sidebar to the left of the fields,
+   with a vertical accent bar that highlights on hover. The bar + label are
+   positioned entirely outside the normal flow (into the left margin) so
+   .ef-section-body's left edge lines up with "Overview"'s left edge, same
+   as every other box on the page — the sidebar never pushes the fields over. */
+.ef-section {
+  position: relative;
+  margin-bottom: 2.5rem;
+}
+
+.ef-section-sidebar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2.25rem;
+  width: 5px;
+}
+
+.ef-section-label {
+  /* Positioned outside the bar's box (to its left), not a flex sibling of
+     it, so its text length never shifts the bar's position. */
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.85rem);
+  transform: translateY(-50%);
+  white-space: nowrap;
+  color: var(--primary-text);
+  font-size: 0.85rem;
+}
+
+.ef-section-bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background-color: var(--neutral-gray);
+  transition: background-color 0.15s ease-in-out;
+}
+
+/* Hovering anywhere in the section — not just the thin bar itself —
+   highlights the bar in the theme's call-to-action color. */
+.ef-section:hover .ef-section-bar {
+  background-color: var(--call-to-action);
+}
+
+.ef-section-body {
+  /* Bootstrap's .row.g-4 gives .row a negative top margin as part of its
+     gutter technique, which can collapse through a plain block and throw
+     off .ef-section's auto height (and so the bar's length, since it
+     stretches to match that height). flow-root contains it so the bar's
+     height always matches the actual field content exactly. */
+  display: flow-root;
+}
+
+.form-label.required::after {
   content: " *";
   color: var(--error);
+}
+
+/* Field boxes: a permanent small label pinned to the top of the box (no
+   placeholder text anywhere — the label is always visible, never floats in
+   from a larger overlapping state and never disappears once a value is
+   entered). */
+.ef-field-wrap {
+  position: relative;
+}
+
+.ef-field-label {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.75rem;
+  color: #999;
+  font-size: 0.85rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.ef-required-asterisk {
+  margin-left: 0.3rem;
+  color: var(--error);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Attorney Notes: "Attorneys Only" divider badge, statement bullet lists,
+   and the inline checkbox row nested under the KCBA referral radio. */
+.ef-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.6rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--background);
+  white-space: nowrap;
+}
+
+.ef-badge--warning {
+  background-color: var(--pending);
+}
+
+.ef-statement-list {
+  margin-bottom: 1rem;
+}
+
+.ef-checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 3.5rem;
+  row-gap: 1rem;
+  margin: 0.4rem 0 0.75rem 1.75rem;
+}
+
+.ef-checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ef-visit-reason-note {
+  margin: -0.2rem 0 0.35rem 1.5em;
+}
+
+.ef-field-box.form-control,
+.ef-field-box.form-select {
+  height: calc(3.5rem + 2px);
+  min-height: calc(3.5rem + 2px);
+}
+
+.ef-field-box.form-control,
+.ef-field-box.form-select {
+  /* Leave room at the top for the label, same on every field type so
+     inputs, selects and textareas all line up. */
+  padding-top: 1.625rem;
+  padding-bottom: 0.625rem;
+  padding-left: 0.75rem;
+}
+
+.ef-field-box[readonly],
+.ef-field-box:disabled {
+  background-color: var(--subtle-gray);
+  color: var(--primary-text);
+  opacity: 1;
+  cursor: default;
+}
+
+/* Locked radios/checkboxes (a section the current role can't edit): keep
+   the label text fully legible — everyone can still read every section —
+   and only mute the control itself. */
+.form-check-input:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.form-check-input:disabled ~ .form-check-label,
+.ef-checkbox-inline input:disabled ~ span {
+  opacity: 1;
+  color: var(--primary-text);
+  cursor: default;
 }
 
 .err-color {
@@ -952,6 +1198,16 @@ body {
   background-color: var(--neutral-gray);
 }
 
+/* EditForm's "more options" → Assign submenu: a scrollable staff list
+   reusing the same .schedule-dropdown-item rows. */
+.ef-assign-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
 .schedule-delete-confirm-btn {
   border: none;
   border-radius: 4px;
@@ -1253,10 +1509,19 @@ body {
 }
 
 /* Waitlist Search Bar */
-.schedule-search-container {
-  position: relative;
+/* Search input + the waitlist sort toggle, side by side. Stretch alignment
+   keeps the button the same height as the input. */
+.schedule-search-row {
+  display: flex;
+  gap: 0.4rem;
   margin-bottom: 1rem;
   flex-shrink: 0;
+}
+
+.schedule-search-container {
+  position: relative;
+  flex: 1;
+  min-width: 0;
 }
 
 .schedule-search-icon {
@@ -1288,6 +1553,28 @@ body {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+}
+
+/* Flips the waitlist date sort — sits to the right of the search input,
+   matching its pill shape. */
+.schedule-sort-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary-text);
+  background-color: var(--background);
+  border: 1px solid var(--neutral-gray);
+  border-radius: 20px;
+  padding: 0 0.7rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.schedule-sort-toggle:hover {
+  background-color: var(--subtle-gray);
 }
 
 .schedule-legend-dot {
@@ -1325,11 +1612,31 @@ body {
   flex-shrink: 0;
   position: relative;
   cursor: grab;
+  /* Age color comes from the --old/--medium/--new modifiers below, matching
+     the Old/Medium/New legend dots above the waitlist. */
   border-left: 12px solid var(--error);
   border-radius: 4px;
   background-color: var(--subtle-gray);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   overflow: hidden;
+}
+
+.schedule-waitlist-card--old {
+  border-left-color: var(--error);
+}
+
+.schedule-waitlist-card--medium {
+  border-left-color: var(--pending);
+}
+
+.schedule-waitlist-card--new {
+  border-left-color: var(--success);
+}
+
+.schedule-waitlist-card--locked {
+  /* Not in edit mode: the card can't be dragged, so don't advertise a drag
+     affordance. It still opens the preview on click. */
+  cursor: pointer;
 }
 
 .schedule-waitlist-card--dragging {
@@ -2042,6 +2349,73 @@ body {
   margin: 0;
   line-height: 1.5;
 }
+
+/* Documents tab */
+.cp-doc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cp-doc-section-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cp-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.cp-doc-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--neutral-gray);
+  border-radius: 6px;
+  background-color: var(--background);
+  text-decoration: none;
+  color: var(--primary-text);
+  font-size: 0.8rem;
+  transition: background-color 0.12s;
+}
+
+.cp-doc-card:hover {
+  background-color: var(--subtle-gray);
+  color: var(--primary-text);
+}
+
+.cp-doc-card-filename {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.cp-doc-card-filename-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-doc-card-badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background-color: var(--neutral-gray);
+  color: var(--dark-gray);
+  letter-spacing: 0.03em;
+}
+
+
 
 @media (max-width: 1200px) {
   .cp-panel {
@@ -3267,7 +3641,7 @@ body {
   color: var(--dark-gray);
 }
 
-.attorney-view-row-interpreter {
+.attorney-view-row-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -3278,6 +3652,11 @@ body {
   border-radius: 6px;
   padding: 0.3rem 0.6rem;
   white-space: nowrap;
+}
+
+/* Nobody matched to this slot yet — muted, to read as a gap rather than a name. */
+.attorney-view-row-pill--empty {
+  color: var(--dark-gray);
 }
 
 .attorney-view-row-meeting {
@@ -3330,10 +3709,37 @@ body {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 62px);
+  /* Overrides Bootstrap's own .py-5 (this stylesheet loads after
+     bootstrap.min.css) so the tabs sit closer under the title. */
+  padding-top: 1rem !important;
 }
 
 .ef-page-body {
   flex: 1;
+}
+
+/* Reserves guaranteed room to the left of the title/tabs/fields for the
+   category sidebar (bar + label) to sit in, regardless of viewport width —
+   Bootstrap's own container margin shrinks unpredictably around 992-1200px
+   and isn't reliably wide enough on its own, so instead of hoping there's
+   free space outside the container, the container itself makes room. This
+   portal is laptop/desktop only, so the sidebar stays "on the side" at
+   every supported width — no phone-width fallback needed.
+   Title, tabs, and fields all get this so they stay aligned with each
+   other. padding-right is a plain fixed value (not mirrored to the left) so
+   there's still a normal-looking margin on the right at common laptop
+   widths — max-width + margin:auto only centers once the viewport exceeds
+   the max-width, which many real laptop screens (1280/1366px) don't, so it
+   left the page looking flush against the right edge instead of centered.
+   12.5rem is the measured minimum: the longest label ("Client Information")
+   renders at ~115px in this font/size, + the label-bar gap (13.6px) + bar
+   width (5px) + bar-to-fields gap (36px) ≈ 170px needed, so 200px leaves a
+   ~30px safety margin — trimmed down from 15rem, which was noticeably more
+   than the sidebar actually requires. */
+.ef-page-indent {
+  position: relative;
+  padding-left: 12.5rem !important;
+  padding-right: 3rem !important;
 }
 
 .ef-tabs {
@@ -3341,17 +3747,26 @@ body {
   align-items: flex-end;
   justify-content: space-between;
   gap: 1.5rem;
-  border-bottom: 1px solid var(--neutral-gray);
   margin-bottom: 1.5rem;
 }
 
 .ef-tabs-buttons {
   display: flex;
-  gap: 1.5rem;
+  gap: 5rem;
 }
 
 .ef-upload-btn {
   margin-bottom: 0.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.ef-upload-btn:disabled {
+  /* Keep the same solid maroon look even while upload isn't wired up yet —
+     Bootstrap's default disabled-button dimming made this read as gray. */
+  opacity: 1;
+  background-color: var(--call-to-action);
+  border-color: var(--call-to-action);
 }
 
 .ef-tab-body {
@@ -3359,7 +3774,8 @@ body {
 }
 
 .ef-documents-empty {
-  padding: 1.5rem 0;
+  padding: 2.5rem 0 1rem;
+  text-align: center;
 }
 
 .ef-doc-grid {
@@ -3370,10 +3786,59 @@ body {
 }
 
 .ef-doc-card {
+  position: relative;
+  display: block;
   width: 190px;
   background-color: var(--subtle-gray);
   border-radius: 10px;
   padding: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.ef-doc-card-menu {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 1;
+}
+
+/* Borderless/ghost — no outline at rest, just a faint hover background
+   for affordance, same idea as the page's own kebab button. */
+.ef-doc-card-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--dark-gray);
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.ef-doc-card-more-btn:hover {
+  background-color: var(--neutral-gray);
+  color: var(--primary-text);
+}
+
+.ef-doc-card-dropdown {
+  top: calc(100% + 2px);
+}
+
+.ef-doc-card:hover {
+  background-color: var(--neutral-gray);
+}
+
+.ef-doc-card-thumb {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
 }
 
 .ef-doc-card-filename {
@@ -3383,9 +3848,15 @@ body {
   font-size: 0.8rem;
   color: var(--primary-text);
   margin-bottom: 0.6rem;
+  /* Leave room so the filename never runs under the kebab button. */
+  padding-right: 1.5rem;
+}
+
+.ef-doc-card-filename-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .ef-doc-card-filename svg {
@@ -3413,6 +3884,24 @@ body {
   border-radius: 4px;
 }
 
+/* Staged uploads: not actually in Firebase yet, so it's visually flagged
+   until Save actually pushes it. */
+.ef-doc-card--pending {
+  outline: 1.5px dashed var(--pending);
+  outline-offset: -1.5px;
+}
+
+.ef-doc-card-pending-badge {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  background-color: var(--pending);
+  color: var(--primary-text);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+}
+
 .ef-bottom-bar {
   /* No position: sticky — this should only sit at the bottom of the
      viewport when content is shorter than the screen (e.g. an empty
@@ -3422,6 +3911,44 @@ body {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   border-top: 1px solid var(--neutral-gray);
+}
+
+.ef-lang-remove-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--subtle-gray);
+  color: var(--dark-gray);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ef-lang-remove-btn:hover {
+  background-color: var(--neutral-gray);
+  color: var(--primary-text);
+}
+
+.ef-lang-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  padding: 0.2rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--call-to-action);
+  cursor: pointer;
+}
+
+.ef-lang-add-btn:hover {
+  color: var(--primary-text);
 }
 
 .ef-res-toolbar {
@@ -3562,4 +4089,29 @@ body {
 
 .ef-tab-btn:hover:not(.ef-tab-btn--active) {
   color: var(--primary-text);
+}
+
+/* ── Edit Form — responsive ──────────────────────────────────────────────────
+   This portal is laptop/desktop only — no phone-width layout needed. Below
+   "xl" (1200px) the field grid (see the col-12 col-md-* col-xl-* classes in
+   EditForm.jsx) stacks to one/two columns instead of the fixed desktop
+   layout, which covers a laptop window at typical widths. The category
+   sidebar stays put on the side at every width — .ef-page-indent's reserved
+   gutter (above) guarantees it room regardless, so it never needs to reflow
+   or risk clipping. */
+
+/* Smaller text on narrow screens so labels/values still fit comfortably in
+   the (now full-width, stacked) field boxes. */
+@media (max-width: 575.98px) {
+  .ef-section-label {
+    font-size: 0.78rem;
+  }
+
+  .ef-field-label {
+    font-size: 0.72rem;
+  }
+
+  .ef-field-box {
+    font-size: 0.85rem;
+  }
 }

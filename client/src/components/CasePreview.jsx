@@ -8,7 +8,8 @@
  *   onExpand  {fn}      – optional, called when the user clicks the expand ↗ icon
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 // ─── Helper: status colour ─────────────────────────────────────────────────────
 
@@ -60,6 +61,14 @@ function IconExpand() {
   );
 }
 
+function IconPaperclip() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+      <path d="M21.44 11.05 12.25 20.24a5.5 5.5 0 0 1-7.78-7.78l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a1.5 1.5 0 0 1-2.12-2.12l8.49-8.48" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 // ─── Small floating-label read-only field ──────────────────────────────────────
 
 function ReadField({ label, value, style = {} }) {
@@ -103,12 +112,88 @@ function OverviewTab({ clientInfo = {}, caseInfo = {} }) {
   );
 }
 
-// ─── Document Tab (placeholder) ────────────────────────────────────────────────
+// ─── Document Tab ──────────────────────────────────────────────────────────────
 
-function DocumentTab() {
+function DocCard({ name, url, contentType }) {
+  const isImage = (contentType || "").startsWith("image/");
+  return (
+    <a
+      className="cp-doc-card"
+      href={url || undefined}
+      target="_blank"
+      rel="noreferrer"
+      title={name}
+    >
+      <div className="cp-doc-card-filename">
+        <IconPaperclip />
+        <span className="cp-doc-card-filename-text">{name}</span>
+      </div>
+      <span className="cp-doc-card-badge">{isImage ? "IMG" : "PDF"}</span>
+    </a>
+  );
+}
+
+function DocumentTab({ caseId }) {
+  const [docs, setDocs] = useState({ client: [], attorney: [] });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!caseId) {
+      setLoading(false);
+      return;
+    }
+    const db = getDatabase();
+    const docsRef = ref(db, `cases/${caseId}/documents`);
+    const unsubscribe = onValue(docsRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const toArray = (section) =>
+        section ? Object.keys(section).map((key) => ({ id: key, ...section[key] })) : [];
+      setDocs({ client: toArray(data.client), attorney: toArray(data.attorney) });
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [caseId]);
+
+  const allDocs = [...docs.client, ...docs.attorney];
+
+  if (loading) {
+    return (
+      <div className="cp-tab-body">
+        <p className="text-muted small text-center mt-4">Loading…</p>
+      </div>
+    );
+  }
+
+  if (allDocs.length === 0) {
+    return (
+      <div className="cp-tab-body">
+        <p className="text-muted small text-center mt-4">No documents attached.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="cp-tab-body">
-      <p className="text-muted small text-center mt-4">No documents attached.</p>
+      {docs.client.length > 0 && (
+        <div className="cp-doc-section">
+          <span className="cp-doc-section-label">Client Documents</span>
+          <div className="cp-doc-list">
+            {docs.client.map((doc) => (
+              <DocCard key={doc.id} name={doc.name} url={doc.url} contentType={doc.contentType} />
+            ))}
+          </div>
+        </div>
+      )}
+      {docs.attorney.length > 0 && (
+        <div className="cp-doc-section">
+          <span className="cp-doc-section-label">Attorney Documents</span>
+          <div className="cp-doc-list">
+            {docs.attorney.map((doc) => (
+              <DocCard key={doc.id} name={doc.name} url={doc.url} contentType={doc.contentType} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -192,7 +277,7 @@ export default function CasePreview({ caseData, onClose, onExpand }) {
       {/* ── Tab body ── */}
       {activeTab === "overview"
         ? <OverviewTab clientInfo={clientInfo} caseInfo={caseInfo} />
-        : <DocumentTab />
+        : <DocumentTab caseId={caseData.id} />
       }
     </div>
   );

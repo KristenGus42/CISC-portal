@@ -68,6 +68,42 @@ function getMonthGridCells(monthDate) {
   return cells;
 }
 
+// ─── Waitlist Age ─────────────────────────────────────────────────────────────
+// Cases are stamped with `dateAdded` as a locale string (see EditForm's save),
+// e.g. "2/7/2026, 5:30:12 PM".
+
+// Days since a case was added, or null when it has no usable `dateAdded`.
+function daysSinceAdded(dateAdded) {
+  if (!dateAdded) return null;
+  const added = new Date(dateAdded);
+  if (Number.isNaN(added.getTime())) return null;
+  const addedMidnight = new Date(added.getFullYear(), added.getMonth(), added.getDate());
+  const now = new Date();
+  const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((todayMidnight - addedMidnight) / 86400000);
+}
+
+// Thresholds for the Old / Medium / New legend above the waitlist.
+const WAITLIST_OLD_DAYS = 30;
+const WAITLIST_MEDIUM_DAYS = 14;
+
+// "old" | "medium" | "new" — drives the card's left border color. Cases with
+// no `dateAdded` are treated as oldest, so they surface rather than hide.
+function waitlistAgeBucket(dateAdded) {
+  const days = daysSinceAdded(dateAdded);
+  if (days === null || days >= WAITLIST_OLD_DAYS) return "old";
+  if (days >= WAITLIST_MEDIUM_DAYS) return "medium";
+  return "new";
+}
+
+// "Feb 7, 2026" — compact enough for the card's header row.
+function formatDateAdded(dateAdded) {
+  if (!dateAdded) return "";
+  const added = new Date(dateAdded);
+  if (Number.isNaN(added.getTime())) return "";
+  return `${MONTH_NAMES[added.getMonth()].slice(0, 3)} ${added.getDate()}, ${added.getFullYear()}`;
+}
+
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const mockAttorneys = [
@@ -99,6 +135,8 @@ function parseTimeString(t) {
 export default function Schedule() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  // Waitlist date sort — oldest-first by default (longest wait surfaces first).
+  const [sortOldestFirst, setSortOldestFirst] = useState(true);
   const [waitlistCases, setWaitlistCases] = useState([]);
   const [allCases, setAllCases] = useState({});
   // Local-only assignments, cleared on date change, saved to Firebase on "Save"
@@ -850,13 +888,27 @@ export default function Schedule() {
   const filteredWaitlist = waitlistCases
     .filter((c) => !assignedCaseIds.has(c.id))
     .filter((c) => {
-      const fullName = `${c.clientInfo?.fname ?? ""} ${c.clientInfo?.lname ?? ""}`.toLowerCase();
-      const caseId = c.id.toLowerCase();
-      return (
-        searchQuery === "" ||
-        fullName.includes(searchQuery.toLowerCase()) ||
-        caseId.includes(searchQuery.toLowerCase())
-      );
+      if (searchQuery === "") return true;
+      const query = searchQuery.toLowerCase();
+      const fields = [
+        `${c.clientInfo?.fname ?? ""} ${c.clientInfo?.lname ?? ""}`,
+        c.id,
+        c.caseInfo?.category ?? "",
+        c.clientInfo?.primaryLanguage ?? "",
+      ];
+      return fields.some((field) => field.toLowerCase().includes(query));
+    })
+    // Oldest first by default, so the cases waiting longest sit at the top of
+    // the panel (and the Old → Medium → New colors read top to bottom). The
+    // header arrow flips this to newest-first.
+    .sort((a, b) => {
+      const aDays = daysSinceAdded(a.dateAdded);
+      const bDays = daysSinceAdded(b.dateAdded);
+      // Undated cases have an unknown wait — group them with the oldest.
+      if (aDays === null && bDays === null) return 0;
+      if (aDays === null) return sortOldestFirst ? -1 : 1;
+      if (bDays === null) return sortOldestFirst ? 1 : -1;
+      return sortOldestFirst ? bDays - aDays : aDays - bDays;
     });
 
   const colArray = mockAttorneys.map((_, i) => i);
@@ -1106,17 +1158,32 @@ export default function Schedule() {
             <div className="schedule-waitlist-panel">
               <h5 className="schedule-waitlist-title">Waitlist</h5>
 
-              <div className="schedule-search-container">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" className="schedule-search-icon">
-                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z" />
-                </svg>
-                <input
-                  type="text"
-                  className="form-control form-control-sm schedule-search-input"
-                  placeholder="Search by Name or Case ID"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <div className="schedule-search-row">
+                <div className="schedule-search-container">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" className="schedule-search-icon">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z" />
+                  </svg>
+                  <input
+                    type="text"
+                    className="form-control form-control-sm schedule-search-input"
+                    placeholder="Search Case"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="schedule-sort-toggle"
+                  onClick={() => setSortOldestFirst((prev) => !prev)}
+                  title={sortOldestFirst ? "Sorted oldest first — click for newest first" : "Sorted newest first — click for oldest first"}
+                  aria-label={sortOldestFirst ? "Sorted oldest first — click for newest first" : "Sorted newest first — click for oldest first"}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                    <path fillRule="evenodd" d="M11.5 15a.5.5 0 0 1-.5-.5V2.707L8.354 5.354a.5.5 0 1 1-.708-.708l3.5-3.5a.5.5 0 0 1 .708 0l3.5 3.5a.5.5 0 0 1-.708.708L12 2.707V14.5a.5.5 0 0 1-.5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z" />
+                  </svg>
+                  {sortOldestFirst ? "Oldest" : "Newest"}
+                </button>
               </div>
 
               <div className="schedule-legend">
@@ -1142,7 +1209,7 @@ export default function Schedule() {
                       lname={c.clientInfo?.lname}
                       category={c.caseInfo?.category}
                       language={c.clientInfo?.primaryLanguage}
-                      date={c.schedulingInfo?.date}
+                      dateAdded={c.dateAdded}
                       onPreview={() => setSelectedCase(c)}
                       onContact={() => setContactCaseId(c.id)}
                       isDraggable={isEditMode}
@@ -1532,12 +1599,14 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
 }
 
 // ─── Waitlist Card (Draggable) ────────────────────────────────────────────────
-function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date, onPreview, onContact, isDraggable }) {
+function WaitlistCard({ firebaseKey, id, fname, lname, category, language, dateAdded, onPreview, onContact, isDraggable }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: firebaseKey,
     disabled: !isDraggable,
   });
   const cardRef = useRef(null);
+  const ageBucket = waitlistAgeBucket(dateAdded);
+  const addedLabel = formatDateAdded(dateAdded);
 
   useLayoutEffect(() => {
     if (!cardRef.current) return;
@@ -1556,7 +1625,7 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date,
       ref={handleCardRef}
       {...(isDraggable ? listeners : {})}
       {...(isDraggable ? attributes : {})}
-      className={`schedule-waitlist-card${isDragging ? " schedule-waitlist-card--dragging" : ""}${!isDraggable ? " schedule-waitlist-card--locked" : ""}`}
+      className={`schedule-waitlist-card schedule-waitlist-card--${ageBucket}${isDragging ? " schedule-waitlist-card--dragging" : ""}${!isDraggable ? " schedule-waitlist-card--locked" : ""}`}
       onClick={onPreview}
     >
       <div className="schedule-waitlist-card-content">
@@ -1567,7 +1636,9 @@ function WaitlistCard({ firebaseKey, id, fname, lname, category, language, date,
             </span>
             <span className="schedule-case-badge">{id}</span>
           </div>
-          <span className="schedule-card-date">{date || "No Date"}</span>
+          <span className="schedule-card-date">
+            {addedLabel || "No Date Added"}
+          </span>
         </div>
 
         <p className="schedule-card-details">

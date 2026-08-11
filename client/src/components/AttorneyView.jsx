@@ -37,6 +37,16 @@ function IconTranslate() {
   );
 }
 
+function IconMortarboard() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .017.912l7.5 3a.5.5 0 0 0 .388 0l7.5-3a.5.5 0 0 0 .022-.912l-7.5-3.5Z" />
+      <path d="M4 10.176V13.5a.5.5 0 0 0 .276.447l3.5 1.75a.5.5 0 0 0 .448 0l3.5-1.75A.5.5 0 0 0 12 13.5v-3.324l-3.402 1.36a1.5 1.5 0 0 1-1.196 0L4 10.176Z" />
+      <path d="M14.5 8.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 1 0Z" />
+    </svg>
+  );
+}
+
 function IconMeeting() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
@@ -59,7 +69,8 @@ function ConsultationRow({ caseData, onViewDetails }) {
   const { clientInfo = {}, caseInfo = {}, schedulingInfo = {} } = caseData;
   const name = `${clientInfo.fname || ""} ${clientInfo.lname || ""}`.trim() || "Unknown Client";
   const details = [caseInfo.category, clientInfo.primaryLanguage].filter(Boolean).join(" | ") || "No Category | No Language";
-  const interpreterName = schedulingInfo.interpreterName || "CISC Staff";
+  const interpreterName = schedulingInfo.interpreterName || "";
+  const legalStudentName = schedulingInfo.legalStudentName || "";
 
   return (
     <div className="attorney-view-row">
@@ -71,8 +82,11 @@ function ConsultationRow({ caseData, onViewDetails }) {
           <div className="attorney-view-row-name">{name}</div>
           <div className="attorney-view-row-details">{details}</div>
         </div>
-        <span className="attorney-view-row-interpreter">
-          <IconTranslate /> {interpreterName}
+        <span className={`attorney-view-row-pill${!legalStudentName ? " attorney-view-row-pill--empty" : ""}`}>
+          <IconMortarboard /> {legalStudentName || "Unassigned"}
+        </span>
+        <span className={`attorney-view-row-pill${!interpreterName ? " attorney-view-row-pill--empty" : ""}`}>
+          <IconTranslate /> {interpreterName || "Unassigned"}
         </span>
         {schedulingInfo.meetingLink ? (
           <a
