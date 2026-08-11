@@ -1,30 +1,40 @@
-// Google Meet link generation.
-//
-// PLACEHOLDER IMPLEMENTATION. The codes below have the right *shape*
-// (meet.google.com/xxx-xxxx-xxx) but they are not reserved with Google, so the
-// links are not joinable meetings. Minting a real one takes Google Calendar's
-// events.insert with conferenceDataVersion=1, which needs OAuth or a Workspace
-// service account — neither of which this project is set up with yet.
-//
-// When that lands it belongs behind this same function (turned async, calling a
-// Cloud Function). Every caller already treats the returned link as opaque, so
-// nothing outside this file has to change.
+import { getFunctions, httpsCallable } from "firebase/functions";
 
-const MEET_HOST = "https://meet.google.com";
-const CODE_ALPHABET = "abcdefghijklmnopqrstuvwxyz";
-// A Meet code is three lowercase letter groups: 3-4-3.
-const CODE_GROUP_SIZES = [3, 4, 3];
+// Google Meet links are minted by the `generateMeetLinks` Cloud Function, not
+// here. A Meet link only exists as conferenceData on a Google Calendar event,
+// so creating one takes a Google account's calendar credentials — which belong
+// on the server, never in the browser bundle.
+//
+// The function writes meetingLink (and meetingEventId) onto the case itself, so
+// anything already subscribed to cases/{id}/schedulingInfo sees the new link
+// without needing the return value.
 
-function randomLetters(count) {
-    let out = "";
-    for (let i = 0; i < count; i++) {
-        out += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
-    }
-    return out;
+/**
+ * Mints Meet links for several cases in one round trip.
+ *
+ * Cases that are not virtual, or that already have a link, are left untouched
+ * unless `force` is set. Per-case failures come back in `errors` rather than
+ * throwing — one unschedulable case must not sink a whole board's worth.
+ *
+ * @returns {Promise<{ links: Record<string,string>, errors: Record<string,string> }>}
+ */
+export async function generateMeetLinks(caseIds, { force = false } = {}) {
+    const ids = [...new Set((caseIds || []).filter(Boolean))];
+    if (ids.length === 0) return { links: {}, errors: {} };
+
+    const callable = httpsCallable(getFunctions(), "generateMeetLinks");
+    const { data } = await callable({ caseIds: ids, force });
+    return { links: data?.links ?? {}, errors: data?.errors ?? {} };
 }
 
-/** A fresh Google Meet-style link, e.g. "https://meet.google.com/abc-defg-hij" */
-export function generateMeetLink() {
-    const code = CODE_GROUP_SIZES.map((size) => randomLetters(size)).join("-");
-    return `${MEET_HOST}/${code}`;
+/**
+ * Single-case convenience wrapper. Unlike the batch form this *does* throw on
+ * failure, since a lone regenerate click has nothing else to partially succeed.
+ *
+ * @returns {Promise<string>} the new Meet link
+ */
+export async function generateMeetLink(caseId, { force = false } = {}) {
+    const { links, errors } = await generateMeetLinks([caseId], { force });
+    if (errors[caseId]) throw new Error(errors[caseId]);
+    return links[caseId] ?? "";
 }

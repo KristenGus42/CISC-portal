@@ -9,7 +9,7 @@ import CasePreview from "./CasePreview";
 import DatalistInput from 'react-datalist-input';
 import 'react-datalist-input/dist/styles.css';
 import { calculateMatchScore } from "./matcher";
-import { generateMeetLink } from "../utils/meetLink";
+import { generateMeetLink, generateMeetLinks } from "../utils/meetLink";
 
 // ─── Meeting Constants ────────────────────────────────────────────────────────
 
@@ -634,6 +634,7 @@ export default function Schedule() {
     // Attorney / Legal Student sections actually display.
     const caseUpdates = {};
     const currentCaseIds = new Set();
+    const caseIdsForMeetSync = [];
     for (const [slotKey, slot] of Object.entries(assignmentsToSave)) {
       if (slot?.client?.caseId) {
         currentCaseIds.add(slot.client.caseId);
@@ -646,16 +647,22 @@ export default function Schedule() {
         // instead of scanning every schedules/ node.
         caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/date`] = targetDateKey;
         caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/timeSlot`] = slot.time ?? "";
-        // Seed the meeting: a scheduled case is virtual by default, and a
-        // virtual one gets its Meet link minted here so nobody has to open
-        // every slot to create them by hand. Both are seeded ONCE and never
-        // overwritten — a platform the admin changed, or a link already sent
-        // to the client, survives every later save of this schedule.
+        // A scheduled case is virtual by default. Seeded ONCE and never
+        // overwritten, so a platform the admin later changed to Phone Call
+        // survives every subsequent save of this schedule.
         const meetingInfo = allCases[slot.client.caseId]?.schedulingInfo ?? {};
         const meetingPlatform = meetingInfo.meetingPlatform || DEFAULT_MEETING_PLATFORM;
         caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/meetingPlatform`] = meetingPlatform;
-        if (meetingPlatform === LINK_PLATFORM && !meetingInfo.meetingLink) {
-          caseUpdates[`cases/${slot.client.caseId}/schedulingInfo/meetingLink`] = generateMeetLink();
+        // Queue it for the Meet step. Can't be done inline: the Cloud Function
+        // builds the calendar event from the case's own date + time slot, which
+        // are only written by the update below.
+        //
+        // Every virtual case goes, not just link-less ones. A case that already
+        // has a link keeps it, and gets its calendar event re-synced instead —
+        // that's what stops a reassignment or a moved date leaving the event
+        // pointing at the wrong people at the wrong time.
+        if (meetingPlatform === LINK_PLATFORM) {
+          caseIdsForMeetSync.push(slot.client.caseId);
         }
         if (slot?.attorney) {
           caseUpdates[`cases/${slot.client.caseId}/matchInfo/attorney`] = slot.attorney.attorneyId ?? "";
@@ -780,6 +787,25 @@ export default function Schedule() {
 
     if (Object.keys(caseUpdates).length > 0) {
       await update(ref(db), caseUpdates);
+    }
+
+    // 6) Mint Meet links for new virtual cases, and re-sync the calendar events
+    // of ones that already have a link. Runs after the update above so the
+    // function can read each case's date/time/personnel back out.
+    // Deliberately not allowed to throw: the schedule itself is already saved,
+    // and Calendar being unreachable shouldn't roll that back or block the UI
+    // leaving edit mode. Missing links can be filled in later from the Meeting
+    // pop-up. The function writes them straight onto the cases, so the live
+    // `cases` subscription picks them up without anything else here.
+    if (caseIdsForMeetSync.length > 0) {
+      try {
+        const { errors } = await generateMeetLinks(caseIdsForMeetSync);
+        for (const [caseId, message] of Object.entries(errors)) {
+          console.error(`Meeting link problem on case ${caseId}: ${message}`);
+        }
+      } catch (err) {
+        console.error("Failed to update meeting links:", err);
+      }
     }
   }
 
@@ -1865,6 +1891,11 @@ function MeetingPopUp({ caseId, onClose }) {
   // Nothing to fetch without a case, so start settled rather than flipping
   // `loading` from inside the effect.
   const [loading, setLoading] = useState(!!caseId);
+  // Tracked only so switching platform can clear it — the value is the Cloud
+  // Function's to write, never this form's.
+  const [meetingEventId, setMeetingEventId] = useState("");
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenerateError, setRegenerateError] = useState("");
 
   useEffect(() => {
     if (!caseId) return;
@@ -1873,6 +1904,7 @@ function MeetingPopUp({ caseId, onClose }) {
       const data = snapshot.val();
       setPlatform(data?.meetingPlatform || DEFAULT_MEETING_PLATFORM);
       setLink(data?.meetingLink || "");
+      setMeetingEventId(data?.meetingEventId || "");
       setLoading(false);
     });
     return () => unsubscribe();
@@ -1880,17 +1912,36 @@ function MeetingPopUp({ caseId, onClose }) {
 
   const showsLink = platform === LINK_PLATFORM;
 
-  // Switching to the platform that uses a link with nothing there yet mints
-  // one straight away, matching what Save Schedule already does — the admin
-  // only reaches for Regenerate when they want to replace a working link.
-  function handlePlatformChange(e) {
-    const next = e.target.value;
-    setPlatform(next);
-    if (next === LINK_PLATFORM && !link.trim()) setLink(generateMeetLink());
-  }
+  // Unlike the rest of this form, regenerating commits immediately — the Cloud
+  // Function creates a real calendar event and records the link on the case, so
+  // there's nothing meaningful for Cancel to undo. The subscription above then
+  // feeds the new link back into `link`.
+  async function handleRegenerate() {
+    if (!caseId) return;
+    setRegenerating(true);
+    setRegenerateError("");
+    try {
+      // The function reads the platform off the case record, not out of this
+      // form, and refuses to put a link on a non-virtual case. So a switch to
+      // Virtual that hasn't been saved yet still looks like a phone or
+      // in-person appointment to it. Commit the platform first — the button is
+      // only reachable while the form shows Virtual, so this is always right.
+      await update(ref(db, `cases/${caseId}/schedulingInfo`), { meetingPlatform: LINK_PLATFORM });
 
-  function handleRegenerate() {
-    setLink(generateMeetLink());
+      const newLink = await generateMeetLink(caseId, { force: true });
+      if (newLink) {
+        setLink(newLink);
+      } else {
+        // No link and no thrown error means the function declined rather than
+        // failed. Saying so beats a button that looks like it did nothing.
+        setRegenerateError("No link was created. Check the case has a date and time slot on the schedule.");
+      }
+    } catch (err) {
+      console.error("Error generating meeting link:", err);
+      setRegenerateError(err.message || "Could not create a meeting link.");
+    } finally {
+      setRegenerating(false);
+    }
   }
 
   function handleSave() {
@@ -1900,6 +1951,10 @@ function MeetingPopUp({ caseId, onClose }) {
       // A link only belongs to the platform that uses one — switching away
       // from Google Meet drops the stale link rather than leaving it orphaned.
       meetingLink: showsLink ? link.trim() : "",
+      // Drop the calendar event's id with it, so a later regenerate doesn't
+      // chase an event this case no longer claims. The event itself is left
+      // on the calendar to be cancelled by hand rather than deleted silently.
+      meetingEventId: showsLink ? (meetingEventId || null) : null,
     })
       .then(() => onClose())
       .catch((err) => console.error("Error saving meeting info:", err));
@@ -1922,7 +1977,7 @@ function MeetingPopUp({ caseId, onClose }) {
                 id="meeting-platform"
                 className="form-select form-select-sm"
                 value={platform}
-                onChange={handlePlatformChange}
+                onChange={(e) => setPlatform(e.target.value)}
               >
                 {MEETING_PLATFORMS.map((p) => (
                   <option key={p} value={p}>{p}</option>
@@ -1946,12 +2001,18 @@ function MeetingPopUp({ caseId, onClose }) {
                     type="button"
                     className="btn btn-outline-secondary d-inline-flex align-items-center"
                     onClick={handleRegenerate}
+                    disabled={regenerating}
                     title="Generate a new Google Meet link"
                     aria-label="Generate a new Google Meet link"
                   >
-                    <IconRegenerate />
+                    {regenerating
+                      ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+                      : <IconRegenerate />}
                   </button>
                 </div>
+                {regenerateError && (
+                  <div className="form-text text-danger small">{regenerateError}</div>
+                )}
               </div>
             )}
 
