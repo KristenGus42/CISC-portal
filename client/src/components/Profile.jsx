@@ -53,7 +53,11 @@ export default function Profile() {
     const displayName = name.trim() || email || "User";
 
     const nameChanged = name.trim() !== (userProfile?.name || "").trim();
-    const hasChanges = (nameChanged && name.trim().length > 0) || pendingPhoto !== null;
+    const nameIsEmpty = name.trim().length === 0;
+    // Discard stays available whenever anything is dirty (including an emptied
+    // name field); Save additionally requires a name to actually be present.
+    const hasChanges = nameChanged || pendingPhoto !== null;
+    const canSave = hasChanges && !nameIsEmpty;
 
     function handlePhotoSelected(e) {
         const file = e.target.files?.[0];
@@ -92,14 +96,12 @@ export default function Profile() {
     }
 
     async function handleSave() {
-        if (!user?.uid || !hasChanges) return;
+        if (!user?.uid || !canSave) return;
         setSaving(true);
         setFeedback(null);
 
         const trimmedName = name.trim();
         const previousPhotoPath = userProfile?.photoPath || null;
-        // An empty name is ignored rather than saved over the existing one
-        const shouldUpdateName = nameChanged && trimmedName.length > 0;
 
         try {
             const profileUpdates = {};
@@ -116,33 +118,26 @@ export default function Profile() {
                 newPhotoUrl = url;
             }
 
-            if (shouldUpdateName) profileUpdates.name = trimmedName;
+            if (nameChanged) profileUpdates.name = trimmedName;
 
-            // Target the user's RTDB node directly (/users/$uid) so security rules pass for non-admin users
+            // Target the user's RTDB node directly (/users/$uid) so security rules pass for non-admin users.
+            // Only Admin/Staff can reach this page, so there is no attorneys/ or
+            // legalStudents/ personnel record to keep in sync.
             await firebaseUpdate(ref(db, `users/${user.uid}`), profileUpdates);
 
-            // Keep personnel record in sync if user is an Attorney or Legal Student
-            if (role === "Attorney") {
-                try {
-                    await firebaseUpdate(ref(db, `attorneys/${user.uid}`), profileUpdates);
-                } catch (err) {
-                    console.warn("Could not sync attorney record:", err);
-                }
-            } else if (role === "Legal Student") {
-                try {
-                    await firebaseUpdate(ref(db, `legalStudents/${user.uid}`), profileUpdates);
-                } catch (err) {
-                    console.warn("Could not sync legal student record:", err);
-                }
-            }
-
-            // Keep the Firebase Auth record in step with the RTDB record
+            // Mirror onto the Firebase Auth record. Best-effort: users/ is the
+            // source of truth everywhere in the portal, so a failure here must
+            // not report the (already committed) save as failed.
             const currentUser = getAuth().currentUser;
             if (currentUser) {
-                await updateProfile(currentUser, {
-                    displayName: trimmedName || currentUser.displayName || "",
-                    photoURL: newPhotoUrl || "",
-                });
+                try {
+                    await updateProfile(currentUser, {
+                        displayName: trimmedName || currentUser.displayName || "",
+                        photoURL: newPhotoUrl || "",
+                    });
+                } catch (err) {
+                    console.error("Failed to sync Firebase Auth profile:", err);
+                }
             }
 
             // Old image is only removed once the new one is safely recorded
@@ -202,8 +197,6 @@ export default function Profile() {
         try {
             const deleteOwnAccount = httpsCallable(functions, "deleteOwnAccount");
             await deleteOwnAccount();
-            await signOut(getAuth());
-            navigate("/", { replace: true });
         } catch (err) {
             console.error("Delete account error:", err);
             setShowDeleteModal(false);
@@ -215,9 +208,18 @@ export default function Profile() {
                         ? err.message
                         : "Failed to delete your account. Please try again.",
             });
-        } finally {
             setDeleting(false);
+            return;
         }
+
+        // The account is gone at this point — a failing sign-out must not be
+        // reported as a failed deletion.
+        try {
+            await signOut(getAuth());
+        } catch (err) {
+            console.error("Sign-out after account deletion failed:", err);
+        }
+        navigate("/", { replace: true });
     }
 
     function closeDeleteModal() {
@@ -325,6 +327,9 @@ export default function Profile() {
                                 disabled={saving}
                                 placeholder="Your full name"
                             />
+                            {nameIsEmpty && (
+                                <p className="pf-hint pf-hint-error">Name cannot be empty.</p>
+                            )}
                         </div>
 
                         <div className="am-field">
@@ -361,7 +366,7 @@ export default function Profile() {
                             type="button"
                             className="am-invite-btn"
                             onClick={handleSave}
-                            disabled={!hasChanges || saving}
+                            disabled={!canSave || saving}
                         >
                             {saving && <span className="am-spinner" />}
                             {saving ? "Saving…" : "Save Changes"}

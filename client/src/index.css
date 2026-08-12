@@ -4787,3 +4787,7 @@ body {
 .am-profile-photo {
   object-fit: cover;
 }
+.pf-hint-error {
+  color: var(--error);
+  font-weight: 600;
+}
