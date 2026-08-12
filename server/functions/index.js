@@ -9,20 +9,22 @@ admin.initializeApp({
 setGlobalOptions({ maxInstances: 10 });
 
 const { createUserAccount } = require("./createAccounts");
-const { deleteUserAccount, disableUserAccount, enableUserAccount } = require("./deleteAccounts");
+const { deleteUserAccount, deleteOwnAccount, disableUserAccount, enableUserAccount } = require("./deleteAccounts");
 const { updateUserRole, updateUserEmail } = require("./updateAccounts");
 const { getUserAuthStatuses } = require("./userStatus");
-const { requestPasswordReset } = require("./passwordReset");
+const { requestPasswordReset, requestOwnPasswordReset } = require("./passwordReset");
 const { completePasswordReset } = require("./completePasswordReset");
 const { generateMeetLinks } = require("./meetLinks");
 
 exports.createUserAccount = createUserAccount;
 exports.deleteUserAccount = deleteUserAccount;
+exports.deleteOwnAccount = deleteOwnAccount;
 exports.disableUserAccount = disableUserAccount;
 exports.enableUserAccount = enableUserAccount;
 exports.updateUserRole = updateUserRole;
 exports.updateUserEmail = updateUserEmail;
 exports.getUserAuthStatuses = getUserAuthStatuses;
 exports.requestPasswordReset = requestPasswordReset;
+exports.requestOwnPasswordReset = requestOwnPasswordReset;
 exports.completePasswordReset = completePasswordReset;
 exports.generateMeetLinks = generateMeetLinks;

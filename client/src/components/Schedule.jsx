@@ -18,6 +18,43 @@ const MEETING_PLATFORMS = ["Virtual", "Phone Call", "In Person"];
 const LINK_PLATFORM = "Virtual";
 // Clinic meetings are virtual unless someone says otherwise, so a case that
 // lands on the schedule starts out as one (and gets a Meet link for free).
+
+// ─── MarqueeText ─────────────────────────────────────────────────────────────
+// Measures whether the inner text overflows its container and, if so, sets
+// the --marquee-dist CSS variable so the CSS animation scrolls precisely to
+// the end of the text before bouncing back.
+function MarqueeText({ children, className }) {
+  const outerRef = useRef(null);
+  const innerRef = useRef(null);
+  const [dist, setDist] = useState(0);
+
+  useEffect(() => {
+    function measure() {
+      if (!outerRef.current || !innerRef.current) return;
+      const overflow = innerRef.current.scrollWidth - outerRef.current.clientWidth;
+      setDist(Math.max(0, overflow));
+    }
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(outerRef.current);
+    ro.observe(innerRef.current);
+    return () => ro.disconnect();
+  }, [children]);
+
+  return (
+    <div ref={outerRef} className={`marquee-outer${className ? ` ${className}` : ""}`}>
+      <span
+        ref={innerRef}
+        className="marquee-inner"
+        data-overflows={dist > 0 ? "true" : "false"}
+        style={dist > 0 ? { "--marquee-dist": `-${dist}px` } : undefined}
+      >
+        {children}
+      </span>
+    </div>
+  );
+}
+
 const DEFAULT_MEETING_PLATFORM = "Virtual";
 
 // ─── Date Helpers ─────────────────────────────────────────────────────────────
@@ -1026,93 +1063,89 @@ export default function Schedule() {
               {/* Action Buttons — nothing to act on until a schedule exists */}
               <div className="schedule-action-buttons">
                 {!hasNoSchedules && (isEditMode ? (
-                  <div className="schedule-actions-menu" ref={actionsMenuRef}>
+                  <>
+                    {/* The two actions an edit session is actually for sit out
+                        beside the kebab, which keeps only the occasional ones
+                        (move date, delete) tucked away inside it. */}
                     <button
                       type="button"
-                      className="btn btn-sm schedule-kebab-btn"
-                      onClick={() => setIsActionsMenuOpen((o) => !o)}
-                      title="More actions"
-                      aria-label="More actions for this schedule"
-                      aria-haspopup="true"
-                      aria-expanded={isActionsMenuOpen}
+                      className="btn btn-sm schedule-action-btn schedule-action-btn-primary"
+                      onClick={handleAutoMatch}
+                      disabled={!hasAnyAttorneyAssigned}
+                      title={!hasAnyAttorneyAssigned ? "Assign at least one attorney to a column first" : "Auto-match waitlisted cases to attorneys"}
                     >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="5" r="1.75"></circle>
-                        <circle cx="12" cy="12" r="1.75"></circle>
-                        <circle cx="12" cy="19" r="1.75"></circle>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
                       </svg>
+                      Auto-match
                     </button>
 
-                    {isActionsMenuOpen && (
-                      <div className="schedule-dropdown-menu" role="menu">
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="schedule-dropdown-item schedule-dropdown-item-primary"
-                          onClick={() => {
-                            setIsActionsMenuOpen(false);
-                            handleAutoMatch();
-                          }}
-                          disabled={!hasAnyAttorneyAssigned}
-                          title={!hasAnyAttorneyAssigned ? "Assign at least one attorney to a column first" : undefined}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
-                          </svg>
-                          <span>Auto-match</span>
-                        </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm schedule-action-btn schedule-action-btn-save"
+                      onClick={handleSave}
+                      title="Save this schedule"
+                    >
+                      <IconSave />
+                      Save
+                    </button>
 
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="schedule-dropdown-item"
-                          onClick={() => {
-                            setIsActionsMenuOpen(false);
-                            setCalendarMonth(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
-                            setIsChangeDateOpen(true);
-                          }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                          </svg>
-                          <span>Move Date</span>
-                        </button>
+                    <div className="schedule-actions-menu" ref={actionsMenuRef}>
+                      <button
+                        type="button"
+                        className="btn btn-sm schedule-kebab-btn"
+                        onClick={() => setIsActionsMenuOpen((o) => !o)}
+                        title="More actions"
+                        aria-label="More actions for this schedule"
+                        aria-haspopup="true"
+                        aria-expanded={isActionsMenuOpen}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="12" cy="5" r="1.75"></circle>
+                          <circle cx="12" cy="12" r="1.75"></circle>
+                          <circle cx="12" cy="19" r="1.75"></circle>
+                        </svg>
+                      </button>
 
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="schedule-dropdown-item schedule-dropdown-item-success"
-                          onClick={() => {
-                            setIsActionsMenuOpen(false);
-                            handleSave();
-                          }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4.207a2 2 0 0 0-.586-1.414l-2.793-2.793A2 2 0 0 0 11.207 1H2zm6 11.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm.5-9v4a.5.5 0 0 1-.5.5H4a.5.5 0 0 1-.5-.5V3h5.5z" />
-                          </svg>
-                          <span>Save</span>
-                        </button>
+                      {isActionsMenuOpen && (
+                        <div className="schedule-dropdown-menu" role="menu">
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="schedule-dropdown-item"
+                            onClick={() => {
+                              setIsActionsMenuOpen(false);
+                              setCalendarMonth(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1));
+                              setIsChangeDateOpen(true);
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                            </svg>
+                            <span>Move Date</span>
+                          </button>
 
-                        <div className="schedule-dropdown-divider" role="separator"></div>
+                          <div className="schedule-dropdown-divider" role="separator"></div>
 
-                        <button
-                          type="button"
-                          role="menuitem"
-                          className="schedule-dropdown-item schedule-dropdown-item-danger"
-                          onClick={() => {
-                            setIsActionsMenuOpen(false);
-                            setIsDeleteScheduleOpen(true);
-                          }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
-                            <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L13.882 4H4.118zM2.5 3V2h11v1h-11z" />
-                          </svg>
-                          <span>Delete</span>
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="schedule-dropdown-item schedule-dropdown-item-danger"
+                            onClick={() => {
+                              setIsActionsMenuOpen(false);
+                              setIsDeleteScheduleOpen(true);
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                              <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L13.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                            </svg>
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
                 ) : (
                   <>
                     <div className="schedule-add-wrapper">
@@ -1360,17 +1393,14 @@ function AttorneyColumn({ colIdx, savedAttorney, timeSlots, assignments, onRemov
           </div>
         ) : (
           <div className="schedule-attorney-display">
-            <div
-              className="schedule-attorney-display-name"
-              title={selectedAttorney?.value ?? selectedAttorney?.name ?? "Karia Wong"}
-            >
+            <MarqueeText className="schedule-attorney-display-name">
               {selectedAttorney?.value ?? selectedAttorney?.name ?? "Karia Wong"}
-            </div>
-            <div className="schedule-attorney-display-details">
+            </MarqueeText>
+            <MarqueeText className="schedule-attorney-display-details">
               {selectedAttorney
                 ? `${selectedAttorney.specialty || "No Category"} | ${selectedAttorney.language || "No Language"}`
                 : "Select Attorney in Edit Mode..."}
-            </div>
+            </MarqueeText>
           </div>
         )}
       </div>
@@ -1508,14 +1538,13 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
             <div className="schedule-slot-content">
               <div className="schedule-slot-client-row">
                 <span className="schedule-slot-dot" />
-                <div>
-                  <div className="schedule-slot-client-name">
+                <div style={{ minWidth: 0 }}>
+                  <MarqueeText className="schedule-slot-client-name">
                     {fname} {lname}
-                  </div>
-                  <div className="schedule-slot-client-details">
+                  </MarqueeText>
+                  <MarqueeText className="schedule-slot-client-details">
                     {category} | {language}
-                  </div>
-
+                  </MarqueeText>
                 </div>
               </div>
 
@@ -1540,34 +1569,37 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
                       <path d="M4 10.176V13.5a.5.5 0 0 0 .276.447l3.5 1.75a.5.5 0 0 0 .448 0l3.5-1.75A.5.5 0 0 0 12 13.5v-3.324l-3.402 1.36a1.5 1.5 0 0 1-1.196 0L4 10.176Z" />
                       <path d="M14.5 8.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 1 0Z" />
                     </svg>
-                    <select
-                      className={`schedule-slot-btn schedule-slot-btn-assign ${!isEditMode ? "schedule-slot-btn-assign--no-arrow" : ""}`}
-                      value={assignedSlot?.legalStudent?.id ?? ""}
-                      disabled={!isEditMode}
-                      onChange={(e) => {
-                        if (!isEditMode) return;
-                        const id = e.target.value;
-                        if (!id) {
-                          onLegalStudentSelect(slotKey, null);
-                          return;
-                        }
-                        const person = allLegalStudentsArr.find((s) => s.id === id);
-                        if (!person) return;
-                        onLegalStudentSelect(slotKey, {
-                          id: person.id,
-                          name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
-                          email: person.email ?? "",
-                          phone: person.phoneNumber ?? "",
-                        });
-                      }}
-                    >
-                      <option value="">No Legal Student</option>
-                      {allLegalStudentsArr.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`}
-                        </option>
-                      ))}
-                    </select>
+                    <MarqueeText className="schedule-slot-btn schedule-slot-btn-assign">
+                      {assignedSlot?.legalStudent?.name || "No Legal Student"}
+                    </MarqueeText>
+                    {isEditMode && (
+                      <select
+                        className="schedule-slot-select-overlay"
+                        value={assignedSlot?.legalStudent?.id ?? ""}
+                        onChange={(e) => {
+                          const id = e.target.value;
+                          if (!id) {
+                            onLegalStudentSelect(slotKey, null);
+                            return;
+                          }
+                          const person = allLegalStudentsArr.find((s) => s.id === id);
+                          if (!person) return;
+                          onLegalStudentSelect(slotKey, {
+                            id: person.id,
+                            name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
+                            email: person.email ?? "",
+                            phone: person.phoneNumber ?? "",
+                          });
+                        }}
+                      >
+                        <option value="">No Legal Student</option>
+                        {allLegalStudentsArr.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   </div>
 
                   <div className="schedule-slot-assign-wrapper schedule-slot-assign-half">
@@ -1575,51 +1607,54 @@ function TimeSlotCard({ slotKey, time, assignedSlot, onRemove, isEditMode, hasAt
                       <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z" />
                       <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14v-.868h-3v-.002c-.018 0-.035.002-.053.003H9.529l-.001-.001H7v.867h1.604c-.316.764-.78 1.63-1.362 2.404z" />
                     </svg>
-                    <select
-                      className={`schedule-slot-btn schedule-slot-btn-assign ${!isEditMode ? "schedule-slot-btn-assign--no-arrow" : ""}`}
-                      value={assignedSlot?.interpreter?.id ?? ""}
-                      disabled={!isEditMode}
-                      onChange={(e) => {
-                        if (!isEditMode) return;
-                        const id = e.target.value;
-                        if (!id) {
-                          onInterpreterSelect(slotKey, null);
-                          return;
-                        }
-                        if (id === "cisc-staff") {
-                          onInterpreterSelect(slotKey, { id: "cisc-staff", name: "CISC Staff", type: "staff", email: "", phone: "" });
-                          return;
-                        }
-                        const fromAttorneys = allAttorneysArr.find((a) => a.id === id);
-                        const fromStudents = allLegalStudentsArr.find((s) => s.id === id);
-                        const person = fromAttorneys ?? fromStudents;
-                        if (!person) return;
-                        onInterpreterSelect(slotKey, {
-                          id: person.id,
-                          name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
-                          type: fromAttorneys ? "attorney" : "legalStudent",
-                          email: person.email ?? "",
-                          phone: person.phoneNumber ?? "",
-                        });
-                      }}
-                    >
-                      <option value="">No Interpreter</option>
-                      <option value="cisc-staff">CISC Staff</option>
-                      <optgroup label="Attorneys">
-                        {allAttorneysArr.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`}
-                          </option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="Legal Students">
-                        {allLegalStudentsArr.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`}
-                          </option>
-                        ))}
-                      </optgroup>
-                    </select>
+                    <MarqueeText className="schedule-slot-btn schedule-slot-btn-assign">
+                      {assignedSlot?.interpreter?.name || "No Interpreter"}
+                    </MarqueeText>
+                    {isEditMode && (
+                      <select
+                        className="schedule-slot-select-overlay"
+                        value={assignedSlot?.interpreter?.id ?? ""}
+                        onChange={(e) => {
+                          const id = e.target.value;
+                          if (!id) {
+                            onInterpreterSelect(slotKey, null);
+                            return;
+                          }
+                          if (id === "cisc-staff") {
+                            onInterpreterSelect(slotKey, { id: "cisc-staff", name: "CISC Staff", type: "staff", email: "", phone: "" });
+                            return;
+                          }
+                          const fromAttorneys = allAttorneysArr.find((a) => a.id === id);
+                          const fromStudents = allLegalStudentsArr.find((s) => s.id === id);
+                          const person = fromAttorneys ?? fromStudents;
+                          if (!person) return;
+                          onInterpreterSelect(slotKey, {
+                            id: person.id,
+                            name: person.name ?? `${person.firstName ?? ""} ${person.lastName ?? ""}`.trim(),
+                            type: fromAttorneys ? "attorney" : "legalStudent",
+                            email: person.email ?? "",
+                            phone: person.phoneNumber ?? "",
+                          });
+                        }}
+                      >
+                        <option value="">No Interpreter</option>
+                        <option value="cisc-staff">CISC Staff</option>
+                        <optgroup label="Attorneys">
+                          {allAttorneysArr.map((a) => (
+                            <option key={a.id} value={a.id}>
+                              {a.name ?? `${a.firstName ?? ""} ${a.lastName ?? ""}`}
+                            </option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Legal Students">
+                          {allLegalStudentsArr.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.name ?? `${s.firstName ?? ""} ${s.lastName ?? ""}`}
+                            </option>
+                          ))}
+                        </optgroup>
+                      </select>
+                    )}
                   </div>
                 </div>
 

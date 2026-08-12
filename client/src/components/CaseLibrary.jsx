@@ -1,10 +1,24 @@
 import { NavBar } from "./NavBar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 // Import Firebase database functions
 import { getDatabase, ref, onValue, query, orderByChild, equalTo } from 'firebase/database';
 import { useAuth } from "../auth/useAuth";
 import { downloadCaseAnalytics } from "../utils/caseAnalytics";
+import {
+    displayStatus,
+    FILTER_GROUPS,
+    EMPTY_FILTERS,
+    filterValueLabel,
+    matchesFilters,
+    matchesSearch,
+    sortCases,
+    sortDirectionLabel,
+    defaultDirectionFor,
+    SORT_OPTIONS,
+    DEFAULT_SORT,
+    DEFAULT_SORT_DIRECTION,
+} from "../utils/caseFilters";
 
 function toYMD(date) {
     const y = date.getFullYear();
@@ -13,22 +27,73 @@ function toYMD(date) {
     return `${y}-${m}-${d}`;
 }
 
-// A case whose clinic date has already passed reads as "archived", regardless of
-// the stored status — nothing writes that status, it's derived from the date.
-// Scheduling dates are "YYYY-MM-DD", so they compare correctly as strings.
-// Today still counts as upcoming, matching AttorneyView's Archived/Upcoming badge.
-function displayStatus(caseData, todayYMD) {
-    const date = caseData.schedulingInfo?.date;
-    if (date && date < todayYMD) return "archived";
-    return caseData.status;
+// dateAdded is written as new Date().toLocaleString(); the card only has room
+// for the day, and anything unparseable is shown as stored rather than dropped.
+function formatDateAdded(value) {
+    if (!value) return "Unknown";
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleDateString();
+}
+
+function IconMail() {
+    return (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <polyline points="2 6 12 13 22 6"/>
+        </svg>
+    );
+}
+
+function IconPhone() {
+    return (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.1 9.9a16 16 0 0 0 6 6l1.26-1.26a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+    );
+}
+
+function IconAssignee() {
+    return (
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+    );
 }
 
 export default function CaseLibrary() {
     const [allCasesArr, setAllCasesArr] = useState([]);
+    const [usersByUid, setUsersByUid] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
     const [isExporting, setIsExporting] = useState(false);
+    // Checked filter values per group, e.g. { category: ["Housing"], ... }
+    const [filters, setFilters] = useState(EMPTY_FILTERS);
+    const [sortBy, setSortBy] = useState(DEFAULT_SORT);
+    const [sortDirection, setSortDirection] = useState(DEFAULT_SORT_DIRECTION);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const filterRef = useRef(null);
     const db = getDatabase();
     const { role, user } = useAuth();
+
+    // Close the filter panel on an outside click or Escape, the way the
+    // Schedule page's action menu behaves.
+    useEffect(() => {
+        if (!isFilterOpen) return;
+
+        const onPointerDown = (e) => {
+            if (filterRef.current && !filterRef.current.contains(e.target)) setIsFilterOpen(false);
+        };
+        const onKeyDown = (e) => {
+            if (e.key === "Escape") setIsFilterOpen(false);
+        };
+
+        document.addEventListener("mousedown", onPointerDown);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", onPointerDown);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [isFilterOpen]);
 
     // Listen for changes in the 'cases' table
     useEffect(() => {
@@ -69,24 +134,55 @@ export default function CaseLibrary() {
         return () => unsubscribe();
     }, [db, role, user]);
 
-    // Filter visible cases by search query
-    const filteredCases = allCasesArr.filter((client) => {
-        if (!searchQuery.trim()) return true;
-        const q = searchQuery.toLowerCase();
-        const fullName = `${client.clientInfo?.fname || ""} ${client.clientInfo?.lname || ""}`.toLowerCase();
-        const id = (client.id || "").toLowerCase();
-        const category = (client.caseInfo?.category || "").toLowerCase();
-        const language = (client.clientInfo?.primaryLanguage || "").toLowerCase();
-        return fullName.includes(q) || id.includes(q) || category.includes(q) || language.includes(q);
-    }).sort((a, b) => {
-            // Sort by dateAdded - newest first
-            const dateA = new Date(a.dateAdded || 0);
-            const dateB = new Date(b.dateAdded || 0);
-            return dateB - dateA; // Descending order (newest first)
-            // Use: return dateA - dateB; for ascending order (oldest first)
-    });;
+    // uid → account, so a case's createdBy (the Staff member it's assigned to,
+    // set by the edit form's Assign menu) can be shown as a name. If the read
+    // is refused the map just stays empty and the cards fall back to the
+    // generic label rather than breaking the list.
+    useEffect(() => {
+        const unsubscribe = onValue(ref(db, "users"), (snapshot) => {
+            setUsersByUid(snapshot.val() || {});
+        }, (error) => {
+            console.error("Error fetching users for case assignment:", error);
+            setUsersByUid({});
+        });
+        return () => unsubscribe();
+    }, [db]);
 
     const todayYMD = toYMD(new Date());
+
+    const toggleFilter = (groupKey, value) => {
+        setFilters((prev) => {
+            const current = prev[groupKey];
+            return {
+                ...prev,
+                [groupKey]: current.includes(value)
+                    ? current.filter((v) => v !== value)
+                    : [...current, value],
+            };
+        });
+    };
+
+    // Each order starts in the direction it reads most naturally in; the
+    // toggle beside them flips whichever one is selected.
+    const selectSort = (value) => {
+        setSortBy(value);
+        setSortDirection(defaultDirectionFor(value));
+    };
+
+    // Flattened for the chip row under the toolbar, and for the count badge.
+    const activeFilters = FILTER_GROUPS.flatMap((group) =>
+        filters[group.key].map((value) => ({ group, value }))
+    );
+
+    // Visible cases: the Filter panel's groups, then the search query, in
+    // whichever order the Sort control is set to.
+    const filteredCases = sortCases(
+        allCasesArr.filter(
+            (client) => matchesFilters(client, filters, todayYMD) && matchesSearch(client, searchQuery)
+        ),
+        sortBy,
+        sortDirection
+    );
 
     // Exports whatever the search currently shows, so the spreadsheet always
     // matches the list on screen (and the role-scoped cases the user can read).
@@ -103,6 +199,14 @@ export default function CaseLibrary() {
         }
     };
 
+    // An account that no longer exists (or that this role can't read) still
+    // gets a case shown — just without a name to put on it.
+    const assignedName = (uid) => {
+        if (!uid) return "";
+        const account = usersByUid[uid];
+        return account?.name || account?.email || "Unknown user";
+    };
+
     const caseCards = filteredCases.map((client) => (
         <CaseCard
             key={client.id}
@@ -116,6 +220,8 @@ export default function CaseLibrary() {
             briefDescription={client.caseInfo?.briefDescription}
             email={client.clientInfo?.email}
             number={client.clientInfo?.phone}
+            dateAdded={client.dateAdded}
+            assignedTo={assignedName(client.createdBy)}
         />
     ));
 
@@ -148,13 +254,91 @@ export default function CaseLibrary() {
                             />
                         </div>
 
-                        <button type="button" className="cl-filter-btn">
-                            {/* Filter icon */}
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-                            </svg>
-                            Filter
-                        </button>
+                        <div className="cl-filter-wrapper" ref={filterRef}>
+                            <button
+                                type="button"
+                                className="cl-filter-btn"
+                                onClick={() => setIsFilterOpen((open) => !open)}
+                                aria-expanded={isFilterOpen}
+                                aria-haspopup="true"
+                            >
+                                {/* Filter icon */}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                                </svg>
+                                Filter
+                                {activeFilters.length > 0 && (
+                                    <span className="cl-filter-count">{activeFilters.length}</span>
+                                )}
+                            </button>
+
+                            {isFilterOpen && (
+                                <div className="cl-filter-panel">
+                                    <div className="cl-filter-sort">
+                                        <p className="cl-filter-group-label">Sort by</p>
+                                        <div className="cl-filter-sort-row">
+                                            {SORT_OPTIONS.map((option) => (
+                                                <label className="cl-filter-option" key={option.value}>
+                                                    <input
+                                                        type="radio"
+                                                        name="cl-sort-by"
+                                                        checked={sortBy === option.value}
+                                                        onChange={() => selectSort(option.value)}
+                                                    />
+                                                    {option.label}
+                                                </label>
+                                            ))}
+
+                                            <button
+                                                type="button"
+                                                className="cl-sort-direction-btn"
+                                                onClick={() => setSortDirection((d) => (d === "asc" ? "desc" : "asc"))}
+                                                title={`Sorted ${sortDirectionLabel(sortBy, sortDirection)} — click to reverse`}
+                                                aria-label={`Sorted ${sortDirectionLabel(sortBy, sortDirection)} — click to reverse`}
+                                            >
+                                                {/* Up/down arrows, same control the Schedule waitlist uses */}
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path fillRule="evenodd" d="M11.5 15a.5.5 0 0 1-.5-.5V2.707L8.354 5.354a.5.5 0 1 1-.708-.708l3.5-3.5a.5.5 0 0 1 .708 0l3.5 3.5a.5.5 0 0 1-.708.708L12 2.707V14.5a.5.5 0 0 1-.5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z" />
+                                                </svg>
+                                                {sortDirectionLabel(sortBy, sortDirection)}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {FILTER_GROUPS.map((group) => (
+                                        <div className="cl-filter-group" key={group.key}>
+                                            <p className="cl-filter-group-label">{group.label}</p>
+                                            <div className="cl-filter-options">
+                                                {group.values.map((value) => (
+                                                    <label className="cl-filter-option" key={value}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={filters[group.key].includes(value)}
+                                                            onChange={() => toggleFilter(group.key, value)}
+                                                        />
+                                                        {filterValueLabel(group, value)}
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    <div className="cl-filter-panel-footer">
+                                        <span className="text-muted small">
+                                            {filteredCases.length} of {allCasesArr.length} case{allCasesArr.length === 1 ? "" : "s"}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="cl-filter-clear-btn"
+                                            onClick={() => setFilters(EMPTY_FILTERS)}
+                                            disabled={activeFilters.length === 0}
+                                        >
+                                            Clear all
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="cl-toolbar-right">
@@ -179,23 +363,48 @@ export default function CaseLibrary() {
                                 ? "No cases to export"
                                 : `Download stats for ${filteredCases.length} case${filteredCases.length === 1 ? "" : "s"} as an Excel spreadsheet`}
                         >
-                            {/* Download icon */}
+                            {/* Analytics (bar chart) icon */}
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7 10 12 15 17 10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="18" y1="20" x2="18" y2="10"/>
                             </svg>
                             {isExporting ? "Generating…" : "Analyze"}
                         </button>
                     </div>
                 </div>
 
+                {/* Active filters, so what's narrowing the list stays visible
+                    once the panel is closed */}
+                {activeFilters.length > 0 && (
+                    <div className="cl-filter-chips">
+                        {activeFilters.map(({ group, value }) => (
+                            <span className="cl-filter-chip" key={`${group.key}-${value}`}>
+                                {filterValueLabel(group, value)}
+                                <button
+                                    type="button"
+                                    onClick={() => toggleFilter(group.key, value)}
+                                    aria-label={`Remove ${filterValueLabel(group, value)} filter`}
+                                >
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"/>
+                                        <line x1="6" y1="6" x2="18" y2="18"/>
+                                    </svg>
+                                </button>
+                            </span>
+                        ))}
+                        <button type="button" className="cl-filter-clear-btn" onClick={() => setFilters(EMPTY_FILTERS)}>
+                            Clear all
+                        </button>
+                    </div>
+                )}
+
                 {/* Color-coded case age legend */}
                 <div className="cl-legend">
 
                     <div className="cl-legend-item">
                         <span className="cl-legend-dot cl-legend-dot--medium"></span>
-                        Waitlist
+                        Waitlisted
                     </div>
                     <div className="cl-legend-item">
                         <span className="cl-legend-dot cl-legend-dot--new"></span>
@@ -218,7 +427,7 @@ export default function CaseLibrary() {
     );
 }
 
-function CaseCard({ id, status, fname, lname, category, language, date, briefDescription, email, number }) {
+function CaseCard({ id, status, fname, lname, category, language, date, briefDescription, email, number, dateAdded, assignedTo }) {
     const statusClass = status ? `cl-status-${status}` : "";
 
     return (
@@ -245,13 +454,33 @@ function CaseCard({ id, status, fname, lname, category, language, date, briefDes
 
                     {/*Extended view*/}
                     <div className="cl-case-card-extended">
-                        <div className="pb-4"> 
-                            <p className="cl-case-card-subtitle mb-0">{briefDescription || "No description provided."}</p>
-                            <div className="cl-case-card-tag">
-                                <p className="cl-case-card-subtitle mb-0">{email || "No email"}</p>
+                        <div className="pb-4 cl-case-card-extended-body">
+                            <div className="cl-case-card-extended-main">
+                                <p className="cl-case-card-subtitle mb-0">{briefDescription || "No description provided."}</p>
+                                <p className="cl-case-card-subtitle cl-case-card-added mb-0">Date added: {formatDateAdded(dateAdded)}</p>
+                                <div className="cl-case-card-tag">
+                                    <p className="cl-case-card-subtitle mb-0">
+                                        <IconMail />
+                                        {email || "No email"}
+                                    </p>
+                                </div>
+                                <div className="cl-case-card-tag">
+                                    <p className="cl-case-card-subtitle mb-0">
+                                        <IconPhone />
+                                        {number || "No phone"}
+                                    </p>
+                                </div>
                             </div>
-                            <div className="cl-case-card-tag">
-                                <p className="cl-case-card-subtitle mb-0">{number || "No phone"}</p>
+
+                            {/* Who the case is assigned to — createdBy, the field the
+                                edit form's Assign menu writes and Firebase Rules scope
+                                Staff reads by. */}
+                            <div className="cl-case-card-assignee">
+                                <span className="cl-case-card-assignee-label">Staff Assignment</span>
+                                <span className="cl-case-card-assignee-name">
+                                    <IconAssignee />
+                                    {assignedTo || "Unassigned"}
+                                </span>
                             </div>
                         </div>
                     </div>

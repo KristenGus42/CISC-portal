@@ -76,18 +76,45 @@ export function NavBar(props) {
                     onClick={() => setMenuOpen((o) => !o)}
                     aria-expanded={menuOpen}
                 >
-                    <span
-                        className="app-navbar-user-icon"
-                        style={{ backgroundColor: getAvatarColor(user?.uid) }}
-                        aria-hidden="true"
-                    >
-                        {getInitials(profileName)}
-                    </span>
+                    {userProfile?.photoURL ? (
+                        <img
+                            src={userProfile.photoURL}
+                            alt=""
+                            className="app-navbar-user-icon app-navbar-user-photo"
+                        />
+                    ) : (
+                        <span
+                            className="app-navbar-user-icon"
+                            style={{ backgroundColor: getAvatarColor(user?.uid) }}
+                            aria-hidden="true"
+                        >
+                            {getInitials(profileName)}
+                        </span>
+                    )}
                     <span>{profileName}</span>
                 </button>
 
                 {menuOpen && (
                     <div className="app-navbar-user-menu">
+                        {/* /profile is Admin + Staff only — hidden for roles that
+                            would just be redirected away by ProtectedRoute */}
+                        {(role === "Admin" || role === "Staff") && (
+                            <button
+                                type="button"
+                                className="app-navbar-signout-btn"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    navigate("/profile");
+                                }}
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                                Profile
+                            </button>
+                        )}
+
                         <button
                             type="button"
                             className="app-navbar-signout-btn"

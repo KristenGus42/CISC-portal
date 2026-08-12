@@ -11,6 +11,7 @@ import IndividualPersonnel from './components/IndividualPersonnel';
 import AttorneyView from './components/AttorneyView';
 import AccessManagement from './components/AccessManagement';
 import ResetPassword from './components/ResetPassword';
+import Profile from './components/Profile';
 import { useAuth } from './auth/useAuth';
 
 /**
@@ -121,6 +122,18 @@ function App() {
             <ProtectedRoute
               element={<AccessManagement />}
               allowedRoles={["Admin"]}
+              fallback={roleHome(role)}
+            />
+          }
+        />
+
+        {/* Admin + Staff — manage your own account */}
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute
+              element={<Profile />}
+              allowedRoles={["Admin", "Staff"]}
               fallback={roleHome(role)}
             />
           }

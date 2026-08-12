@@ -47,18 +47,18 @@ exports.updateUserRole = onCall(async (request) => {
         // If the role actually changed, perform the branch migration
         if (oldRole !== role) {
             const updates = {};
-            
+
             // Check if there is an existing record in either branch
             const attorneySnap = await db.ref(`attorneys/${uid}`).get();
             const studentSnap = await db.ref(`legalStudents/${uid}`).get();
-            
+
             let personnelData = null;
             if (attorneySnap.exists()) {
                 personnelData = attorneySnap.val();
             } else if (studentSnap.exists()) {
                 personnelData = studentSnap.val();
             }
-            
+
             // If they had a personnel record, migrate or delete it
             if (personnelData) {
                 if (role === "Attorney") {
@@ -89,7 +89,7 @@ exports.updateUserRole = onCall(async (request) => {
                     updates[`/legalStudents/${uid}`] = baseRecord;
                 }
             }
-            
+
             // Apply updates to RTDB
             if (Object.keys(updates).length > 0) {
                 await db.ref().update(updates);

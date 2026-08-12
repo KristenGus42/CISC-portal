@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { getDatabase, get, ref } from "firebase/database";
 import { AuthContext } from "./authContext";
@@ -62,6 +62,21 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
+  /**
+   * Re-read the signed-in user's RTDB record. Called after the Profile page
+   * saves changes so the navbar picks up the new name/photo without a reload.
+   */
+  const refreshUserProfile = useCallback(async () => {
+    const currentUser = getAuth().currentUser;
+    if (!currentUser) return;
+    try {
+      const snapshot = await get(ref(getDatabase(), `users/${currentUser.uid}`));
+      if (snapshot.exists()) setUserProfile(snapshot.val());
+    } catch (err) {
+      console.error("Failed to refresh user profile:", err);
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -69,9 +84,10 @@ export function AuthProvider({ children }) {
       role,
       loading,
       accessError,
+      refreshUserProfile,
       clearAccessError: () => setAccessError(""),
     }),
-    [user, userProfile, role, loading, accessError]
+    [user, userProfile, role, loading, accessError, refreshUserProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

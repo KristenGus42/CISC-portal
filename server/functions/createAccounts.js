@@ -50,6 +50,7 @@ exports.createUserAccount = onCall({ secrets: [resendApiKey] }, async (request) 
             email: trimmedEmail,
             name: trimmedName,
             role: role,
+            dateJoined: new Date().toISOString(),
         });
 
         // 5. Send a password-reset email so the user can set their own password

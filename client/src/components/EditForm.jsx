@@ -2,11 +2,13 @@ import { NavBar } from "./NavBar";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 // Import Firebase functions
-import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue, remove as firebaseRemove} from 'firebase/database';
+import { getDatabase, ref, push as firebasePush, update as firebaseUpdate, onValue, get, remove as firebaseRemove} from 'firebase/database';
 import { getAuth, signOut } from 'firebase/auth';
 import { useAuth } from "../auth/useAuth";
 import resourcesData from "../data/resources.json";
+import { CASE_CATEGORIES, LANGUAGE_OPTIONS, OTHER_LANGUAGE } from "../data/caseOptions";
 import { uploadCaseDocument, deleteStorageFile } from "../utils/storage";
+import { scheduleSlotUpdatesForDeletedCase } from "../utils/scheduleCleanup";
 
 // ─── Reusable input components ─────────────────────────────────────────────────
 // Every field has a small, permanently-visible floating label pinned to the
@@ -332,6 +334,14 @@ function IconPersonAdd() {
   );
 }
 
+function IconArrowLeft() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+      <path fillRule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+    </svg>
+  );
+}
+
 function IconChevronRight() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
@@ -500,6 +510,20 @@ const REQUIRED_CLIENT_FIELDS = [
   "zipCode", "phone", "email", "primaryLanguage", "proficiencyLevel",
 ];
 const REQUIRED_CASE_FIELDS = ["category", "attorneyType", "briefDescription"];
+
+// Languages offered by the Primary Language and Additional Language pickers,
+// from the shared list the Case Library filter also reads. "Other" always sits
+// last, after every named language.
+function LanguageOptions() {
+  return (
+    <>
+      {LANGUAGE_OPTIONS.map((language) => (
+        <option key={language} value={language}>{language}</option>
+      ))}
+      <option value={OTHER_LANGUAGE}>Other (indicate in remarks)</option>
+    </>
+  );
+}
 const REQUIRED_ATTORNEY_NOTES_FIELDS = [
   "clientConsent", "referralPermission", "followUpProBono", "visitSummary", "reasonForVisit",
 ];
@@ -613,6 +637,36 @@ function UnsavedChangesModal({ isSaving, requiredFields, onStay, onDiscard, onSa
   );
 }
 
+// ─── Delete confirmation ──────────────────────────────────────────────────────
+// In-app prompt rather than window.confirm, so deleting a case looks like the
+// rest of the portal and can name the client it's about to remove. Same modal
+// styling as the unsaved-changes prompt above.
+function DeleteCaseModal({ clientName, isDeleting, error, onCancel, onConfirm }) {
+  return (
+    <>
+      <div className="schedule-modal-backdrop" onClick={isDeleting ? undefined : onCancel} />
+      <div className="schedule-modal-popup">
+        <button className="schedule-modal-close-btn" onClick={onCancel} disabled={isDeleting}>✕</button>
+        <h6 className="schedule-modal-title">Delete this case?</h6>
+        <p className="mb-2">
+          {clientName ? <><strong>{clientName}</strong>'s case</> : "This case"} and everything
+          recorded on it will be removed for everyone.
+        </p>
+        <p className="err-color mt-0 mb-3">This cannot be undone.</p>
+        {error && <p className="err-color mt-0 mb-3">{error}</p>}
+        <div className="d-flex justify-content-end gap-3">
+          <button type="button" className="btn btn-cancel p-0 text-decoration-underline" onClick={onCancel} disabled={isDeleting}>
+            Keep case
+          </button>
+          <button type="button" className="btn btn-submit ef-delete-confirm-btn d-inline-flex align-items-center gap-2" onClick={onConfirm} disabled={isDeleting}>
+            <IconTrash /> {isDeleting ? "Deleting…" : "Delete case"}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ─── Main form ────────────────────────────────────────────────────────────────
 
 export default function ContactForm(props) {
@@ -635,7 +689,7 @@ export default function ContactForm(props) {
   const [clientFormData, setClientFormData] = useState({
     fname: "", lname: "", addressLine1: "", city: "", age: "", sex: "",
     incomeLevel: "", addressLine2: "", zipCode: "", phone: "",
-    backupPhone: "", email: "", availability: "", primaryLanguage: "", proficiencyLevel: "",
+    backupPhone: "", email: "", primaryLanguage: "", proficiencyLevel: "",
     additionalLanguages: [],
   });
 
@@ -678,6 +732,11 @@ export default function ContactForm(props) {
   const [pendingUploads, setPendingUploads] = useState([]);
   const [pendingDeletes, setPendingDeletes] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Delete confirmation modal (replaces the browser's confirm dialog).
+  const [isDeletePromptOpen, setIsDeletePromptOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   // Every edit routes through a handler, so flagging there is simpler and
   // more reliable than diffing state against a saved snapshot.
@@ -1008,11 +1067,37 @@ export default function ContactForm(props) {
     }
   };
 
+  // Opens the confirmation modal; the removal itself is confirmDelete below.
   const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this case? This action cannot be undone.")) {
-      firebaseRemove(ref(db, `cases/${id}`))
-        .then(() => navigate("/case-library"))
-        .catch((err) => console.error(`Error removing case: `, err));
+    setDeleteError("");
+    setIsDeletePromptOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    setDeleteError("");
+
+    // Removing the case and its schedule slots in one multi-path update keeps
+    // the two from ever disagreeing — either both go or neither does.
+    const updates = { [`cases/${id}`]: null };
+    try {
+      const snapshot = await get(ref(db, "schedules"));
+      Object.assign(updates, scheduleSlotUpdatesForDeletedCase(snapshot.val(), id));
+    } catch (err) {
+      // Couldn't check the schedules — delete the case anyway rather than
+      // blocking on the cleanup, and say so in the log.
+      console.error("Couldn't read schedules to clean up the deleted case: ", err);
+    }
+
+    try {
+      await firebaseUpdate(ref(db), updates);
+      navigate("/case-library");
+    } catch (err) {
+      console.error(`Error removing case: `, err);
+      // Stay on the modal so the failure is visible instead of looking
+      // like the delete silently worked.
+      setIsDeleting(false);
+      setDeleteError("Couldn't delete this case. Please try again.");
     }
   };
 
@@ -1020,6 +1105,22 @@ export default function ContactForm(props) {
   // leaves — the unsaved-changes prompt exists for every *other* way out.
   const handleCancel = () => {
     navigate("/case-library");
+  };
+
+  // Back returns to wherever the form was opened from — this page is reached
+  // from the Case Library, the Schedule board and the Attorney view, so a
+  // fixed destination would be wrong for two of the three. Opened directly by
+  // URL (no in-app history to pop), it falls back to the case library.
+  const goBack = () => {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate("/case-library");
+  };
+
+  // Unlike Cancel, Back isn't a "discard my changes" action, so it goes
+  // through the same unsaved-changes prompt as the nav bar.
+  const handleBack = () => {
+    if (hasUnsavedChanges) setUnsavedPrompt({ proceed: goBack });
+    else goBack();
   };
 
   // ── Guard every other way off this page ───────────────────────────────────
@@ -1068,13 +1169,14 @@ export default function ContactForm(props) {
   }, [hasUnsavedChanges]);
 
   const header = props.newForm
-    ? <NewClientHeader />
+    ? <NewClientHeader onBack={handleBack} />
     : <ExistingClientHeader
         clientFormData={clientFormData}
         caseFormData={caseFormData}
         dateAdded={dateAdded}
         matchFormData={matchFormData}
         schedulingFormData={schedulingFormData}
+        onBack={handleBack}
       />;
 
   const attorneySection = props.attorney
@@ -1090,6 +1192,16 @@ export default function ContactForm(props) {
     <div>
       <NavBar active={"cases"} />
       {header}
+
+      {isDeletePromptOpen && (
+        <DeleteCaseModal
+          clientName={`${clientFormData.fname || ""} ${clientFormData.lname || ""}`.trim()}
+          isDeleting={isDeleting}
+          error={deleteError}
+          onCancel={() => setIsDeletePromptOpen(false)}
+          onConfirm={confirmDelete}
+        />
+      )}
 
       {unsavedPrompt && (
         <UnsavedChangesModal
@@ -1178,7 +1290,7 @@ export default function ContactForm(props) {
                       onClick={() => setIsAssignSubmenuOpen(true)}
                     >
                       <IconPersonAdd />
-                      <span className="flex-grow-1">Assign</span>
+                      <span className="flex-grow-1">Staff</span>
                       <IconChevronRight />
                     </button>
                     <div className="schedule-dropdown-divider" role="separator"></div>
@@ -1273,13 +1385,16 @@ export default function ContactForm(props) {
             <FloatInput id="addressLine1" name="addressLine1" label="Address Line 1" required value={clientFormData.addressLine1} onChange={handleClientChange} readOnly={!canEditClientInfo} />
           </div>
           <div className="col-12 col-md-6 col-xl-3">
-            <FloatInput id="city" name="city" label="City" required value={clientFormData.city} onChange={handleClientChange} readOnly={!canEditClientInfo} />
-          </div>
-          <div className="col-12 col-md-6 col-xl-3">
             <FloatInput id="addressLine2" name="addressLine2" label="Address Line 2" value={clientFormData.addressLine2} onChange={handleClientChange} readOnly={!canEditClientInfo} />
           </div>
           <div className="col-12 col-md-6 col-xl-3">
+            <FloatInput id="city" name="city" label="City" required value={clientFormData.city} onChange={handleClientChange} readOnly={!canEditClientInfo} />
+          </div>
+          <div className="col-12 col-md-6 col-xl-3">
             <FloatInput id="zipCode" name="zipCode" label="Zip Code" required value={clientFormData.zipCode} onChange={handleClientChange} readOnly={!canEditClientInfo} />
+          </div>
+          <div className="col-12 col-md-6 col-xl-6">
+            <FloatInput id="email" name="email" label="Email" required type="email" value={clientFormData.email} onChange={handleClientChange} readOnly={!canEditClientInfo} />
           </div>
           <div className="col-12 col-md-6 col-xl-3">
             <FloatInput id="phone" name="phone" label="Phone Number" required type="tel" value={clientFormData.phone} onChange={handleClientChange} readOnly={!canEditClientInfo} />
@@ -1288,21 +1403,8 @@ export default function ContactForm(props) {
             <FloatInput id="backupPhone" name="backupPhone" label="Backup Phone Number" type="tel" value={clientFormData.backupPhone} onChange={handleClientChange} readOnly={!canEditClientInfo} />
           </div>
           <div className="col-12 col-md-6 col-xl-3">
-            <FloatInput id="email" name="email" label="Email" required type="email" value={clientFormData.email} onChange={handleClientChange} readOnly={!canEditClientInfo} />
-          </div>
-          <div className="col-12 col-md-6 col-xl-3">
-            <FloatSelect id="availability" name="availability" label="Availability" value={clientFormData.availability} onChange={handleClientChange} readOnly={!canEditClientInfo}>
-              <option value="Free">Free</option>
-              <option value="Busy">Busy</option>
-            </FloatSelect>
-          </div>
-          <div className="col-12 col-md-6 col-xl-3">
             <FloatSelect id="primaryLanguage" name="primaryLanguage" label="Primary Language" required value={clientFormData.primaryLanguage} onChange={handleClientChange} readOnly={!canEditClientInfo}>
-              <option value="English">English</option>
-              <option value="Mandarin">Mandarin</option>
-              <option value="Cantonese">Cantonese</option>
-              <option value="Hokkien">Hokkien</option>
-              <option value="Other">Other (indicate in remarks)</option>
+              <LanguageOptions />
             </FloatSelect>
           </div>
           <div className="col-12 col-md-6 col-xl-3">
@@ -1325,11 +1427,7 @@ export default function ContactForm(props) {
                     onChange={(e) => handleLanguageFieldChange(idx, "language", e.target.value)}
                     readOnly={!canEditClientInfo}
                   >
-                    <option value="English">English</option>
-                    <option value="Mandarin">Mandarin</option>
-                    <option value="Cantonese">Cantonese</option>
-                    <option value="Hokkien">Hokkien</option>
-                    <option value="Other">Other (indicate in remarks)</option>
+                    <LanguageOptions />
                   </FloatSelect>
                 </div>
                 <div className="col-12 col-md-6 col-xl-3">
@@ -1376,16 +1474,9 @@ export default function ContactForm(props) {
         <Section title="Case Information">
           <div className="col-12 col-md-6 col-xl-3">
             <FloatSelect id="category" name="category" label="Category" required value={caseFormData.category} onChange={handleCaseChange}>
-              <option value="Consumer / Finance">Consumer / Finance</option>
-              <option value="Education">Education</option>
-              <option value="Employment">Employment</option>
-              <option value="Family">Family</option>
-              <option value="Juvenile">Juvenile</option>
-              <option value="Health">Health</option>
-              <option value="Housing">Housing</option>
-              <option value="Income Maintenance">Income Maintenance</option>
-              <option value="Individual Rights">Individual Rights</option>
-              <option value="Misc.">Misc.</option>
+              {CASE_CATEGORIES.map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
             </FloatSelect>
           </div>
           <div className="col-12 col-md-6 col-xl-3">
@@ -1500,7 +1591,18 @@ export default function ContactForm(props) {
 
 // ─── Headers ──────────────────────────────────────────────────────────────────
 
-function ExistingClientHeader({ clientFormData, caseFormData, dateAdded, matchFormData, schedulingFormData }) {
+// Returns to the page the form was opened from. Sits above the title on both
+// headers so it reads as "leave this case", separate from the Cancel/Save
+// pair that acts on the form's contents.
+function BackButton({ onBack }) {
+  return (
+    <button type="button" className="ef-back-btn" onClick={onBack}>
+      <IconArrowLeft /> Back
+    </button>
+  );
+}
+
+function ExistingClientHeader({ clientFormData, caseFormData, dateAdded, matchFormData, schedulingFormData, onBack }) {
   // Use the human-readable names from schedulingInfo, not the UIDs in matchInfo
   const attorneyName = schedulingFormData?.attorneyName || "";
   const legalStudentName = schedulingFormData?.legalStudentName || "";
@@ -1508,13 +1610,20 @@ function ExistingClientHeader({ clientFormData, caseFormData, dateAdded, matchFo
 
   return (
     <div className="container pt-5 pb-3 mb-0 ef-page-indent">
+      <BackButton onBack={onBack} />
       <div className="d-flex justify-content-between align-items-end">
         <div>
           <p className="mb-0 edit-form-title">
             {clientFormData.fname || "Client Name not Assigned"} {clientFormData.lname || ""}
           </p>
+          <p className="mb-0 edit-form-subtitle">
+            {caseFormData.category || "Category not Assigned"} | {clientFormData.primaryLanguage || "Language not Assigned"}
+          </p>
+          {/* Its own line — the date isn't one of the case's attributes the
+              way category and language are. A case that hasn't been saved
+              yet has no dateAdded; it's stamped on the first save. */}
           <p className="mb-1 edit-form-subtitle">
-            {caseFormData.category || "Category not Assigned"} | {clientFormData.primaryLanguage || "Language not Assigned"} | Date Added: {dateAdded.split(" ")[0]}
+            Date Added: {dateAdded ? dateAdded.split(" ")[0] : "Not saved yet"}
           </p>
           {/* Email / phone chips */}
           <div className="ef-header-meta">
@@ -1564,9 +1673,10 @@ function ExistingClientHeader({ clientFormData, caseFormData, dateAdded, matchFo
 }
 
 
-function NewClientHeader() {
+function NewClientHeader({ onBack }) {
   return (
     <div className="container pt-5 pb-3 ef-page-indent">
+      <BackButton onBack={onBack} />
       <div className="d-flex justify-content-between align-items-center">
         <h1>New Case</h1>
       </div>

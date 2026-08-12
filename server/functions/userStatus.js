@@ -31,6 +31,7 @@ exports.getUserAuthStatuses = onCall(async (request) => {
             statuses[userRecord.uid] = {
                 disabled: userRecord.disabled,
                 lastSignInTime: userRecord.metadata.lastSignInTime || null,
+                creationTime: userRecord.metadata.creationTime || null,
             };
         });
         nextPageToken = result.pageToken;

@@ -1,5 +1,5 @@
 import { NavBar } from "./NavBar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuth } from "../auth/useAuth";
@@ -8,6 +8,15 @@ import { getAvatarColor, getInitials } from "../utils/avatar";
 
 const ROLES = ["Staff", "Admin", "Attorney", "Legal Student"];
 const INVITE_ROLES = ["Staff", "Admin"];
+
+// ─── Filter / sort constants ───────────────────────────────────────────────────
+const AM_ROLE_OPTIONS = ["Staff", "Admin", "Attorney", "Legal Student"];
+const AM_STATUS_OPTIONS = ["Active", "Pending", "Disabled"];
+const AM_SORT_OPTIONS = [
+    { value: "name",      label: "Alphabetical" },
+    { value: "dateJoined", label: "Joined" },
+];
+const AM_EMPTY_FILTERS = { roles: [], statuses: [] };
 
 export default function AccessManagement() {
     const navigate = useNavigate();
@@ -41,6 +50,12 @@ export default function AccessManagement() {
     const [currentPage, setCurrentPage] = useState(1);
     const [usersPerPage, setUsersPerPage] = useState(10);
     const PAGE_SIZE_OPTIONS = [5, 10, 25, 50];
+    // Filter / sort
+    const [amFilters, setAmFilters] = useState(AM_EMPTY_FILTERS);
+    const [amSortBy, setAmSortBy] = useState("name");
+    const [amSortDir, setAmSortDir] = useState("asc");
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const filterRef = useRef(null);
 
     const db = getDatabase();
     const functions = getFunctions();
@@ -99,10 +114,25 @@ export default function AccessManagement() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Reset to the first page whenever the search or page size changes
+    // Reset to the first page whenever the search, filters, or page size changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, usersPerPage]);
+    }, [searchQuery, usersPerPage, amFilters, amSortBy, amSortDir]);
+
+    // Close filter panel on outside click or Escape
+    useEffect(() => {
+        if (!isFilterOpen) return;
+        const onPointerDown = (e) => {
+            if (filterRef.current && !filterRef.current.contains(e.target)) setIsFilterOpen(false);
+        };
+        const onKeyDown = (e) => { if (e.key === "Escape") setIsFilterOpen(false); };
+        document.addEventListener("mousedown", onPointerDown);
+        document.addEventListener("keydown", onKeyDown);
+        return () => {
+            document.removeEventListener("mousedown", onPointerDown);
+            document.removeEventListener("keydown", onKeyDown);
+        };
+    }, [isFilterOpen]);
 
     // Close the open actions dropdown when clicking outside of it
     useEffect(() => {
@@ -290,6 +320,14 @@ export default function AccessManagement() {
         return "Active";
     }
 
+    /** Formats the user's joined/created date */
+    function formatDateJoined(user) {
+        const raw = user.dateJoined || user.dateAdded || authStatusMap[user.uid]?.creationTime;
+        if (!raw) return "—";
+        const d = new Date(raw);
+        return isNaN(d.getTime()) ? raw : d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
     /** Toggle multi-select mode on/off, clearing any selection */
     function toggleMultiSelectMode() {
         setMultiSelectMode((prev) => !prev);
@@ -362,14 +400,66 @@ export default function AccessManagement() {
         setBulkLoading(false);
     }
 
-    const filteredUsers = users.filter((user) => {
-        if (!searchQuery.trim()) return true;
-        const q = searchQuery.toLowerCase();
-        const userEmail = (user.email || "").toLowerCase();
-        const userName = (user.name || "").toLowerCase();
-        const userRole = (user.role || "").toLowerCase();
-        return userEmail.includes(q) || userName.includes(q) || userRole.includes(q);
-    });
+    // Toggle a filter value in/out of its group
+    function toggleAmFilter(group, value) {
+        setAmFilters((prev) => {
+            const current = prev[group];
+            return {
+                ...prev,
+                [group]: current.includes(value)
+                    ? current.filter((v) => v !== value)
+                    : [...current, value],
+            };
+        });
+    }
+
+    function selectAmSort(value) {
+        if (amSortBy === value) {
+            setAmSortDir((d) => (d === "asc" ? "desc" : "asc"));
+        } else {
+            setAmSortBy(value);
+            setAmSortDir("asc");
+        }
+    }
+
+    // Flattened active filters for the chip row + count badge
+    const activeAmFilters = [
+        ...amFilters.roles.map((v) => ({ group: "roles", value: v })),
+        ...amFilters.statuses.map((v) => ({ group: "statuses", value: v })),
+    ];
+
+    const filteredUsers = users
+        .filter((user) => {
+            // Search
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                const userEmail = (user.email || "").toLowerCase();
+                const userName  = (user.name  || "").toLowerCase();
+                const userRole  = (user.role  || "").toLowerCase();
+                if (!userEmail.includes(q) && !userName.includes(q) && !userRole.includes(q)) return false;
+            }
+            // Role filter
+            if (amFilters.roles.length > 0 && !amFilters.roles.includes(user.role)) return false;
+            // Status filter
+            if (amFilters.statuses.length > 0) {
+                const status = getUserStatus(user.uid);
+                if (!amFilters.statuses.includes(status)) return false;
+            }
+            return true;
+        })
+        .sort((a, b) => {
+            let cmp = 0;
+            if (amSortBy === "name") {
+                const nameA = (a.name || a.email || "").toLowerCase();
+                const nameB = (b.name || b.email || "").toLowerCase();
+                cmp = nameA.localeCompare(nameB);
+            } else if (amSortBy === "dateJoined") {
+                const tA = authStatusMap[a.uid]?.lastSignInTime ? new Date(authStatusMap[a.uid].lastSignInTime).getTime() : 0;
+                const tB = authStatusMap[b.uid]?.lastSignInTime ? new Date(authStatusMap[b.uid].lastSignInTime).getTime() : 0;
+                cmp = tA - tB;
+            }
+            return amSortDir === "asc" ? cmp : -cmp;
+        });
 
     const totalUsers = filteredUsers.length;
     const totalPages = Math.max(1, Math.ceil(totalUsers / usersPerPage));
@@ -535,18 +625,147 @@ export default function AccessManagement() {
                             />
                         </div>
 
-                        <button
-                            type="button"
-                            className={`am-multiselect-btn ${multiSelectMode ? "am-multiselect-btn-active" : ""}`}
-                            onClick={toggleMultiSelectMode}
-                        >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="9 11 12 14 22 4" />
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                            </svg>
-                            <span>Multi Select</span>
-                        </button>
+                        {/* Filter button + panel — mirrors CaseLibrary's cl-filter-wrapper */}
+                        <div className="cl-filter-wrapper" ref={filterRef}>
+                            <button
+                                type="button"
+                                className="cl-filter-btn"
+                                onClick={() => setIsFilterOpen((o) => !o)}
+                                aria-expanded={isFilterOpen}
+                                aria-haspopup="true"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                                </svg>
+                                Filter
+                                {activeAmFilters.length > 0 && (
+                                    <span className="cl-filter-count">{activeAmFilters.length}</span>
+                                )}
+                            </button>
+
+                            {isFilterOpen && (
+                                <div className="cl-filter-panel">
+                                    {/* Sort */}
+                                    <div className="cl-filter-sort">
+                                        <p className="cl-filter-group-label">Sort by</p>
+                                        <div className="cl-filter-sort-row">
+                                            {AM_SORT_OPTIONS.map((opt) => (
+                                                <label className="cl-filter-option" key={opt.value}>
+                                                    <input
+                                                        type="radio"
+                                                        name="am-sort-by"
+                                                        checked={amSortBy === opt.value}
+                                                        onChange={() => selectAmSort(opt.value)}
+                                                    />
+                                                    {opt.label}
+                                                </label>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                className="cl-sort-direction-btn"
+                                                onClick={() => setAmSortDir((d) => (d === "asc" ? "desc" : "asc"))}
+                                                title={`Sorted ${amSortDir === "asc" ? "A → Z / Oldest" : "Z → A / Newest"} — click to reverse`}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                                                    <path fillRule="evenodd" d="M11.5 15a.5.5 0 0 1-.5-.5V2.707L8.354 5.354a.5.5 0 1 1-.708-.708l3.5-3.5a.5.5 0 0 1 .708 0l3.5 3.5a.5.5 0 0 1-.708.708L12 2.707V14.5a.5.5 0 0 1-.5.5zm-7-14a.5.5 0 0 1 .5.5v11.793l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 0 1 .708-.708L4 13.293V1.5a.5.5 0 0 1 .5-.5z" />
+                                                </svg>
+                                                {amSortDir === "asc" ? "A → Z" : "Z → A"}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Role filter */}
+                                    <div className="cl-filter-group">
+                                        <p className="cl-filter-group-label">Role</p>
+                                        <div className="cl-filter-options">
+                                            {AM_ROLE_OPTIONS.map((r) => (
+                                                <label className="cl-filter-option" key={r}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={amFilters.roles.includes(r)}
+                                                        onChange={() => toggleAmFilter("roles", r)}
+                                                    />
+                                                    {r}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Status filter */}
+                                    <div className="cl-filter-group">
+                                        <p className="cl-filter-group-label">Status</p>
+                                        <div className="cl-filter-options">
+                                            {AM_STATUS_OPTIONS.map((s) => (
+                                                <label className="cl-filter-option" key={s}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={amFilters.statuses.includes(s)}
+                                                        onChange={() => toggleAmFilter("statuses", s)}
+                                                    />
+                                                    {s}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Multi-select toggle — moved here from toolbar */}
+                                    <div className="cl-filter-group">
+                                        <p className="cl-filter-group-label">Bulk Actions</p>
+                                        <button
+                                            type="button"
+                                            className={`am-multiselect-btn ${multiSelectMode ? "am-multiselect-btn-active" : ""}`}
+                                            onClick={toggleMultiSelectMode}
+                                            style={{ width: "100%" }}
+                                        >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="9 11 12 14 22 4" />
+                                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                            </svg>
+                                            <span>{multiSelectMode ? "Exit Multi Select" : "Multi Select"}</span>
+                                        </button>
+                                    </div>
+
+                                    <div className="cl-filter-panel-footer">
+                                        <span className="text-muted small">
+                                            {filteredUsers.length} of {users.length} user{users.length === 1 ? "" : "s"}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="cl-filter-clear-btn"
+                                            onClick={() => setAmFilters(AM_EMPTY_FILTERS)}
+                                            disabled={activeAmFilters.length === 0}
+                                        >
+                                            Clear all
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
+
+                    {/* Active filter chips */}
+                    {activeAmFilters.length > 0 && (
+                        <div className="cl-filter-chips">
+                            {activeAmFilters.map(({ group, value }) => (
+                                <span className="cl-filter-chip" key={`${group}-${value}`}>
+                                    {value}
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleAmFilter(group, value)}
+                                        aria-label={`Remove ${value} filter`}
+                                    >
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </button>
+                                </span>
+                            ))}
+                            <button type="button" className="cl-filter-clear-btn" onClick={() => setAmFilters(AM_EMPTY_FILTERS)}>
+                                Clear all
+                            </button>
+                        </div>
+                    )}
 
                     {bulkFeedback && (
                         <div
@@ -635,6 +854,7 @@ export default function AccessManagement() {
                                         <th>Name</th>
                                         <th>Role</th>
                                         <th>Status</th>
+                                        <th>Joined</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -661,13 +881,21 @@ export default function AccessManagement() {
                                             )}
                                             <td>
                                                 <div className="am-profile">
-                                                    <span
-                                                        className="am-profile-icon"
-                                                        style={{ backgroundColor: getAvatarColor(user.uid) }}
-                                                        aria-hidden="true"
-                                                    >
-                                                        {getInitials(user.name || user.email)}
-                                                    </span>
+                                                    {user.photoURL ? (
+                                                        <img
+                                                            src={user.photoURL}
+                                                            alt=""
+                                                            className="am-profile-icon am-profile-photo"
+                                                        />
+                                                    ) : (
+                                                        <span
+                                                            className="am-profile-icon"
+                                                            style={{ backgroundColor: getAvatarColor(user.uid) }}
+                                                            aria-hidden="true"
+                                                        >
+                                                            {getInitials(user.name || user.email)}
+                                                        </span>
+                                                    )}
                                                     <div className="am-profile-copy">
                                                         <span className="am-profile-name">
                                                             {getProfileName(user)}
@@ -696,15 +924,21 @@ export default function AccessManagement() {
                                                     <span className="am-status-placeholder">—</span>
                                                 )}
                                             </td>
+                                            <td>
+                                                <span className="am-date-joined-text">
+                                                    {formatDateJoined(user)}
+                                                </span>
+                                            </td>
                                             <td className="am-actions-cell">
                                                 {isCurrentUser ? (
                                                     <button
                                                         type="button"
                                                         className="am-action-btn am-manage-profile-btn"
-                                                        title="Manage in Profile"
+                                                        title="Profile"
                                                         aria-label="Manage your account in Profile"
+                                                        onClick={() => navigate("/profile")}
                                                     >
-                                                        <span>Manage in Profile</span>
+                                                        <span>Profile</span>
                                                     </button>
                                                 ) : (
                                                     <div className="am-actions-menu">
